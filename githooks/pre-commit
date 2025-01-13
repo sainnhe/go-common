@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "==> Checking go mod..." && \
+    (go mod tidy -diff || (echo "==> Execute \"go mod tidy\" and commit again." && exit 1)) && \
+    echo "==> Checking generated code..." && \
+    (go generate ./... && git diff --exit-code -- **/api_mock.go **/wire_gen.go >/dev/null 2>&1 || (echo "==> \"go generate ./...\" has changed api_mock.go/wire_gen.go. Stage the changes and try again." && exit 1)) && \
+    echo "==> Running golangci-lint..." && \
+    golangci-lint run && \
+    echo "==> Running go test..." && \
+    go test ./...
