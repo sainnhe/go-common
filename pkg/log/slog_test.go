@@ -9,6 +9,8 @@ import (
 	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
 )
 
+const logPath = "/tmp/test/1.log"
+
 func TestSlog_NewSlog(t *testing.T) {
 	t.Parallel()
 
@@ -18,20 +20,15 @@ func TestSlog_NewSlog(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			"InvalidFilePath",
-			&log.Config{
-				"slog",
-				"debug",
-				"/invalid/file/path",
-			},
-			true,
-		},
-		{
 			"InvalidLogLevel",
 			&log.Config{
 				"slog",
 				"none",
-				"/tmp/test.log",
+				&log.File{
+					logPath,
+					1,
+					1,
+				},
 			},
 			true,
 		},
@@ -40,7 +37,11 @@ func TestSlog_NewSlog(t *testing.T) {
 			&log.Config{
 				"slog",
 				"debug",
-				"/tmp/test.log",
+				&log.File{
+					logPath,
+					1,
+					1,
+				},
 			},
 			false,
 		},
@@ -67,7 +68,11 @@ func TestSlog_Logger(t *testing.T) {
 	cfg := &log.Config{
 		"slog",
 		"debug",
-		"/tmp/test.log",
+		&log.File{
+			logPath,
+			1,
+			1,
+		},
 	}
 	logger, cleanup, err := log.NewSlog(cfg)
 	if err != nil {

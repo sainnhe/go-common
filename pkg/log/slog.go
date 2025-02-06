@@ -5,36 +5,30 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"log/slog"
 	"os"
+	"syscall"
 	"time"
 
 	"github.com/lmittmann/tint"
 	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type slogImpl struct {
-	logger         *slog.Logger
-	originalLogger *slog.Logger
-	ctx            context.Context
-	attrs          []any
+	logger *slog.Logger
+	ctx    context.Context
+	attrs  []any
 }
 
 // NewSlog initializes a slog based logger.
 func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
-	var fileMode fs.FileMode = 0666
-	logFile, err := os.OpenFile(cfg.FilePath, os.O_CREATE|os.O_RDWR|os.O_APPEND, fileMode)
-	if err != nil {
-		return
-	}
-	cleanup = func() {
-		if logFile != nil {
-			logFile.Close()
-		}
-	}
 	consoleWriter := os.Stderr
-	fileWriter := io.Writer(logFile)
+	fileWriter := &lumberjack.Logger{
+		Filename:   cfg.File.Path,
+		MaxSize:    cfg.File.MaxSizeMB,
+		MaxBackups: cfg.File.MaxBackups,
+	}
 	multiWriter := io.MultiWriter(consoleWriter, fileWriter)
 	var logLevel slog.Level
 	switch cfg.Level {
@@ -57,42 +51,48 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 	}))
 	logger = &slogImpl{
 		slogLogger,
-		slogLogger,
 		nil,
 		[]any{},
 	}
-	logger.Info("Slog initialized.", "config", cfg)
+	cleanup = func() {
+		if err := fileWriter.Close(); err != nil {
+			logger.Errorf("Close fileWriter failed: %+v", err)
+		}
+		syscall.Sync() // nolint:errcheck
+	}
 	return
 }
 
-func buildAttrs(ctx context.Context, attrs []any) []any {
-	ctxAttrs := []any{}
-	fields := ctxutil.GetContextFields(ctx)
+func (s *slogImpl) buildAttrs(attrs ...any) []any {
+	fields := ctxutil.GetContextFields(s.ctx)
+	resultAttrs := make([]any, 0, 2*len(fields)+len(s.attrs)+len(attrs))
 	for k, v := range fields {
-		ctxAttrs = append(ctxAttrs, fmt.Sprintf("ctx_%+v", k), v)
+		resultAttrs = append(resultAttrs, fmt.Sprintf("ctx_%+v", k), v)
 	}
-	return append(ctxAttrs, attrs...)
+	resultAttrs = append(resultAttrs, s.attrs...)
+	return append(resultAttrs, attrs...)
 }
 
 func (s *slogImpl) WithAttrs(attrs ...any) Logger {
 	if len(attrs) == 0 {
 		return s
 	}
-	newAttrs := []any{}
+	newAttrs := make([]any, 0, len(attrs)+len(s.attrs))
 	copy(newAttrs, s.attrs)
 	newAttrs = append(newAttrs, attrs...)
 	return &slogImpl{
-		s.originalLogger.With(buildAttrs(s.ctx, newAttrs)...),
-		s.originalLogger,
+		s.logger,
 		s.ctx,
 		newAttrs,
 	}
 }
 
 func (s *slogImpl) WithContext(ctx context.Context) Logger {
+	if ctx == nil {
+		return s
+	}
 	return &slogImpl{
-		s.originalLogger.With(buildAttrs(ctx, s.attrs)...),
-		s.originalLogger,
+		s.logger,
 		ctx,
 		s.attrs,
 	}
@@ -100,64 +100,64 @@ func (s *slogImpl) WithContext(ctx context.Context) Logger {
 
 func (s *slogImpl) Debug(msg string, attrs ...any) {
 	if s.ctx == nil {
-		s.logger.Debug(msg, attrs...)
+		s.logger.Debug(msg, s.buildAttrs(attrs...)...)
 	} else {
-		s.logger.DebugContext(s.ctx, msg, attrs...)
+		s.logger.DebugContext(s.ctx, msg, s.buildAttrs(attrs...)...)
 	}
 }
 
 func (s *slogImpl) Debugf(msg string, args ...any) {
 	if s.ctx == nil {
-		s.logger.Debug(fmt.Sprintf(msg, args...))
+		s.logger.Debug(fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	} else {
-		s.logger.DebugContext(s.ctx, fmt.Sprintf(msg, args...))
+		s.logger.DebugContext(s.ctx, fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	}
 }
 
 func (s *slogImpl) Info(msg string, attrs ...any) {
 	if s.ctx == nil {
-		s.logger.Info(msg, attrs...)
+		s.logger.Info(msg, s.buildAttrs(attrs...)...)
 	} else {
-		s.logger.InfoContext(s.ctx, msg, attrs...)
+		s.logger.InfoContext(s.ctx, msg, s.buildAttrs(attrs...)...)
 	}
 }
 
 func (s *slogImpl) Infof(msg string, args ...any) {
 	if s.ctx == nil {
-		s.logger.Info(fmt.Sprintf(msg, args...))
+		s.logger.Info(fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	} else {
-		s.logger.InfoContext(s.ctx, fmt.Sprintf(msg, args...))
+		s.logger.InfoContext(s.ctx, fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	}
 }
 
 func (s *slogImpl) Warn(msg string, attrs ...any) {
 	if s.ctx == nil {
-		s.logger.Warn(msg, attrs...)
+		s.logger.Warn(msg, s.buildAttrs(attrs...)...)
 	} else {
-		s.logger.WarnContext(s.ctx, msg, attrs...)
+		s.logger.WarnContext(s.ctx, msg, s.buildAttrs(attrs...)...)
 	}
 }
 
 func (s *slogImpl) Warnf(msg string, args ...any) {
 	if s.ctx == nil {
-		s.logger.Warn(fmt.Sprintf(msg, args...))
+		s.logger.Warn(fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	} else {
-		s.logger.WarnContext(s.ctx, fmt.Sprintf(msg, args...))
+		s.logger.WarnContext(s.ctx, fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	}
 }
 
 func (s *slogImpl) Error(msg string, attrs ...any) {
 	if s.ctx == nil {
-		s.logger.Error(msg, attrs...)
+		s.logger.Error(msg, s.buildAttrs(attrs...)...)
 	} else {
-		s.logger.ErrorContext(s.ctx, msg, attrs...)
+		s.logger.ErrorContext(s.ctx, msg, s.buildAttrs(attrs...)...)
 	}
 }
 
 func (s *slogImpl) Errorf(msg string, args ...any) {
 	if s.ctx == nil {
-		s.logger.Error(fmt.Sprintf(msg, args...))
+		s.logger.Error(fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	} else {
-		s.logger.ErrorContext(s.ctx, fmt.Sprintf(msg, args...))
+		s.logger.ErrorContext(s.ctx, fmt.Sprintf(msg, args...), s.buildAttrs()...)
 	}
 }

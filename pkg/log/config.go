@@ -6,6 +6,16 @@ type Config struct {
 	Type string `json:"type" yaml:"type"`
 	// Level is the log level. Possible values are: debug, info, warn, error
 	Level string `json:"level" yaml:"level"`
-	// FilePath is the file path to store logs.
-	FilePath string `json:"file_path" yaml:"file_path"`
+	// File is the log file config.
+	File *File `json:"file" yaml:"file"`
+}
+
+// File defines the log file config.
+type File struct {
+	// Path is the file to write logs to. Backup log files will be retained in the same directory.
+	Path string `json:"path" yaml:"path"`
+	// MaxSizeMB is the maximum size in megabytes of the log file before it gets rotated.
+	MaxSizeMB int `json:"max_size_mb" yaml:"max_size_mb"`
+	// MaxBackups is the maximum number of old log files to retain.
+	MaxBackups int `json:"max_backups" yaml:"max_backups"`
 }
