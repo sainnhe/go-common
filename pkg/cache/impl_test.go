@@ -2,13 +2,12 @@ package cache_test
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"testing"
 	"time"
 
 	"github.com/teamsorghum/go-common/pkg/cache"
 	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/teamsorghum/go-common/pkg/util"
 	"go.uber.org/mock/gomock"
 )
 
@@ -26,25 +25,9 @@ func TestProxy(t *testing.T) {
 	logger.EXPECT().Debug(gomock.Any(), gomock.Any()).AnyTimes()
 
 	// Read config in environment variables.
-	host := os.Getenv("ValkeyHost")
-	if host == "" {
-		host = "localhost"
-	}
-	portStr := os.Getenv("ValkeyPort")
-	if portStr == "" {
-		portStr = "6379"
-	}
-	port, err := strconv.Atoi(portStr)
+	cfg, err := util.LoadConfig[cache.Config]("", "")
 	if err != nil {
-		t.Fatalf("Invalid ValkeyPort: %v", err)
-	}
-	username := os.Getenv("ValkeyUsername")
-	password := os.Getenv("ValkeyPassword")
-	cfg := &cache.Config{
-		Host:     host,
-		Port:     port,
-		Username: username,
-		Password: password,
+		t.Fatalf("Load config error: %+v", err)
 	}
 
 	// Initialize Proxy
