@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/teamsorghum/go-common/pkg/constant"
 	"golang.org/x/crypto/argon2"
 )
 

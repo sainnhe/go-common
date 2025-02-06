@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	goroutinelock "github.com/sainnhe/go-common/internal/goroutine_lock"
+	goroutinelock "github.com/teamsorghum/go-common/internal/goroutine_lock"
 )
 
 // TestWaitGroup_AddAndDone tests the basic functionality of the Add and Done methods.

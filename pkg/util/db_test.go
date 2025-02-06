@@ -3,7 +3,7 @@ package util_test
 import (
 	"testing"
 
-	"github.com/sainnhe/go-common/pkg/util"
+	"github.com/teamsorghum/go-common/pkg/util"
 )
 
 func TestBuildMappedInsertSQL(t *testing.T) {

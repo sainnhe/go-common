@@ -1,4 +1,4 @@
-module github.com/sainnhe/go-common
+module github.com/teamsorghum/go-common
 
 go 1.23.3
 

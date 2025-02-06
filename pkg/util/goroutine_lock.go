@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	goroutinelock "github.com/sainnhe/go-common/internal/goroutine_lock"
+	goroutinelock "github.com/teamsorghum/go-common/internal/goroutine_lock"
 )
 
 // GoroutineLock locks goroutine to ensure that the task won't be interrupted.

@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/sainnhe/go-common/pkg/constant"
-	"github.com/sainnhe/go-common/pkg/util"
+	"github.com/teamsorghum/go-common/pkg/constant"
+	"github.com/teamsorghum/go-common/pkg/util"
 )
 
 func TestGenSalt(t *testing.T) {
