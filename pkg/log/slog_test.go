@@ -20,7 +20,7 @@ func TestSlog_NewSlog(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			"InvalidLogLevel",
+			"invalid log level",
 			&log.Config{
 				"slog",
 				"none",
@@ -33,7 +33,7 @@ func TestSlog_NewSlog(t *testing.T) {
 			true,
 		},
 		{
-			"Success",
+			"success",
 			&log.Config{
 				"slog",
 				"debug",
@@ -90,7 +90,7 @@ func TestSlog_Logger(t *testing.T) {
 		withContext context.Context
 	}{
 		{
-			"TestWithAttrs",
+			"with attrs",
 			constant.LogLevelDebug,
 			"Test WithAttrs",
 			[]any{"key2", "value2"},
@@ -99,7 +99,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"TestWithContext",
+			"with context",
 			constant.LogLevelDebug,
 			"Test WithContext",
 			[]any{"key2", "value2"},
@@ -108,7 +108,7 @@ func TestSlog_Logger(t *testing.T) {
 			ctxutil.PutContextFields(context.Background(), map[any]any{"key": "value"}),
 		},
 		{
-			"TestDebug",
+			"debug",
 			constant.LogLevelDebug,
 			"Test debug %s",
 			[]any{"key", "value"},
@@ -117,7 +117,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"TestInfo",
+			"info",
 			constant.LogLevelInfo,
 			"Test info %s",
 			[]any{"key", "value"},
@@ -126,7 +126,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"TestWarn",
+			"warn",
 			constant.LogLevelWarn,
 			"Test warn %s",
 			[]any{"key", "value"},
@@ -135,7 +135,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"TestError",
+			"error",
 			constant.LogLevelError,
 			"Test error %s",
 			[]any{"key", "value"},

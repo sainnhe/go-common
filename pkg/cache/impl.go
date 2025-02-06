@@ -21,6 +21,10 @@ const (
 
 // NewProxyImpl initializes a new cache proxy.
 func NewProxyImpl(cfg *Config, logger log.Logger) (proxy Proxy, cleanup func(), err error) {
+	if cfg == nil || logger == nil {
+		err = fmt.Errorf("nil dependency: cfg = %+v, logger = %+v", cfg, logger)
+		return
+	}
 	client, err := valkey.NewClient(valkey.ClientOption{
 		InitAddress: []string{fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)},
 		Username:    cfg.Username,

@@ -17,12 +17,12 @@ func TestContext_GetContextFields(t *testing.T) {
 		expectedFields map[any]any
 	}{
 		{
-			"EmptyFields",
+			"empty fields",
 			context.Background(),
 			map[any]any{},
 		},
 		{
-			"NonEmptyFields",
+			"non empty fields",
 			context.WithValue(context.Background(), ctxutil.ContextKey, ctxutil.ContextValueType{
 				"key": "value",
 			}),
@@ -54,19 +54,19 @@ func TestContext_PutContextFields(t *testing.T) {
 		expectedCtx context.Context
 	}{
 		{
-			"NilContext",
+			"nil context",
 			nil,
 			map[any]any{},
 			nil,
 		},
 		{
-			"NilFields",
+			"nil fields",
 			context.Background(),
 			nil,
 			context.Background(),
 		},
 		{
-			"AddKV",
+			"add kv",
 			context.Background(),
 			map[any]any{
 				"key": "value",
@@ -76,7 +76,7 @@ func TestContext_PutContextFields(t *testing.T) {
 			}),
 		},
 		{
-			"OverwriteKV",
+			"overwrite kv",
 			context.WithValue(context.Background(), ctxutil.ContextKey, ctxutil.ContextValueType{
 				"key1": "value1",
 				"key2": "value2",

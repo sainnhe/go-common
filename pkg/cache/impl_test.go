@@ -37,7 +37,7 @@ func TestProxy(t *testing.T) {
 	}
 	defer cleanup()
 
-	t.Run("TestSetAndGet", func(t *testing.T) { // nolint:paralleltest
+	t.Run("set and get", func(t *testing.T) { // nolint:paralleltest
 		key := "test:set_and_get"
 		value := "test_value"
 
@@ -68,7 +68,7 @@ func TestProxy(t *testing.T) {
 		}
 	})
 
-	t.Run("TestSetexAndExpire", func(t *testing.T) { // nolint:paralleltest
+	t.Run("setex and expire", func(t *testing.T) { // nolint:paralleltest
 		key := "test:setex_and_expire"
 		value := "test_value"
 
@@ -96,7 +96,7 @@ func TestProxy(t *testing.T) {
 		}
 	})
 
-	t.Run("TestIncrAndIncrBy", func(t *testing.T) { // nolint:paralleltest
+	t.Run("incr and incrby", func(t *testing.T) { // nolint:paralleltest
 		key := "test:incr_and_incr_by"
 
 		// Ensure key does not exist.

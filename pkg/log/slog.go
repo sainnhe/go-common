@@ -23,6 +23,10 @@ type slogImpl struct {
 
 // NewSlog initializes a slog based logger.
 func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
+	if cfg == nil {
+		err = errors.New("nil dependency")
+		return
+	}
 	consoleWriter := os.Stderr
 	fileWriter := &lumberjack.Logger{
 		Filename:   cfg.File.Path,
