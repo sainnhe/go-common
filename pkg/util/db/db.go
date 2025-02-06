@@ -1,9 +1,11 @@
-package util
+package dbutil
 
 import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/teamsorghum/go-common/pkg/log"
 )
 
 /*
@@ -15,11 +17,12 @@ Params:
   - tbl string: The table name.
   - cols map[string]string: The column names and values. For example {"username": "$1", "nickname": "'foo'",
     "create_at": "now()"}.
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildMappedInsertSQL(tbl string, cols map[string]string) string {
+func BuildMappedInsertSQL(tbl string, cols map[string]string, logger log.Logger) string {
 	s1 := []string{}
 	s2 := []string{}
 	keys := make([]string, 0, len(cols))
@@ -31,8 +34,12 @@ func BuildMappedInsertSQL(tbl string, cols map[string]string) string {
 		s1 = append(s1, k)
 		s2 = append(s2, cols[k])
 	}
-	return fmt.Sprintf("insert into %s (%s) values (%s) returning id",
+	sql := fmt.Sprintf("insert into %s (%s) values (%s) returning id",
 		tbl, strings.Join(s1, ", "), strings.Join(s2, ", "))
+	if logger != nil {
+		logger.Debugf("BuildMappedInsertSQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -44,11 +51,12 @@ Params:
   - tbl string: The table name.
   - conds map[string]string: The equal conditions. For example {"username": "$1", "nickname": "'foo'"} will be built
     into "username = $1 and nickname = 'foo'".
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildMappedQuerySQL(tbl string, conds map[string]string) string {
+func BuildMappedQuerySQL(tbl string, conds map[string]string, logger log.Logger) string {
 	s := []string{}
 	keys := make([]string, 0, len(conds))
 	for k := range conds {
@@ -58,8 +66,12 @@ func BuildMappedQuerySQL(tbl string, conds map[string]string) string {
 	for _, k := range keys {
 		s = append(s, fmt.Sprintf("%s = %s", k, conds[k]))
 	}
-	return fmt.Sprintf("select * from %s where %s",
+	sql := fmt.Sprintf("select * from %s where %s",
 		tbl, strings.Join(s, " and "))
+	if logger != nil {
+		logger.Debugf("BuildMappedQuerySQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -73,11 +85,12 @@ Params:
     "create_at": "now()"}.
   - conds map[string]string: The equal conditions. For example {"username": "$1", "nickname": "'foo'"} will be built
     into "username = $1 and nickname = 'foo'".
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildMappedUpdateSQL(tbl string, cols, conds map[string]string) string {
+func BuildMappedUpdateSQL(tbl string, cols, conds map[string]string, logger log.Logger) string {
 	colSlice := []string{}
 	colKeys := make([]string, 0, len(cols))
 	for k := range cols {
@@ -96,9 +109,13 @@ func BuildMappedUpdateSQL(tbl string, cols, conds map[string]string) string {
 	for _, k := range condKeys {
 		condSlice = append(condSlice, fmt.Sprintf("%s = %s", k, conds[k]))
 	}
-	return fmt.Sprintf("update %s set %s where %s", tbl,
+	sql := fmt.Sprintf("update %s set %s where %s", tbl,
 		strings.Join(colSlice, ", "),
 		strings.Join(condSlice, " and "))
+	if logger != nil {
+		logger.Debugf("BuildMappedUpdateSQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -110,11 +127,12 @@ Params:
   - tbl string: The table name.
   - conds map[string]string: The equal conditions. For example {"username": "$1", "nickname": "'foo'"} will be built
     into "username = $1 and nickname = 'foo'".
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildMappedDeleteSQL(tbl string, conds map[string]string) string {
+func BuildMappedDeleteSQL(tbl string, conds map[string]string, logger log.Logger) string {
 	s := []string{}
 	keys := make([]string, 0, len(conds))
 	for k := range conds {
@@ -124,8 +142,12 @@ func BuildMappedDeleteSQL(tbl string, conds map[string]string) string {
 	for _, k := range keys {
 		s = append(s, fmt.Sprintf("%s = %s", k, conds[k]))
 	}
-	return fmt.Sprintf("delete from %s where %s",
+	sql := fmt.Sprintf("delete from %s where %s",
 		tbl, strings.Join(s, " and "))
+	if logger != nil {
+		logger.Debugf("BuildMappedDeleteSQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -136,11 +158,12 @@ Note that this function will use string replace, so make sure the values passed 
 Params:
   - tbl string: The table name.
   - cols []string: The column names.
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildNamedInsertSQL(tbl string, cols []string) string {
+func BuildNamedInsertSQL(tbl string, cols []string, logger log.Logger) string {
 	s1 := []string{}
 	s2 := []string{}
 	sort.Strings(cols)
@@ -148,8 +171,12 @@ func BuildNamedInsertSQL(tbl string, cols []string) string {
 		s1 = append(s1, col)
 		s2 = append(s2, ":"+col)
 	}
-	return fmt.Sprintf("insert into %s (%s) values (%s) returning id",
+	sql := fmt.Sprintf("insert into %s (%s) values (%s) returning id",
 		tbl, strings.Join(s1, ", "), strings.Join(s2, ", "))
+	if logger != nil {
+		logger.Debugf("BuildNamedInsertSQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -161,18 +188,23 @@ Params:
   - tbl string: The table name.
   - conds []string: The equal conditions. For example ["username", "nickname"] will be built into
     "username = :username and nickname = :nickname".
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildNamedQuerySQL(tbl string, conds []string) string {
+func BuildNamedQuerySQL(tbl string, conds []string, logger log.Logger) string {
 	s := []string{}
 	sort.Strings(conds)
 	for _, cond := range conds {
 		s = append(s, fmt.Sprintf("%s = :%s", cond, cond))
 	}
-	return fmt.Sprintf("select * from %s where %s",
+	sql := fmt.Sprintf("select * from %s where %s",
 		tbl, strings.Join(s, " and "))
+	if logger != nil {
+		logger.Debugf("BuildNamedQuerySQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -185,11 +217,12 @@ Params:
   - cols []string: The column names.
   - conds []string: The equal conditions. For example ["username", "nickname"] will be built into
     "username = :username and nickname = :nickname".
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildNamedUpdateSQL(tbl string, cols, conds []string) string {
+func BuildNamedUpdateSQL(tbl string, cols, conds []string, logger log.Logger) string {
 	colSlice := []string{}
 	sort.Strings(cols)
 	for _, col := range cols {
@@ -200,9 +233,13 @@ func BuildNamedUpdateSQL(tbl string, cols, conds []string) string {
 	for _, cond := range conds {
 		condSlice = append(condSlice, fmt.Sprintf("%s = :%s", cond, cond))
 	}
-	return fmt.Sprintf("update %s set %s where %s", tbl,
+	sql := fmt.Sprintf("update %s set %s where %s", tbl,
 		strings.Join(colSlice, ", "),
 		strings.Join(condSlice, " and "))
+	if logger != nil {
+		logger.Debugf("BuildNamedUpdateSQL: %s", sql)
+	}
+	return sql
 }
 
 /*
@@ -214,16 +251,21 @@ Params:
   - tbl string: The table name.
   - conds []string: The equal conditions. For example ["username", "nickname"] will be built into
     "username = :username and nickname = :nickname".
+  - logger log.Logger: The logger.
 
 Returns:
   - string: The SQL statement.
 */
-func BuildNamedDeleteSQL(tbl string, conds []string) string {
+func BuildNamedDeleteSQL(tbl string, conds []string, logger log.Logger) string {
 	s := []string{}
 	sort.Strings(conds)
 	for _, cond := range conds {
 		s = append(s, fmt.Sprintf("%s = :%s", cond, cond))
 	}
-	return fmt.Sprintf("delete from %s where %s",
+	sql := fmt.Sprintf("delete from %s where %s",
 		tbl, strings.Join(s, " and "))
+	if logger != nil {
+		logger.Debugf("BuildNamedDeleteSQL: %s", sql)
+	}
+	return sql
 }

@@ -1,4 +1,5 @@
-package util
+// Package cryptoutil implements utilities for handling crypto.
+package cryptoutil
 
 import (
 	"crypto/rand"
@@ -8,31 +9,17 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-/*
-GenSalt generates the salt that can be used in argon2 hashing algorithm.
-
-Returns:
-  - string: The salt.
-*/
+// GenSalt generates the salt that can be used in argon2 hashing algorithm.
 func GenSalt() string {
 	salt := make([]byte, constant.CryptoSaltLen)
 	_, err := rand.Read(salt)
 	if err != nil {
-		return "j50PdipVY4og7EqJjEsZCw"
+		return constant.CryptoDefaultSalt
 	}
 	return base64.RawStdEncoding.EncodeToString(salt)
 }
 
-/*
-HashPassword calculates the hash of a given password via argon2 hashing algorithm.
-
-Params:
-  - password string: The password to be calculated.
-  - salt string: The salt to be used in argon2 hashing algorithm.
-
-Returns:
-  - string: The hash value.
-*/
+// HashPassword calculates the hash of a given password via argon2 hashing algorithm.
 func HashPassword(password, salt string) string {
 	s, _ := base64.RawStdEncoding.DecodeString(salt)
 	h := argon2.IDKey([]byte(password), s,
@@ -40,17 +27,7 @@ func HashPassword(password, salt string) string {
 	return base64.RawStdEncoding.EncodeToString(h)
 }
 
-/*
-VerifyPassword verifies if the given password matches the given hash.
-
-Params:
-  - password string: The password to be verified.
-  - salt string: The salt to be used in argon2 hashing algorithm.
-  - hash string: The password hash to be verified.
-
-Returns:
-  - bool: Passed or not.
-*/
+// VerifyPassword verifies if the given password matches the given hash.
 func VerifyPassword(password, salt, hash string) bool {
 	s, _ := base64.RawStdEncoding.DecodeString(salt)
 	h := argon2.IDKey([]byte(password), s,

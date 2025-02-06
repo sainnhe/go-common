@@ -1,18 +1,15 @@
-// Package goroutinelock_test is the test package for goroutinelock.
-package goroutinelock_test
+package goroutinelock // nolint:testpackage
 
 import (
 	"testing"
 	"time"
-
-	goroutinelock "github.com/teamsorghum/go-common/internal/goroutine_lock"
 )
 
 // TestWaitGroup_AddAndDone tests the basic functionality of the Add and Done methods.
 func TestWaitGroup_AddAndDone(t *testing.T) {
 	t.Parallel()
 
-	wg := &goroutinelock.WaitGroup{}
+	wg := &waitGroupImpl{}
 
 	// Test initial count.
 	if count := wg.GetCount(); count != 0 {
@@ -36,7 +33,7 @@ func TestWaitGroup_AddAndDone(t *testing.T) {
 func TestWaitGroup_Concurrency(t *testing.T) {
 	t.Parallel()
 
-	wg := &goroutinelock.WaitGroup{}
+	wg := &waitGroupImpl{}
 	goroutineCount := 100
 	doneCh := make(chan struct{})
 
@@ -68,7 +65,7 @@ func TestWaitGroup_Concurrency(t *testing.T) {
 func TestWaitGroup_StartShutdown(t *testing.T) {
 	t.Parallel()
 
-	wg := &goroutinelock.WaitGroup{}
+	wg := &waitGroupImpl{}
 
 	// Start shutdown.
 	wg.StartShutdown()
@@ -92,7 +89,7 @@ func TestWaitGroup_StartShutdown(t *testing.T) {
 func TestWaitGroup_AddAfterShutdown(t *testing.T) {
 	t.Parallel()
 
-	wg := &goroutinelock.WaitGroup{}
+	wg := &waitGroupImpl{}
 
 	// Start shutdown.
 	wg.StartShutdown()
@@ -114,7 +111,7 @@ func TestWaitGroup_AddAfterShutdown(t *testing.T) {
 func TestWaitGroup_GetCount(t *testing.T) {
 	t.Parallel()
 
-	wg := &goroutinelock.WaitGroup{}
+	wg := &waitGroupImpl{}
 
 	wg.Add(5)
 	if count := wg.GetCount(); count != 5 {

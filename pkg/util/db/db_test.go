@@ -1,9 +1,9 @@
-package util_test
+package dbutil_test
 
 import (
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/util"
+	dbutil "github.com/teamsorghum/go-common/pkg/util/db"
 )
 
 func TestBuildMappedInsertSQL(t *testing.T) {
@@ -43,7 +43,7 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildMappedInsertSQL(tt.tbl, tt.cols)
+			actual := dbutil.BuildMappedInsertSQL(tt.tbl, tt.cols, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -82,7 +82,7 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildMappedQuerySQL(tt.tbl, tt.conds)
+			actual := dbutil.BuildMappedQuerySQL(tt.tbl, tt.conds, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -131,7 +131,7 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildMappedUpdateSQL(tt.tbl, tt.cols, tt.conds)
+			actual := dbutil.BuildMappedUpdateSQL(tt.tbl, tt.cols, tt.conds, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -164,7 +164,7 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildMappedDeleteSQL(tt.tbl, tt.conds)
+			actual := dbutil.BuildMappedDeleteSQL(tt.tbl, tt.conds, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -203,7 +203,7 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildNamedInsertSQL(tt.tbl, tt.cols)
+			actual := dbutil.BuildNamedInsertSQL(tt.tbl, tt.cols, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -236,7 +236,7 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildNamedQuerySQL(tt.tbl, tt.conds)
+			actual := dbutil.BuildNamedQuerySQL(tt.tbl, tt.conds, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -279,7 +279,7 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildNamedUpdateSQL(tt.tbl, tt.cols, tt.conds)
+			actual := dbutil.BuildNamedUpdateSQL(tt.tbl, tt.cols, tt.conds, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}
@@ -312,7 +312,7 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			actual := util.BuildNamedDeleteSQL(tt.tbl, tt.conds)
+			actual := dbutil.BuildNamedDeleteSQL(tt.tbl, tt.conds, nil)
 			if actual != tt.expected {
 				t.Errorf("expected %q, got %q", tt.expected, actual)
 			}

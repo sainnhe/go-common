@@ -1,17 +1,17 @@
-package util_test
+package cryptoutil_test
 
 import (
 	"encoding/base64"
 	"testing"
 
 	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/util"
+	cryptoutil "github.com/teamsorghum/go-common/pkg/util/crypto"
 )
 
 func TestGenSalt(t *testing.T) {
 	t.Parallel()
 
-	salt := util.GenSalt()
+	salt := cryptoutil.GenSalt()
 	if salt == "" {
 		t.Error("Generated salt is empty")
 	}
@@ -27,15 +27,15 @@ func TestHashPassword(t *testing.T) {
 	t.Parallel()
 
 	password := "password123"
-	salt := util.GenSalt()
-	hash := util.HashPassword(password, salt)
+	salt := cryptoutil.GenSalt()
+	hash := cryptoutil.HashPassword(password, salt)
 
 	if hash == "" {
 		t.Error("Generated hash is empty")
 	}
 
 	// The hash should be consistent given the same password and salt
-	hash2 := util.HashPassword(password, salt)
+	hash2 := cryptoutil.HashPassword(password, salt)
 	if hash != hash2 {
 		t.Error("Hashes do not match for the same password and salt")
 	}
@@ -51,16 +51,16 @@ func TestVerifyPassword(t *testing.T) {
 	t.Parallel()
 
 	password := "password123"
-	salt := util.GenSalt()
-	hash := util.HashPassword(password, salt)
+	salt := cryptoutil.GenSalt()
+	hash := cryptoutil.HashPassword(password, salt)
 
 	// Test with the correct password
-	if !util.VerifyPassword(password, salt, hash) {
+	if !cryptoutil.VerifyPassword(password, salt, hash) {
 		t.Error("Correct password did not pass verification")
 	}
 
 	// Test with an incorrect password
-	if util.VerifyPassword("wrongpassword", salt, hash) {
+	if cryptoutil.VerifyPassword("wrongpassword", salt, hash) {
 		t.Error("Incorrect password passed verification")
 	}
 }
