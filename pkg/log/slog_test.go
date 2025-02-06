@@ -9,7 +9,7 @@ import (
 	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
 )
 
-const logPath = "/tmp/test/1.log"
+const logPath = "/tmp/teamsorghum-go-common-test/log/1.log"
 
 func TestSlog_NewSlog(t *testing.T) {
 	t.Parallel()

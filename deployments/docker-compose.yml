@@ -1,0 +1,13 @@
+version: "2.2"
+
+services:
+  cache:
+    image: valkey/valkey:alpine
+    container_name: teamsorghum-go-common-cache
+    restart: always
+    mem_limit: 500M
+    cpus: 0.8
+    ports:
+      - 6379:6379
+    volumes:
+      - ${DATA_PATH}/cache:/data

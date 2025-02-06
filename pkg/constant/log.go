@@ -10,6 +10,10 @@ const (
 	// LogLevelError is the error log level.
 	LogLevelError = "error"
 
-	// LogAttrError defines log attribute for error.
+	// LogAttrError defines the log attribute for error.
 	LogAttrError = "error"
+	// LogAttrAPI defines the log attribute for API.
+	LogAttrAPI = "api"
+	// LogAttrMethod defines the log attribute for method.
+	LogAttrMethod = "method"
 )
