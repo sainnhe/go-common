@@ -9,4 +9,7 @@ const (
 	LogLevelWarn = "warn"
 	// LogLevelError is the error log level.
 	LogLevelError = "error"
+
+	// LogAttrError defines log attribute for error.
+	LogAttrError = "error"
 )
