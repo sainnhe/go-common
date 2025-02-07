@@ -20,7 +20,7 @@ func TestTrafficLimitService(t *testing.T) {
 
 	ctx := context.Background()
 
-	cacheConfig, err := util.LoadConfig[cache.Config]("", "")
+	cacheConfig, err := util.LoadConfigFile[cache.Config]("", "")
 	if cacheConfig == nil || err != nil {
 		t.Fatalf("Load config failed: config = %+v, err = %+v", cacheConfig, err)
 	}

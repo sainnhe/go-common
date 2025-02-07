@@ -15,11 +15,11 @@ func TestToStr(t *testing.T) {
 		input any
 		want  string
 	}{
-		{name: "int", input: 42, want: "42"},
-		{name: "string", input: "hello", want: "hello"},
-		{name: "struct", input: struct{ Name string }{Name: "Alice"}, want: "{Name:Alice}"},
-		{name: "slice", input: []int{1, 2, 3}, want: "[1 2 3]"},
-		{name: "map", input: map[string]int{"a": 1, "b": 2}, want: "map[a:1 b:2]"},
+		{name: "Int", input: 42, want: "42"},
+		{name: "String", input: "hello", want: "hello"},
+		{name: "Struct", input: struct{ Name string }{Name: "Alice"}, want: "{Name:Alice}"},
+		{name: "Slice", input: []int{1, 2, 3}, want: "[1 2 3]"},
+		{name: "Map", input: map[string]int{"a": 1, "b": 2}, want: "map[a:1 b:2]"},
 	}
 
 	for _, tt := range tests {
@@ -47,27 +47,27 @@ func TestMergeErrors(t *testing.T) {
 		want error
 	}{
 		{
-			name: "all nil errors",
+			name: "All nil errors",
 			errs: []error{nil, nil, nil},
 			want: nil,
 		},
 		{
-			name: "no errors",
+			name: "No errors",
 			errs: []error{},
 			want: nil,
 		},
 		{
-			name: "single error",
+			name: "Single error",
 			errs: []error{err1},
 			want: err1,
 		},
 		{
-			name: "multiple errors",
+			name: "Multiple errors",
 			errs: []error{err1, err2, err3},
 			want: errors.New("error one; error two; error three"),
 		},
 		{
-			name: "mixed nil and non-nil errors",
+			name: "Mixed nil and non-nil errors",
 			errs: []error{err1, nil, err3},
 			want: errors.New("error one; error three"),
 		},
@@ -107,7 +107,7 @@ func TestConcurrentRun(t *testing.T) {
 		want        []Result
 	}{
 		{
-			name:        "simple addition",
+			name:        "Simple addition",
 			concurrency: 2,
 			args:        []Arg{1, 2, 3, 4, 5},
 			f: func(a Arg) Result {
@@ -116,7 +116,7 @@ func TestConcurrentRun(t *testing.T) {
 			want: []Result{11, 12, 13, 14, 15},
 		},
 		{
-			name:        "square numbers",
+			name:        "Square numbers",
 			concurrency: 3,
 			args:        []Arg{1, 2, 3, 4},
 			f: func(a Arg) Result {

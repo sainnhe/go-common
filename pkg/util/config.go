@@ -12,8 +12,8 @@ import (
 )
 
 /*
-LoadConfig loads config by read config file and environment variables, where environment variables takes precedence over
-config file.
+LoadConfigFile loads config by read a config file and environment variables, where environment variables takes
+precedence over config file.
 
 Params:
   - path string: The file path. If this argument is empty, only environment variables will be used.
@@ -24,7 +24,7 @@ Returns:
   - *Config: The config structure.
   - error: The error occurred during the execution. Nil will be returned if no error occurrs.
 */
-func LoadConfig[Config any](path string, typ string) (*Config, error) {
+func LoadConfigFile[Config any](path string, typ string) (*Config, error) {
 	var cfg Config
 
 	if len(path) > 0 && len(typ) > 0 {

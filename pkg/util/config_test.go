@@ -52,7 +52,7 @@ func TestLoadConfig(t *testing.T) {
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfig[Config](path, "json")
+		cfg, err := util.LoadConfigFile[Config](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -82,7 +82,7 @@ debug: true
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfig[Config](path, "yaml")
+		cfg, err := util.LoadConfigFile[Config](path, "yaml")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -123,7 +123,7 @@ debug: true
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfig[Config](path, "json")
+		cfg, err := util.LoadConfigFile[Config](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -140,7 +140,7 @@ debug: true
 	})
 
 	t.Run("Load with no file path and type", func(t *testing.T) {
-		cfg, err := util.LoadConfig[Config]("", "")
+		cfg, err := util.LoadConfigFile[Config]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -162,7 +162,7 @@ debug: true
 		defer os.Unsetenv("CONFIG_PORT")
 		defer os.Unsetenv("CONFIG_DEBUG")
 
-		cfg, err := util.LoadConfig[Config]("", "")
+		cfg, err := util.LoadConfigFile[Config]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -179,7 +179,7 @@ debug: true
 	})
 
 	t.Run("Non-existent file", func(t *testing.T) {
-		_, err := util.LoadConfig[Config]("nonexistent.json", "json")
+		_, err := util.LoadConfigFile[Config]("nonexistent.json", "json")
 		if err == nil {
 			t.Errorf("Expected error for non-existent file, got nil")
 		}
@@ -199,7 +199,7 @@ debug: true
 		}
 		defer cleanup()
 
-		_, err = util.LoadConfig[Config](path, "json")
+		_, err = util.LoadConfigFile[Config](path, "json")
 		if err == nil {
 			t.Errorf("Expected error for invalid JSON content, got nil")
 		}
@@ -217,7 +217,7 @@ debug: yes
 		}
 		defer cleanup()
 
-		_, err = util.LoadConfig[Config](path, "yaml")
+		_, err = util.LoadConfigFile[Config](path, "yaml")
 		if err == nil {
 			t.Errorf("Expected error for invalid YAML content, got nil")
 		}
@@ -230,7 +230,7 @@ debug: yes
 		}
 		defer cleanup()
 
-		_, err = util.LoadConfig[Config](path, "txt")
+		_, err = util.LoadConfigFile[Config](path, "txt")
 		if err == nil {
 			t.Errorf("Expected error for unsupported file type, got nil")
 		}
@@ -263,7 +263,7 @@ debug: yes
 		os.Setenv("NESTED_URL", "http://env.com")
 		defer os.Unsetenv("NESTED_URL")
 
-		cfg, err := util.LoadConfig[ConfigWithNested](path, "json")
+		cfg, err := util.LoadConfigFile[ConfigWithNested](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -291,7 +291,7 @@ debug: yes
 		defer os.Unsetenv("CONFIG_NAME")
 		defer os.Unsetenv("CONFIG_PORT")
 
-		cfg, err := util.LoadConfig[ConfigWithPointer]("", "")
+		cfg, err := util.LoadConfigFile[ConfigWithPointer]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -328,7 +328,7 @@ debug: yes
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfig[ConfigWithSlice](path, "json")
+		cfg, err := util.LoadConfigFile[ConfigWithSlice](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -351,7 +351,7 @@ debug: yes
 			Fn func()   `json:"-"`
 		}
 
-		cfg, err := util.LoadConfig[ConfigUnsupported]("", "")
+		cfg, err := util.LoadConfigFile[ConfigUnsupported]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}

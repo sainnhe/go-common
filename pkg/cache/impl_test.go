@@ -25,7 +25,7 @@ func TestProxy(t *testing.T) {
 	logger.EXPECT().Debug(gomock.Any(), gomock.Any()).AnyTimes()
 
 	// Read config in environment variables.
-	cfg, err := util.LoadConfig[cache.Config]("", "")
+	cfg, err := util.LoadConfigFile[cache.Config]("", "")
 	if err != nil {
 		t.Fatalf("Load config error: %+v", err)
 	}
