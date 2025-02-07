@@ -28,7 +28,7 @@ func TestToStr(t *testing.T) {
 
 			got := util.ToStr(tt.input)
 			if got != tt.want {
-				t.Errorf("ToStr(%v) = %q; want %q", tt.input, got, tt.want)
+				t.Errorf("Want %q, got %q", tt.want, got)
 			}
 		})
 	}
@@ -79,12 +79,12 @@ func TestMergeErrors(t *testing.T) {
 
 			got := util.MergeErrors(tt.errs...)
 			if tt.want == nil && got != nil {
-				t.Errorf("%s: expected nil error, got %q", tt.name, got)
+				t.Errorf("Want nil error, got %q", got)
 			} else if tt.want != nil {
 				if got == nil {
-					t.Errorf("%s: expected error %q, got nil", tt.name, tt.want)
+					t.Errorf("Want error %q, got nil", tt.want)
 				} else if got.Error() != tt.want.Error() {
-					t.Errorf("%s: expected error %q, got %q", tt.name, tt.want.Error(), got.Error())
+					t.Errorf("Want error %q, got %q", tt.want.Error(), got.Error())
 				}
 			}
 		})
@@ -130,13 +130,13 @@ func TestConcurrentRun(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			results := util.ConcurrentRun(tt.concurrency, tt.args, tt.f)
-			if len(results) != len(tt.want) {
-				t.Fatalf("%s: Expected results of length %d, got %d", tt.name, len(tt.want), len(results))
+			got := util.ConcurrentRun(tt.concurrency, tt.args, tt.f)
+			if len(got) != len(tt.want) {
+				t.Fatalf("Want results of length %d, got %d", len(tt.want), len(got))
 			}
-			for i, res := range results {
+			for i, res := range got {
 				if res != tt.want[i] {
-					t.Errorf("%s: Expected result[%d] = %v, got %v", tt.name, i, tt.want[i], res)
+					t.Errorf("Want result[%d] = %v, got %v", i, tt.want[i], res)
 				}
 			}
 		})

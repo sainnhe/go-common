@@ -52,19 +52,19 @@ func TestLoadConfig(t *testing.T) {
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfigFile[Config](path, "json")
+		got, err := util.LoadConfigFile[Config](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &Config{
+		want := &Config{
 			Name:  "testapp",
 			Port:  8080,
 			Debug: false,
 		}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want %+v, got %+v", want, got)
 		}
 	})
 
@@ -82,19 +82,19 @@ debug: true
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfigFile[Config](path, "yaml")
+		got, err := util.LoadConfigFile[Config](path, "yaml")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &Config{
+		want := &Config{
 			Name:  "yamlapp",
 			Port:  7070,
 			Debug: true,
 		}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want %+v, got %+v", want, got)
 		}
 	})
 
@@ -123,32 +123,32 @@ debug: true
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfigFile[Config](path, "json")
+		got, err := util.LoadConfigFile[Config](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &Config{
+		want := &Config{
 			Name:  "envapp",
 			Port:  9090,
 			Debug: true,
 		}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want %+v, got %+v", want, got)
 		}
 	})
 
 	t.Run("Load with no file path and type", func(t *testing.T) {
-		cfg, err := util.LoadConfigFile[Config]("", "")
+		got, err := util.LoadConfigFile[Config]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &Config{}
+		want := &Config{}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected empty config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want config %+v, got %+v", want, got)
 		}
 	})
 
@@ -162,26 +162,26 @@ debug: true
 		defer os.Unsetenv("CONFIG_PORT")
 		defer os.Unsetenv("CONFIG_DEBUG")
 
-		cfg, err := util.LoadConfigFile[Config]("", "")
+		got, err := util.LoadConfigFile[Config]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &Config{
+		want := &Config{
 			Name:  "envonly",
 			Port:  6060,
 			Debug: false,
 		}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want %+v, got %+v", want, got)
 		}
 	})
 
 	t.Run("Non-existent file", func(t *testing.T) {
 		_, err := util.LoadConfigFile[Config]("nonexistent.json", "json")
 		if err == nil {
-			t.Errorf("Expected error for non-existent file, got nil")
+			t.Errorf("Want error for non-existent file, got nil")
 		}
 	})
 
@@ -201,7 +201,7 @@ debug: true
 
 		_, err = util.LoadConfigFile[Config](path, "json")
 		if err == nil {
-			t.Errorf("Expected error for invalid JSON content, got nil")
+			t.Errorf("Want error for invalid JSON content, got nil")
 		}
 	})
 
@@ -219,7 +219,7 @@ debug: yes
 
 		_, err = util.LoadConfigFile[Config](path, "yaml")
 		if err == nil {
-			t.Errorf("Expected error for invalid YAML content, got nil")
+			t.Errorf("Want error for invalid YAML content, got nil")
 		}
 	})
 
@@ -232,7 +232,7 @@ debug: yes
 
 		_, err = util.LoadConfigFile[Config](path, "txt")
 		if err == nil {
-			t.Errorf("Expected error for unsupported file type, got nil")
+			t.Errorf("Want error for unsupported file type, got nil")
 		}
 	})
 
@@ -263,20 +263,20 @@ debug: yes
 		os.Setenv("NESTED_URL", "http://env.com")
 		defer os.Unsetenv("NESTED_URL")
 
-		cfg, err := util.LoadConfigFile[ConfigWithNested](path, "json")
+		got, err := util.LoadConfigFile[ConfigWithNested](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &ConfigWithNested{
+		want := &ConfigWithNested{
 			Name: "testapp",
 			Nested: Nested{
 				URL: "http://env.com",
 			},
 		}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected nested config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want nested config %+v, got %+v", want, got)
 		}
 	})
 
@@ -291,19 +291,19 @@ debug: yes
 		defer os.Unsetenv("CONFIG_NAME")
 		defer os.Unsetenv("CONFIG_PORT")
 
-		cfg, err := util.LoadConfigFile[ConfigWithPointer]("", "")
+		got, err := util.LoadConfigFile[ConfigWithPointer]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expectedName := "pointerapp"
-		expectedPort := 5050
+		wantName := "pointerapp"
+		wantPort := 5050
 
-		if cfg.Name == nil || *cfg.Name != expectedName {
-			t.Errorf("Expected Name %v, got %v", expectedName, *cfg.Name)
+		if got.Name == nil || *got.Name != wantName {
+			t.Errorf("Want Name %v, got %v", wantName, *got.Name)
 		}
-		if cfg.Port == nil || *cfg.Port != expectedPort {
-			t.Errorf("Expected Port %v, got %v", expectedPort, *cfg.Port)
+		if got.Port == nil || *got.Port != wantPort {
+			t.Errorf("Want Port %v, got %v", wantPort, *got.Port)
 		}
 	})
 
@@ -328,20 +328,20 @@ debug: yes
 		}
 		defer cleanup()
 
-		cfg, err := util.LoadConfigFile[ConfigWithSlice](path, "json")
+		got, err := util.LoadConfigFile[ConfigWithSlice](path, "json")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		expected := &ConfigWithSlice{
+		want := &ConfigWithSlice{
 			Names: []string{"app1", "app2"},
 			Ports: []int{8000, 8001},
 			Meta:  map[string]int{"version": 1, "build": 100},
 			Flags: map[string]bool{"debug": true, "verbose": false},
 		}
 
-		if !reflect.DeepEqual(cfg, expected) {
-			t.Errorf("Expected config %+v, got %+v", expected, cfg)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Want %+v, got %+v", want, got)
 		}
 	})
 
@@ -351,13 +351,13 @@ debug: yes
 			Fn func()   `json:"-"`
 		}
 
-		cfg, err := util.LoadConfigFile[ConfigUnsupported]("", "")
+		got, err := util.LoadConfigFile[ConfigUnsupported]("", "")
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
 
-		if cfg.Ch != nil || cfg.Fn != nil {
-			t.Errorf("Expected unsupported fields to remain nil, got %+v", cfg)
+		if got.Ch != nil || got.Fn != nil {
+			t.Errorf("Want unsupported fields to remain nil, got %+v", got)
 		}
 	})
 }

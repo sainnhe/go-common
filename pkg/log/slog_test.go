@@ -15,12 +15,12 @@ func TestSlog_NewSlog(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name      string
-		cfg       *log.Config
-		expectErr bool
+		name    string
+		cfg     *log.Config
+		wantErr bool
 	}{
 		{
-			"invalid log level",
+			"Invalid log level",
 			&log.Config{
 				"slog",
 				"none",
@@ -33,7 +33,7 @@ func TestSlog_NewSlog(t *testing.T) {
 			true,
 		},
 		{
-			"success",
+			"Success",
 			&log.Config{
 				"slog",
 				"debug",
@@ -55,8 +55,8 @@ func TestSlog_NewSlog(t *testing.T) {
 			if err == nil {
 				defer cleanup()
 			}
-			if tt.expectErr != (err != nil) {
-				t.Fatalf("Expect error: %+v, get %+v", tt.expectErr, err)
+			if tt.wantErr != (err != nil) {
+				t.Fatalf("Want error: %+v, got %+v", tt.wantErr, err)
 			}
 		})
 	}
@@ -90,7 +90,7 @@ func TestSlog_Logger(t *testing.T) {
 		withContext context.Context
 	}{
 		{
-			"with attrs",
+			"With attrs",
 			constant.LogLevelDebug,
 			"Test WithAttrs",
 			[]any{"key2", "value2"},
@@ -99,7 +99,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"with context",
+			"With context",
 			constant.LogLevelDebug,
 			"Test WithContext",
 			[]any{"key2", "value2"},
@@ -108,7 +108,7 @@ func TestSlog_Logger(t *testing.T) {
 			ctxutil.PutFields(context.Background(), map[any]any{"key": "value"}),
 		},
 		{
-			"debug",
+			"Debug",
 			constant.LogLevelDebug,
 			"Test debug %s",
 			[]any{"key", "value"},
@@ -117,7 +117,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"info",
+			"Info",
 			constant.LogLevelInfo,
 			"Test info %s",
 			[]any{"key", "value"},
@@ -126,7 +126,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"warn",
+			"Warn",
 			constant.LogLevelWarn,
 			"Test warn %s",
 			[]any{"key", "value"},
@@ -135,7 +135,7 @@ func TestSlog_Logger(t *testing.T) {
 			nil,
 		},
 		{
-			"error",
+			"Error",
 			constant.LogLevelError,
 			"Test error %s",
 			[]any{"key", "value"},

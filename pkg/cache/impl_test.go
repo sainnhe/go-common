@@ -37,7 +37,7 @@ func TestProxy(t *testing.T) {
 	}
 	defer cleanup()
 
-	t.Run("set and get", func(t *testing.T) { // nolint:paralleltest
+	t.Run("Set and Get", func(t *testing.T) { // nolint:paralleltest
 		key := "test:set_and_get"
 		value := "test_value"
 
@@ -50,9 +50,9 @@ func TestProxy(t *testing.T) {
 		if result.Error() != nil {
 			t.Errorf("Get failed: %v", result.Error())
 		} else {
-			val, err := result.AsBytes()
-			if err != nil || string(val) != value {
-				t.Errorf("Expect %s, get %s, err = %+v", value, string(val), err)
+			gotValue, gotErr := result.AsBytes()
+			if gotErr != nil || string(gotValue) != value {
+				t.Errorf("Want %s, got %s, err = %+v", value, string(gotValue), gotErr)
 			}
 		}
 
@@ -68,7 +68,7 @@ func TestProxy(t *testing.T) {
 		}
 	})
 
-	t.Run("setex and expire", func(t *testing.T) { // nolint:paralleltest
+	t.Run("Setex and Expire", func(t *testing.T) { // nolint:paralleltest
 		key := "test:setex_and_expire"
 		value := "test_value"
 
@@ -81,9 +81,9 @@ func TestProxy(t *testing.T) {
 		if result.Error() != nil {
 			t.Errorf("Get failed: %v", result.Error())
 		} else {
-			val, err := result.AsBytes()
-			if err != nil || string(val) != value {
-				t.Errorf("Expect %s, get %s, err = %+v", value, string(val), err)
+			gotValue, gotErr := result.AsBytes()
+			if gotErr != nil || string(gotValue) != value {
+				t.Errorf("Want %s, got %s, err = %+v", value, string(gotValue), gotErr)
 			}
 		}
 
@@ -96,26 +96,26 @@ func TestProxy(t *testing.T) {
 		}
 	})
 
-	t.Run("incr and incrby", func(t *testing.T) { // nolint:paralleltest
+	t.Run("Incr and Incrby", func(t *testing.T) { // nolint:paralleltest
 		key := "test:incr_and_incr_by"
 
 		// Ensure key does not exist.
 		_ = proxy.Delete(ctx, key)
 
-		val, err := proxy.Incr(ctx, key)
+		got, err := proxy.Incr(ctx, key)
 		if err != nil {
 			t.Errorf("Incr failed: %v", err)
 		}
-		if val != 1 {
-			t.Errorf("Expect 1, get %d", val)
+		if got != 1 {
+			t.Errorf("Want 1, got %d", got)
 		}
 
-		val, err = proxy.IncrBy(ctx, key, 5)
+		got, err = proxy.IncrBy(ctx, key, 5)
 		if err != nil {
 			t.Errorf("IncrBy failed: %v", err)
 		}
-		if val != 6 {
-			t.Errorf("Expect 6, get %d", val)
+		if got != 6 {
+			t.Errorf("Want 6, got %d", got)
 		}
 
 		// Cleanup

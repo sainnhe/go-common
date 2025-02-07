@@ -11,21 +11,21 @@ func TestWaitGroup_AddAndDone(t *testing.T) {
 
 	wg := &waitGroupImpl{}
 
-	// Test initial count.
-	if count := wg.GetCount(); count != 0 {
-		t.Errorf("Expected initial count to be 0, got %d", count)
+	// Test initial got.
+	if got := wg.GetCount(); got != 0 {
+		t.Errorf("Want initial count to be 0, got %d", got)
 	}
 
 	// Increase count.
 	wg.Add(1)
-	if count := wg.GetCount(); count != 1 {
-		t.Errorf("Expected count after Add(1) to be 1, got %d", count)
+	if got := wg.GetCount(); got != 1 {
+		t.Errorf("Want count after Add(1) to be 1, got %d", got)
 	}
 
 	// Decrease count.
 	wg.Done()
-	if count := wg.GetCount(); count != 0 {
-		t.Errorf("Expected count after Done() to be 0, got %d", count)
+	if got := wg.GetCount(); got != 0 {
+		t.Errorf("Want count after Done() to be 0, got %d", got)
 	}
 }
 
@@ -55,9 +55,9 @@ func TestWaitGroup_Concurrency(t *testing.T) {
 
 	<-doneCh
 
-	// Verify that the count has returned to zero.
-	if count := wg.GetCount(); count != 0 {
-		t.Errorf("Expected count to be 0 after all goroutines done, got %d", count)
+	// Verify that the got has returned to zero.
+	if got := wg.GetCount(); got != 0 {
+		t.Errorf("Want count to be 0 after all goroutines done, got %d", got)
 	}
 }
 
@@ -72,16 +72,16 @@ func TestWaitGroup_StartShutdown(t *testing.T) {
 
 	// Attempt to add count after shutdown.
 	wg.Add(1)
-	if count := wg.GetCount(); count != 1 {
-		t.Errorf("Expected count to be 1 after Add(1) post-shutdown, got %d", count)
+	if got := wg.GetCount(); got != 1 {
+		t.Errorf("Want count to be 1 after Add(1) post-shutdown, got %d", got)
 	}
 
 	// Should receive warning logs. We can't capture log content here, but we can ensure the code path is executed.
 
 	// Complete work.
 	wg.Done()
-	if count := wg.GetCount(); count != 0 {
-		t.Errorf("Expected count to be 0 after Done(), got %d", count)
+	if got := wg.GetCount(); got != 0 {
+		t.Errorf("Want count to be 0 after Done(), got %d", got)
 	}
 }
 
@@ -96,14 +96,14 @@ func TestWaitGroup_AddAfterShutdown(t *testing.T) {
 
 	// Add count after shutdown.
 	wg.Add(1)
-	if count := wg.GetCount(); count != 1 {
-		t.Errorf("Expected count to be 1 after Add(1) post-shutdown, got %d", count)
+	if got := wg.GetCount(); got != 1 {
+		t.Errorf("Want count to be 1 after Add(1) post-shutdown, got %d", got)
 	}
 
 	// Complete work.
 	wg.Done()
-	if count := wg.GetCount(); count != 0 {
-		t.Errorf("Expected count to be 0 after Done(), got %d", count)
+	if got := wg.GetCount(); got != 0 {
+		t.Errorf("Want count to be 0 after Done(), got %d", got)
 	}
 }
 
@@ -114,12 +114,12 @@ func TestWaitGroup_GetCount(t *testing.T) {
 	wg := &waitGroupImpl{}
 
 	wg.Add(5)
-	if count := wg.GetCount(); count != 5 {
-		t.Errorf("Expected count to be 5, got %d", count)
+	if got := wg.GetCount(); got != 5 {
+		t.Errorf("Want count to be 5, got %d", got)
 	}
 
 	wg.Done()
-	if count := wg.GetCount(); count != 4 {
-		t.Errorf("Expected count to be 4 after Done(), got %d", count)
+	if got := wg.GetCount(); got != 4 {
+		t.Errorf("Want count to be 4 after Done(), got %d", got)
 	}
 }

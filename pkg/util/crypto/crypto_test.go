@@ -11,15 +11,15 @@ import (
 func TestGenSalt(t *testing.T) {
 	t.Parallel()
 
-	salt := cryptoutil.GenSalt()
-	if salt == "" {
+	got := cryptoutil.GenSalt()
+	if got == "" {
 		t.Error("Generated salt is empty")
 	}
 
 	// Check if the length of the salt matches the expected length
-	expectedSaltLen := base64.RawStdEncoding.EncodedLen(constant.CryptoSaltLen)
-	if len(salt) != expectedSaltLen {
-		t.Errorf("Expected salt length %d, got %d", expectedSaltLen, len(salt))
+	wantSaltLen := base64.RawStdEncoding.EncodedLen(constant.CryptoSaltLen)
+	if len(got) != wantSaltLen {
+		t.Errorf("Want salt length %d, got %d", wantSaltLen, len(got))
 	}
 }
 
@@ -28,22 +28,22 @@ func TestHashPassword(t *testing.T) {
 
 	password := "password123"
 	salt := cryptoutil.GenSalt()
-	hash := cryptoutil.HashPassword(password, salt)
+	got := cryptoutil.HashPassword(password, salt)
 
-	if hash == "" {
+	if got == "" {
 		t.Error("Generated hash is empty")
 	}
 
 	// The hash should be consistent given the same password and salt
-	hash2 := cryptoutil.HashPassword(password, salt)
-	if hash != hash2 {
+	got2 := cryptoutil.HashPassword(password, salt)
+	if got != got2 {
 		t.Error("Hashes do not match for the same password and salt")
 	}
 
 	// Check if the length of the hash matches the expected length
-	expectedHashLen := base64.RawStdEncoding.EncodedLen(int(constant.CryptoArgon2KeyLen))
-	if len(hash) != expectedHashLen {
-		t.Errorf("Expected hash length %d, got %d", expectedHashLen, len(hash))
+	wantHashLen := base64.RawStdEncoding.EncodedLen(int(constant.CryptoArgon2KeyLen))
+	if len(got) != wantHashLen {
+		t.Errorf("Want hash length %d, got %d", wantHashLen, len(got))
 	}
 }
 

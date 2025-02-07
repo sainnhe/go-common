@@ -59,7 +59,7 @@ func TestTrafficLimitService(t *testing.T) {
 	}
 	defer cleanup()
 
-	t.Run("rate limit", func(t *testing.T) { // nolint:paralleltest
+	t.Run("Rate limit", func(t *testing.T) { // nolint:paralleltest
 		wg := &sync.WaitGroup{}
 		errCount := int32(0)
 		sleepUntilNextSecond()

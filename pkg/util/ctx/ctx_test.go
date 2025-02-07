@@ -12,17 +12,17 @@ func TestContext_GetContextFields(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		ctx            context.Context
-		expectedFields map[any]any
+		name string
+		ctx  context.Context
+		want map[any]any
 	}{
 		{
-			"empty fields",
+			"Empty fields",
 			context.Background(),
 			map[any]any{},
 		},
 		{
-			"non empty fields",
+			"Non empty fields",
 			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
 				"key": "value",
 			}),
@@ -36,9 +36,9 @@ func TestContext_GetContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			fields := ctxutil.GetFields(tt.ctx)
-			if !reflect.DeepEqual(fields, tt.expectedFields) {
-				t.Fatalf("expectedFields = %+v, get %+v", tt.expectedFields, fields)
+			got := ctxutil.GetFields(tt.ctx)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("Want %+v, got %+v", tt.want, got)
 			}
 		})
 	}
@@ -48,25 +48,25 @@ func TestContext_PutContextFields(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name        string
-		ctx         context.Context
-		fields      map[any]any
-		expectedCtx context.Context
+		name   string
+		ctx    context.Context
+		fields map[any]any
+		want   context.Context
 	}{
 		{
-			"nil context",
+			"Nil context",
 			nil,
 			map[any]any{},
 			nil,
 		},
 		{
-			"nil fields",
+			"Nil fields",
 			context.Background(),
 			nil,
 			context.Background(),
 		},
 		{
-			"add kv",
+			"Add kv",
 			context.Background(),
 			map[any]any{
 				"key": "value",
@@ -76,7 +76,7 @@ func TestContext_PutContextFields(t *testing.T) {
 			}),
 		},
 		{
-			"overwrite kv",
+			"Overwrite kv",
 			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
 				"key1": "value1",
 				"key2": "value2",
@@ -96,16 +96,16 @@ func TestContext_PutContextFields(t *testing.T) {
 			t.Parallel()
 
 			ctx := ctxutil.PutFields(tt.ctx, tt.fields)
-			if tt.expectedCtx == nil && ctx != nil {
-				t.Fatalf("Expect ctx to be nil, get %+v", ctx)
+			if tt.want == nil && ctx != nil {
+				t.Fatalf("Want ctx to be nil, got %+v", ctx)
 			}
-			expectedFields := ctxutil.GetFields(tt.expectedCtx)
-			actualFields := ctxutil.GetFields(ctx)
-			if len(expectedFields) == 0 && len(actualFields) == 0 {
+			want := ctxutil.GetFields(tt.want)
+			got := ctxutil.GetFields(ctx)
+			if len(want) == 0 && len(got) == 0 {
 				return
 			}
-			if !reflect.DeepEqual(expectedFields, actualFields) {
-				t.Fatalf("expectedCtx == %+v, actualFields == %+v", expectedFields, actualFields)
+			if !reflect.DeepEqual(want, got) {
+				t.Fatalf("Want %+v, got %+v", want, got)
 			}
 		})
 	}
