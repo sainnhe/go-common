@@ -105,7 +105,7 @@ func TestSlog_Logger(t *testing.T) {
 			[]any{"key2", "value2"},
 			[]any{},
 			[]any{"key1", "value1"},
-			ctxutil.PutContextFields(context.Background(), map[any]any{"key": "value"}),
+			ctxutil.PutFields(context.Background(), map[any]any{"key": "value"}),
 		},
 		{
 			"debug",

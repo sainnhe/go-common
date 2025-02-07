@@ -23,7 +23,7 @@ func TestContext_GetContextFields(t *testing.T) {
 		},
 		{
 			"non empty fields",
-			context.WithValue(context.Background(), ctxutil.ContextKey, ctxutil.ContextValueType{
+			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
 				"key": "value",
 			}),
 			map[any]any{
@@ -36,7 +36,7 @@ func TestContext_GetContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			fields := ctxutil.GetContextFields(tt.ctx)
+			fields := ctxutil.GetFields(tt.ctx)
 			if !reflect.DeepEqual(fields, tt.expectedFields) {
 				t.Fatalf("expectedFields = %+v, get %+v", tt.expectedFields, fields)
 			}
@@ -71,20 +71,20 @@ func TestContext_PutContextFields(t *testing.T) {
 			map[any]any{
 				"key": "value",
 			},
-			context.WithValue(context.Background(), ctxutil.ContextKey, ctxutil.ContextValueType{
+			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
 				"key": "value",
 			}),
 		},
 		{
 			"overwrite kv",
-			context.WithValue(context.Background(), ctxutil.ContextKey, ctxutil.ContextValueType{
+			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
 				"key1": "value1",
 				"key2": "value2",
 			}),
 			map[any]any{
 				"key1": "aloha",
 			},
-			context.WithValue(context.Background(), ctxutil.ContextKey, ctxutil.ContextValueType{
+			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
 				"key1": "aloha",
 				"key2": "value2",
 			}),
@@ -95,12 +95,12 @@ func TestContext_PutContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := ctxutil.PutContextFields(tt.ctx, tt.fields)
+			ctx := ctxutil.PutFields(tt.ctx, tt.fields)
 			if tt.expectedCtx == nil && ctx != nil {
 				t.Fatalf("Expect ctx to be nil, get %+v", ctx)
 			}
-			expectedFields := ctxutil.GetContextFields(tt.expectedCtx)
-			actualFields := ctxutil.GetContextFields(ctx)
+			expectedFields := ctxutil.GetFields(tt.expectedCtx)
+			actualFields := ctxutil.GetFields(ctx)
 			if len(expectedFields) == 0 && len(actualFields) == 0 {
 				return
 			}

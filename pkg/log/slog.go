@@ -68,7 +68,7 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 }
 
 func (s *slogImpl) buildAttrs(attrs ...any) []any {
-	fields := ctxutil.GetContextFields(s.ctx)
+	fields := ctxutil.GetFields(s.ctx)
 	resultAttrs := make([]any, 0, 2*len(fields)+len(s.attrs)+len(attrs))
 	for k, v := range fields {
 		resultAttrs = append(resultAttrs, fmt.Sprintf("ctx_%+v", k), v)

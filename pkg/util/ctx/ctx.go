@@ -5,37 +5,37 @@ import (
 	"context"
 )
 
-type contextKeyType struct{}
+type keyType struct{}
 
-// ContextKey is the key of the context fields that will be printed in logger.
-var ContextKey = contextKeyType{}
+// Key is the key of the context fields that will be printed in logger.
+var Key = keyType{}
 
-// ContextValueType is the value of the context fields that will be printed in logger.
-type ContextValueType map[any]any
+// ValueType is the value of the context fields that will be printed in logger.
+type ValueType map[any]any
 
-// GetContextFields get the log fields.
-func GetContextFields(ctx context.Context) map[any]any {
+// GetFields get the log fields.
+func GetFields(ctx context.Context) map[any]any {
 	if ctx == nil {
 		return map[any]any{}
 	}
-	v, ok := ctx.Value(ContextKey).(ContextValueType)
+	v, ok := ctx.Value(Key).(ValueType)
 	if !ok {
 		return map[any]any{}
 	}
 	return map[any]any(v)
 }
 
-// PutContextFields puts the log fields and returns a new context.
-func PutContextFields(ctx context.Context, fields map[any]any) context.Context {
+// PutFields puts the log fields and returns a new context.
+func PutFields(ctx context.Context, fields map[any]any) context.Context {
 	if ctx == nil {
 		return nil
 	}
-	currentFields := GetContextFields(ctx)
+	currentFields := GetFields(ctx)
 	if currentFields == nil {
 		currentFields = map[any]any{}
 	}
 	for k, v := range fields {
 		currentFields[k] = v
 	}
-	return context.WithValue(ctx, ContextKey, ContextValueType(currentFields))
+	return context.WithValue(ctx, Key, ValueType(currentFields))
 }
