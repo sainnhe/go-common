@@ -16,8 +16,9 @@ LoadConfig loads config by read config file and environment variables, where env
 config file.
 
 Params:
-  - path string: The file path.
-  - typ string: The file type. Possible values are "json" and "yaml"
+  - path string: The file path. If this argument is empty, only environment variables will be used.
+  - typ string: The file type. Possible values are "json" and "yaml". If this argument is empty, only environment
+    variables will be used.
 
 Returns:
   - *Config: The config structure.
@@ -78,28 +79,42 @@ func overrideWithEnvVars(s interface{}) {
 		structField := typ.Field(i)
 		envTag := structField.Tag.Get("env")
 
-		if field.CanSet() {
-			switch field.Kind() {
-			case reflect.Struct:
-				// Recursively override nested struct fields.
-				overrideWithEnvVars(field.Addr().Interface())
-			case reflect.Ptr:
-				// Initialize nil pointers before overriding.
-				if field.IsNil() {
-					field.Set(reflect.New(field.Type().Elem()))
-				}
-				overrideWithEnvVars(field.Interface())
-			default:
-				if envTag == "" {
-					continue
-				}
-				envVal := os.Getenv(envTag)
-				if envVal == "" {
-					continue
-				}
-				setFieldValue(field, envVal)
+		if !field.CanSet() {
+			continue
+		}
+
+		// Handle environment variable override if envTag is set
+		if envTag != "" {
+			envVal := os.Getenv(envTag)
+			if envVal != "" {
+				setField(field, envVal)
+				continue
 			}
 		}
+
+		// Now handle recursive structs or pointers
+		switch field.Kind() {
+		case reflect.Struct:
+			overrideWithEnvVars(field.Addr().Interface())
+		case reflect.Ptr:
+			if !field.IsNil() {
+				elem := field.Elem()
+				if elem.Kind() == reflect.Struct {
+					overrideWithEnvVars(field.Interface())
+				}
+			}
+		}
+	}
+}
+
+func setField(field reflect.Value, envVal string) {
+	if field.Kind() == reflect.Ptr {
+		if field.IsNil() {
+			field.Set(reflect.New(field.Type().Elem()))
+		}
+		setFieldValue(field.Elem(), envVal)
+	} else {
+		setFieldValue(field, envVal)
 	}
 }
 
