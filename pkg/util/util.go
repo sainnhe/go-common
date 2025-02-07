@@ -3,6 +3,7 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -17,6 +18,11 @@ func Recover() {
 	if err := recover(); err != nil && log.DefaultLogger != nil {
 		log.DefaultLogger.Errorf("Recovered from panic. Error = %+v\n%s", err, debug.Stack())
 	}
+}
+
+// ToStr converts a variable to a string.
+func ToStr(v any) string {
+	return fmt.Sprintf("%+v", v)
 }
 
 /*
