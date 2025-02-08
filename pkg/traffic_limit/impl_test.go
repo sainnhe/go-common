@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/teamsorghum/go-common/pkg/cache"
+	loadconfig "github.com/teamsorghum/go-common/pkg/load_config"
 	"github.com/teamsorghum/go-common/pkg/log"
 	trafficlimit "github.com/teamsorghum/go-common/pkg/traffic_limit"
-	"github.com/teamsorghum/go-common/pkg/util"
 	"go.uber.org/mock/gomock"
 )
 
@@ -20,7 +20,7 @@ func TestTrafficLimitService(t *testing.T) {
 
 	ctx := context.Background()
 
-	cacheConfig, err := util.LoadConfigFile[cache.Config]("", "")
+	cacheConfig, err := loadconfig.Load[cache.Config]("", "")
 	if cacheConfig == nil || err != nil {
 		t.Fatalf("Load config failed: config = %+v, err = %+v", cacheConfig, err)
 	}

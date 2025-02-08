@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/teamsorghum/go-common/pkg/cache"
+	loadconfig "github.com/teamsorghum/go-common/pkg/load_config"
 	"github.com/teamsorghum/go-common/pkg/log"
-	"github.com/teamsorghum/go-common/pkg/util"
 	"go.uber.org/mock/gomock"
 )
 
@@ -25,7 +25,7 @@ func TestProxy(t *testing.T) {
 	logger.EXPECT().Debug(gomock.Any(), gomock.Any()).AnyTimes()
 
 	// Read config in environment variables.
-	cfg, err := util.LoadConfigFile[cache.Config]("", "")
+	cfg, err := loadconfig.Load[cache.Config]("", "")
 	if err != nil {
 		t.Fatalf("Load config error: %+v", err)
 	}

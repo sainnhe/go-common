@@ -13,7 +13,6 @@ Requirements:
 
 Test:
 
-1. `cp .env.example .env` and edit `.env`, then `source .env`.
-2. `cd deployments && cp .env.example .env` and edit `.env`, then `source .env`.
-3. Launch containers `cd deployments && docker compose up -d`.
-4. Now you can run tests via `go test` command.
+1. `cd deployments && cp .env.example .env` and edit `.env`, then `source .env`.
+2. Launch containers `cd deployments && docker compose up -d`.
+3. Now you can run tests via `go test` command.
