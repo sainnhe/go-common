@@ -1,5 +1,4 @@
-// Package cryptoutil implements utilities for handling crypto.
-package cryptoutil
+package util
 
 import (
 	"crypto/rand"

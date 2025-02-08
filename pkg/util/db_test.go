@@ -1,9 +1,9 @@
-package dbutil_test
+package util_test
 
 import (
 	"testing"
 
-	dbutil "github.com/teamsorghum/go-common/pkg/util/db"
+	"github.com/teamsorghum/go-common/pkg/util"
 )
 
 func TestBuildMappedInsertSQL(t *testing.T) {
@@ -45,7 +45,7 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedInsertSQL(tt.tbl, tt.cols, nil)
+			got := util.BuildMappedInsertSQL(tt.tbl, tt.cols, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -86,7 +86,7 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedQuerySQL(tt.tbl, tt.conds, nil)
+			got := util.BuildMappedQuerySQL(tt.tbl, tt.conds, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -137,7 +137,7 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedUpdateSQL(tt.tbl, tt.cols, tt.conds, nil)
+			got := util.BuildMappedUpdateSQL(tt.tbl, tt.cols, tt.conds, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -172,7 +172,7 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedDeleteSQL(tt.tbl, tt.conds, nil)
+			got := util.BuildMappedDeleteSQL(tt.tbl, tt.conds, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -213,7 +213,7 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedInsertSQL(tt.tbl, tt.cols, nil)
+			got := util.BuildNamedInsertSQL(tt.tbl, tt.cols, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -248,7 +248,7 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedQuerySQL(tt.tbl, tt.conds, nil)
+			got := util.BuildNamedQuerySQL(tt.tbl, tt.conds, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -293,7 +293,7 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedUpdateSQL(tt.tbl, tt.cols, tt.conds, nil)
+			got := util.BuildNamedUpdateSQL(tt.tbl, tt.cols, tt.conds, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -328,7 +328,7 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedDeleteSQL(tt.tbl, tt.conds, nil)
+			got := util.BuildNamedDeleteSQL(tt.tbl, tt.conds, nil)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
