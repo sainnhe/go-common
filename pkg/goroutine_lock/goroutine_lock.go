@@ -3,7 +3,6 @@ package goroutinelock
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"github.com/teamsorghum/go-common/pkg/log"
@@ -31,7 +30,9 @@ func Wait(timeout time.Duration) {
 	go func() {
 		wg.StartShutdown()
 		if count := wg.GetCount(); count > 0 {
-			slog.Info("Waiting for goroutine locks to be released...", "remain", count)
+			if log.DefaultLogger != nil {
+				log.DefaultLogger.Info("Waiting for goroutine locks to be released...", "remain", count)
+			}
 			wg.Wait()
 		}
 		close(wgDone)
