@@ -14,8 +14,22 @@ import (
 )
 
 /*
-Load loads config by read a config file and environment variables, where environment variables takes precedence over
-config file.
+Load loads config by read a config file and environment variables.
+
+This function supports 4 struct tags:
+
+ 1. "json": Used to mark json fields.
+ 2. "yaml": Used to mark yaml fields.
+ 3. "env": Used to mark environment variable fields. The value is parsed using strconv.
+ 4. "default": Used to mark the default value of a field. The value is parsed using strconv.
+
+The parsing process is as follows:
+
+ 1. Initialize a struct literal and assign default values to corresponding fields.
+ 2. Read JSON or YAML file and unmarshal the content to this struct literal. This will override the default values
+    assigned in the previous step.
+ 3. Read the environment variables and assign it to corresponding fields. This will override the values assigned in the
+    previous step.
 
 Params:
   - path string: The file path. If this argument is empty, only environment variables will be used.
