@@ -12,9 +12,10 @@ import (
 )
 
 type proxyImpl struct {
-	c   cache.Proxy
-	l   log.Logger
-	cfg *Config
+	c      cache.Proxy
+	l      log.Logger
+	cfg    *Config
+	prefix string
 }
 
 // NewProxyImpl initializes a new traffic limit proxy.
@@ -27,6 +28,7 @@ func NewProxyImpl(cfg *Config, logger log.Logger, cacheProxy cache.Proxy) (proxy
 		cacheProxy,
 		logger.WithAttrs(constant.LogAttrAPI, "trafficlimit"),
 		cfg,
+		"*",
 	}, func() {}, nil
 }
 
@@ -90,9 +92,13 @@ func (p *proxyImpl) PeakShaving(ctx context.Context) error {
 	return errors.New("peak shaving hits max retry")
 }
 
+func (p *proxyImpl) SetPrefix(prefix string) {
+	p.prefix = prefix
+}
+
 func (p *proxyImpl) getKey(operation string) string {
 	return fmt.Sprintf("%s_%s_%d",
-		p.cfg.Prefix,
+		p.prefix,
 		operation,
 		time.Now().Unix())
 }

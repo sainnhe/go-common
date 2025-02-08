@@ -2,8 +2,6 @@ package trafficlimit
 
 // Config defines the traffic limit config model.
 type Config struct {
-	// Prefix is the prefix of the key used in cache, which could be used to describe the current business.
-	Prefix string `json:"prefix" yaml:"prefix" env:"TrafficLimitPrefix"`
 	// RateLimit is the rate limit config.
 	RateLimit *RateLimit `json:"rate_limit" yaml:"rate_limit"`
 	// PeakShaving is the peak shaving config.

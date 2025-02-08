@@ -25,7 +25,6 @@ func TestTrafficLimitService(t *testing.T) {
 		t.Fatalf("Load config failed: config = %+v, err = %+v", cacheConfig, err)
 	}
 	trafficLimitConfig := &trafficlimit.Config{
-		Prefix: "test",
 		RateLimit: &trafficlimit.RateLimit{
 			Enable: true,
 			QPS:    1,
@@ -58,6 +57,7 @@ func TestTrafficLimitService(t *testing.T) {
 		t.Fatalf("Init traffic limit proxy failed: %+v", err)
 	}
 	defer cleanup()
+	proxy.SetPrefix("test")
 
 	t.Run("Rate limit", func(t *testing.T) { // nolint:paralleltest
 		wg := &sync.WaitGroup{}

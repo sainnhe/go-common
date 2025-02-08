@@ -14,4 +14,6 @@ type Proxy interface {
 	// PeakShaving shaves the peak traffic. If the current traffic exceeds the specified QPS, sleep for a while and
 	// retry for N times. If the traffic still exceeds the specified QPS, return failure.
 	PeakShaving(ctx context.Context) error
+	// SetPrefix sets prefix for keys used in cache, which can be used to describe current business and avoid conflicts.
+	SetPrefix(prefix string)
 }
