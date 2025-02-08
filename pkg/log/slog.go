@@ -180,3 +180,21 @@ func (s *slogImpl) Errorf(msg string, args ...any) {
 		s.logger.ErrorContext(s.ctx, fmt.Sprintf(msg, args...))
 	}
 }
+
+func (s *slogImpl) Fatal(msg string, attrs ...any) {
+	if s.ctx == nil {
+		s.logger.Error(msg, attrs...)
+	} else {
+		s.logger.ErrorContext(s.ctx, msg, attrs...)
+	}
+	os.Exit(1)
+}
+
+func (s *slogImpl) Fatalf(msg string, args ...any) {
+	if s.ctx == nil {
+		s.logger.Error(fmt.Sprintf(msg, args...))
+	} else {
+		s.logger.ErrorContext(s.ctx, fmt.Sprintf(msg, args...))
+	}
+	os.Exit(1)
+}

@@ -4,7 +4,7 @@ package log
 type Config struct {
 	// Type is the type of logger. Currently support "slog".
 	Type string `json:"type" yaml:"type" env:"LogType" default:"slog"`
-	// Level is the log level. Possible values are: debug, info, warn, error
+	// Level is the log level. Possible values are: debug, info, warn, error and fatal
 	Level string `json:"level" yaml:"level" env:"LogLevel" default:"debug"`
 	// File is the log file config.
 	File *File `json:"file" yaml:"file"`

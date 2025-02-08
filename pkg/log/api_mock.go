@@ -203,6 +203,88 @@ func (c *MockLoggerErrorfCall) DoAndReturn(f func(string, ...any)) *MockLoggerEr
 	return c
 }
 
+// Fatal mocks base method.
+func (m *MockLogger) Fatal(msg string, attrs ...any) {
+	m.ctrl.T.Helper()
+	varargs := []any{msg}
+	for _, a := range attrs {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Fatal", varargs...)
+}
+
+// Fatal indicates an expected call of Fatal.
+func (mr *MockLoggerMockRecorder) Fatal(msg any, attrs ...any) *MockLoggerFatalCall {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{msg}, attrs...)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fatal", reflect.TypeOf((*MockLogger)(nil).Fatal), varargs...)
+	return &MockLoggerFatalCall{Call: call}
+}
+
+// MockLoggerFatalCall wrap *gomock.Call
+type MockLoggerFatalCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockLoggerFatalCall) Return() *MockLoggerFatalCall {
+	c.Call = c.Call.Return()
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockLoggerFatalCall) Do(f func(string, ...any)) *MockLoggerFatalCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockLoggerFatalCall) DoAndReturn(f func(string, ...any)) *MockLoggerFatalCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// Fatalf mocks base method.
+func (m *MockLogger) Fatalf(msg string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []any{msg}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Fatalf", varargs...)
+}
+
+// Fatalf indicates an expected call of Fatalf.
+func (mr *MockLoggerMockRecorder) Fatalf(msg any, args ...any) *MockLoggerFatalfCall {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{msg}, args...)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fatalf", reflect.TypeOf((*MockLogger)(nil).Fatalf), varargs...)
+	return &MockLoggerFatalfCall{Call: call}
+}
+
+// MockLoggerFatalfCall wrap *gomock.Call
+type MockLoggerFatalfCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockLoggerFatalfCall) Return() *MockLoggerFatalfCall {
+	c.Call = c.Call.Return()
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockLoggerFatalfCall) Do(f func(string, ...any)) *MockLoggerFatalfCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockLoggerFatalfCall) DoAndReturn(f func(string, ...any)) *MockLoggerFatalfCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Info mocks base method.
 func (m *MockLogger) Info(msg string, attrs ...any) {
 	m.ctrl.T.Helper()

@@ -33,6 +33,10 @@ type Logger interface {
 	Error(msg string, attrs ...any)
 	// Errorf outputs a error level message of a formatted string.
 	Errorf(msg string, args ...any)
+	// Fatal outputs a fatal level message with additional attributes.
+	Fatal(msg string, attrs ...any)
+	// Fatalf outputs a fatal level message of a formatted string.
+	Fatalf(msg string, args ...any)
 }
 
 // ProvideLogger provides logger dependency and sets it as the default logger.
