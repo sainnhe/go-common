@@ -2,6 +2,6 @@
 package constant
 
 const (
-	// TrafficLimitExpireSec is the expiration time for valkey keys used in traffic limit in second.
-	TrafficLimitExpireSec = 3
+	// TrafficLimitExpirationTimeSec is the expiration time for valkey keys used in traffic limit in seconds.
+	TrafficLimitExpirationTimeSec = 3
 )
