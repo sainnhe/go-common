@@ -11,6 +11,8 @@ import (
 	"github.com/teamsorghum/go-common/pkg/log"
 )
 
+const expirationTimeSec = 3
+
 type proxyImpl struct {
 	c      cache.Proxy
 	l      log.Logger
@@ -42,7 +44,7 @@ func (p *proxyImpl) RateLimit(ctx context.Context) error {
 	}
 	reply, err := p.c.Incr(ctx, key)
 	go func() {
-		if err := p.c.Expire(ctx, key, constant.TrafficLimitExpirationTimeSec); err != nil {
+		if err := p.c.Expire(ctx, key, expirationTimeSec); err != nil {
 			l.Error("Expire key failed.", constant.LogAttrError, err)
 		}
 	}()
@@ -77,7 +79,7 @@ func (p *proxyImpl) PeakShaving(ctx context.Context) error {
 			return err
 		}
 		go func() {
-			if err := p.c.Expire(ctx, key, constant.TrafficLimitExpirationTimeSec); err != nil {
+			if err := p.c.Expire(ctx, key, expirationTimeSec); err != nil {
 				tmpLogger.Error("Expire key failed.", constant.LogAttrError, err)
 			}
 		}()
