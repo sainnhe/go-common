@@ -1,15 +1,8 @@
 //go:generate mockgen -typed -write_package_comment=false -source=api.go -destination=api_mock.go -package log
 
-// Package log defines a common logging interface.
 package log
 
-import (
-	"context"
-	"errors"
-)
-
-// DefaultLogger is the default logger.
-var DefaultLogger Logger
+import "context"
 
 // Logger defines a common logging interface.
 type Logger interface {
@@ -37,16 +30,4 @@ type Logger interface {
 	Fatal(msg string, attrs ...any)
 	// Fatalf outputs a fatal level message of a formatted string.
 	Fatalf(msg string, args ...any)
-}
-
-// ProvideLogger provides logger dependency and sets it as the default logger.
-func ProvideLogger(cfg *Config) (logger Logger, cleanup func(), err error) {
-	switch cfg.Type {
-	case "slog":
-		logger, cleanup, err = NewSlog(cfg)
-	default:
-		err = errors.New("invalid logger type")
-	}
-	DefaultLogger = logger
-	return
 }

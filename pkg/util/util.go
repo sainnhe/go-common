@@ -12,8 +12,8 @@ import (
 
 // Recover allow the program to recover from panic and print logs. It should be used via defer.
 func Recover() {
-	if err := recover(); err != nil && log.DefaultLogger != nil {
-		log.DefaultLogger.Errorf("Recovered from panic. Error = %+v\n%s", err, debug.Stack())
+	if err := recover(); err != nil {
+		log.GetDefault().Errorf("Recovered from panic: %+v\n%s", err, debug.Stack())
 	}
 }
 

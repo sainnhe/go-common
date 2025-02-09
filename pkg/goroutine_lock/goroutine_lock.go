@@ -27,22 +27,19 @@ func Wait(timeout time.Duration) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	wgDone := make(chan struct{})
+	logger := log.GetDefault()
 	go func() {
 		wg.StartShutdown()
 		if count := wg.GetCount(); count > 0 {
-			if log.DefaultLogger != nil {
-				log.DefaultLogger.Info("Waiting for goroutine locks to be released...", "remain", count)
-			}
+			logger.Info("Waiting for goroutine locks to be released...", "remain", count)
 			wg.Wait()
 		}
 		close(wgDone)
 	}()
 	select {
 	case <-ctx.Done():
-		if log.DefaultLogger != nil {
-			log.DefaultLogger.Warn("The timeout period has been exceeded, however there are still some goroutine"+
-				"locks that have not been released.", "remain", wg.GetCount())
-		}
+		logger.Warn("The timeout period has been exceeded, however there are still some goroutine"+
+			"locks that have not been released.", "remain", wg.GetCount())
 	case <-wgDone:
 	}
 }

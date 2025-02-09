@@ -30,30 +30,30 @@ func TestLog_NewLog(t *testing.T) {
 			false,
 		},
 		{
-			"Invalid log level",
-			&log.Config{
-				"slog",
-				"none",
-				&log.File{
-					logPath,
-					1,
-					1,
-				},
-			},
-			true,
-		},
-		{
 			"Slog",
 			&log.Config{
 				"slog",
 				"debug",
-				&log.File{
+				&log.Slog{
 					logPath,
 					1,
 					1,
 				},
 			},
 			false,
+		},
+		{
+			"Invalid log level",
+			&log.Config{
+				"slog",
+				"none",
+				&log.Slog{
+					logPath,
+					1,
+					1,
+				},
+			},
+			true,
 		},
 	}
 
@@ -92,7 +92,7 @@ func TestLog_Logger(t *testing.T) {
 			&log.Config{
 				"slog",
 				"debug",
-				&log.File{
+				&log.Slog{
 					logPath,
 					1,
 					1,

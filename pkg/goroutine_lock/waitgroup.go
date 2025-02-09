@@ -19,8 +19,8 @@ type waitGroupImpl struct {
 func (w *waitGroupImpl) Add(delta int) {
 	atomic.AddInt64(&w.count, int64(delta))
 	w.WaitGroup.Add(delta)
-	if atomic.LoadUint32(&w.shutdownStarted) > 0 && log.DefaultLogger != nil {
-		log.DefaultLogger.Warn("Shutdown started but a new goroutine lock is added")
+	if atomic.LoadUint32(&w.shutdownStarted) > 0 {
+		log.GetDefault().Warn("Shutdown started but a new goroutine lock is added")
 	}
 }
 
@@ -28,12 +28,12 @@ func (w *waitGroupImpl) Add(delta int) {
 func (w *waitGroupImpl) Done() {
 	atomic.AddInt64(&w.count, -1)
 	w.WaitGroup.Done()
-	if atomic.LoadUint32(&w.shutdownStarted) > 0 && log.DefaultLogger != nil {
+	if atomic.LoadUint32(&w.shutdownStarted) > 0 {
 		count := w.GetCount()
 		if count > 0 {
-			log.DefaultLogger.Info("Waiting for goroutine locks to be released...", "remain", count)
+			log.GetDefault().Info("Waiting for goroutine locks to be released...", "remain", count)
 		} else {
-			log.DefaultLogger.Info("All goroutine locks have been released")
+			log.GetDefault().Info("All goroutine locks have been released")
 		}
 	}
 }

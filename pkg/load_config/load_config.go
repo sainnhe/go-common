@@ -80,12 +80,7 @@ func Load[Config any](path string, typ string) (*Config, error) {
 	// Override with environment variables.
 	overrideWithEnvVars(&cfg)
 
-	// Print log if possible.
-	if log.DefaultLogger != nil {
-		log.DefaultLogger.Infof("Loaded config: %+v", cfg)
-	} else {
-		fmt.Printf("Loaded config: %+v\n", cfg)
-	}
+	log.GetDefault().Infof("Loaded config: %+v", cfg)
 
 	return &cfg, nil
 }

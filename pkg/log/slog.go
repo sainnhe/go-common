@@ -22,6 +22,22 @@ type slogImpl struct {
 	attrs          []any
 }
 
+// NewLight initializes a light logger.
+func NewLight() Logger {
+	slogLogger := slog.New(tint.NewHandler(os.Stderr, &tint.Options{
+		AddSource:  true,
+		Level:      slog.LevelDebug,
+		TimeFormat: time.StampMilli,
+		NoColor:    false,
+	}))
+	return &slogImpl{
+		slogLogger,
+		slogLogger,
+		nil,
+		[]any{},
+	}
+}
+
 // NewSlog initializes a slog based logger.
 func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 	if cfg == nil {
@@ -30,9 +46,9 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 	}
 	consoleWriter := os.Stderr
 	fileWriter := &lumberjack.Logger{
-		Filename:   cfg.File.Path,
-		MaxSize:    cfg.File.MaxSizeMB,
-		MaxBackups: cfg.File.MaxBackups,
+		Filename:   cfg.Slog.Path,
+		MaxSize:    cfg.Slog.MaxSizeMB,
+		MaxBackups: cfg.Slog.MaxBackups,
 	}
 	multiWriter := io.MultiWriter(consoleWriter, fileWriter)
 	var logLevel slog.Level
