@@ -1,4 +1,8 @@
-This repository contains my personal implementation of some commonly used libraries.
+## About
+
+This repository contains the implementations of some commonly used libraries.
+
+## Development
 
 Requirements:
 
