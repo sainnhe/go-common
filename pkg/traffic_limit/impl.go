@@ -9,6 +9,8 @@ import (
 	"github.com/teamsorghum/go-common/pkg/cache"
 	"github.com/teamsorghum/go-common/pkg/constant"
 	"github.com/teamsorghum/go-common/pkg/log"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/metric"
 )
 
 const expirationTimeSec = 3
@@ -18,6 +20,7 @@ type proxyImpl struct {
 	l      log.Logger
 	cfg    *Config
 	prefix string
+	meter  metric.Meter
 }
 
 // NewProxyImpl initializes a new traffic limit proxy.
@@ -31,6 +34,7 @@ func NewProxyImpl(cfg *Config, logger log.Logger, cacheProxy cache.Proxy) (proxy
 		logger.WithAttrs(constant.LogAttrAPI, "trafficlimit"),
 		cfg,
 		"*",
+		otel.Meter("github.com/teamsorghum/go-common/pkg/traffic_limit"),
 	}, func() {}, nil
 }
 
@@ -53,6 +57,13 @@ func (p *proxyImpl) RateLimit(ctx context.Context) error {
 		return err
 	}
 	if reply > p.cfg.RateLimit.QPS {
+		mc, errMeter := p.meter.Int64Counter("trafficlimit.ratelimit.failed",
+			metric.WithDescription("Rate limit failed"),
+			metric.WithUnit("1"))
+		if errMeter != nil {
+			l.Error("Get meter failed.", constant.LogAttrError, errMeter.Error())
+		}
+		mc.Add(ctx, 1)
 		l.Error("Exceeds rate limit.", "reply", reply)
 		return errors.New("exceeds rate limit")
 	}
@@ -90,6 +101,13 @@ func (p *proxyImpl) PeakShaving(ctx context.Context) error {
 		tmpLogger.Warn("Reach peak shaving limit, sleeping...", "reply", reply)
 		time.Sleep(time.Duration(p.cfg.PeakShaving.AttemptIntervalMs) * time.Millisecond)
 	}
+	mc, errMeter := p.meter.Int64Counter("trafficlimit.peakshaving.failed",
+		metric.WithDescription("Peak shaving failed"),
+		metric.WithUnit("1"))
+	if errMeter != nil {
+		l.Error("Get meter failed.", constant.LogAttrError, errMeter.Error())
+	}
+	mc.Add(ctx, 1)
 	l.Error("Peak shaving hits max retry.", "cost_time_ms", time.Now().UnixMilli()-startTime)
 	return errors.New("peak shaving hits max retry")
 }

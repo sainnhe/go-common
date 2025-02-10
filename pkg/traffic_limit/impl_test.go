@@ -12,11 +12,20 @@ import (
 	loadconfig "github.com/teamsorghum/go-common/pkg/load_config"
 	"github.com/teamsorghum/go-common/pkg/log"
 	trafficlimit "github.com/teamsorghum/go-common/pkg/traffic_limit"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"go.uber.org/mock/gomock"
 )
 
 func TestTrafficLimitService(t *testing.T) {
 	t.Parallel()
+	metricExporter, _ := stdoutmetric.New()
+	otel.SetMeterProvider(metric.NewMeterProvider(
+		metric.WithReader(
+			metric.NewPeriodicReader(
+				metricExporter, metric.WithInterval(time.Duration(3)*time.Second))),
+	))
 
 	ctx := context.Background()
 
