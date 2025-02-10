@@ -188,6 +188,11 @@ func setVal(field reflect.Value, val string) {
 	switch field.Kind() {
 	case reflect.String:
 		field.SetString(val)
+	case reflect.Bool:
+		boolVal, err := strconv.ParseBool(val)
+		if err == nil {
+			field.SetBool(boolVal)
+		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		intVal, err := strconv.ParseInt(val, 10, field.Type().Bits())
 		if err == nil {
@@ -203,10 +208,10 @@ func setVal(field reflect.Value, val string) {
 		if err == nil {
 			field.SetFloat(floatVal)
 		}
-	case reflect.Bool:
-		boolVal, err := strconv.ParseBool(val)
+	case reflect.Complex64, reflect.Complex128:
+		complexVal, err := strconv.ParseComplex(val, field.Type().Bits())
 		if err == nil {
-			field.SetBool(boolVal)
+			field.SetComplex(complexVal)
 		}
 	}
 }
