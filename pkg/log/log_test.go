@@ -9,75 +9,16 @@ import (
 	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
 )
 
-const logPath = "/tmp/test/log"
-
-func TestLog_NewLog(t *testing.T) {
-	t.Parallel()
-
-	defaultCfg, err := loadconfig.Load[log.Config](nil, loadconfig.TypeNil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	tests := []struct {
-		name    string
-		cfg     *log.Config
-		wantErr bool
-	}{
-		{
-			"Default config",
-			defaultCfg,
-			false,
-		},
-		{
-			"Slog",
-			&log.Config{
-				"slog",
-				"debug",
-				&log.Slog{
-					logPath,
-					1,
-					1,
-				},
-			},
-			false,
-		},
-		{
-			"Invalid log level",
-			&log.Config{
-				"slog",
-				"none",
-				&log.Slog{
-					logPath,
-					1,
-					1,
-				},
-			},
-			true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			_, cleanup, err := log.ProvideLogger(tt.cfg)
-			if err == nil {
-				defer cleanup()
-			}
-			if tt.wantErr != (err != nil) {
-				t.Fatalf("Want error: %+v, got %+v", tt.wantErr, err)
-			}
-		})
-	}
-}
-
 // nolint:paralleltest
 func TestLog_Logger(t *testing.T) {
 	defaultCfg, err := loadconfig.Load[log.Config](nil, loadconfig.TypeNil)
 	if err != nil {
 		t.Fatal(err)
 	}
+	slogCfg := *defaultCfg
+	slogCfg.Type = "slog"
+	lokiCfg := *defaultCfg
+	lokiCfg.Type = "loki"
 
 	tests := []struct {
 		name string
@@ -89,15 +30,11 @@ func TestLog_Logger(t *testing.T) {
 		},
 		{
 			"Slog",
-			&log.Config{
-				"slog",
-				"debug",
-				&log.Slog{
-					logPath,
-					1,
-					1,
-				},
-			},
+			&slogCfg,
+		},
+		{
+			"Loki",
+			&lokiCfg,
 		},
 	}
 

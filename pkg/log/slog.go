@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/lmittmann/tint"
+	"github.com/teamsorghum/go-common/pkg/constant"
 	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -20,22 +21,6 @@ type slogImpl struct {
 	originalLogger *slog.Logger
 	ctx            context.Context
 	attrs          []any
-}
-
-// NewLight initializes a light logger.
-func NewLight() Logger {
-	slogLogger := slog.New(tint.NewHandler(os.Stderr, &tint.Options{
-		AddSource:  true,
-		Level:      slog.LevelDebug,
-		TimeFormat: time.StampMilli,
-		NoColor:    false,
-	}))
-	return &slogImpl{
-		slogLogger,
-		slogLogger,
-		nil,
-		[]any{},
-	}
 }
 
 // NewSlog initializes a slog based logger.
@@ -203,7 +188,9 @@ func (s *slogImpl) Fatal(msg string, attrs ...any) {
 	} else {
 		s.logger.ErrorContext(s.ctx, msg, attrs...)
 	}
-	os.Exit(1)
+	if err := syscall.Kill(os.Getpid(), syscall.SIGTERM); err != nil {
+		s.Error("Kill process failed.", constant.LogAttrError, err.Error())
+	}
 }
 
 func (s *slogImpl) Fatalf(msg string, args ...any) {
@@ -212,5 +199,7 @@ func (s *slogImpl) Fatalf(msg string, args ...any) {
 	} else {
 		s.logger.ErrorContext(s.ctx, fmt.Sprintf(msg, args...))
 	}
-	os.Exit(1)
+	if err := syscall.Kill(os.Getpid(), syscall.SIGTERM); err != nil {
+		s.Error("Kill process failed.", constant.LogAttrError, err.Error())
+	}
 }
