@@ -13,34 +13,46 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Type is the type of the config.
+type Type int
+
+const (
+	// TypeNil means no type, which results in only environment variables being used to load the config.
+	TypeNil Type = 0
+	// TypeJSON is the JSON type.
+	TypeJSON Type = 1
+	// TypeYAML is the YAML type.
+	TypeYAML Type = 2
+)
+
 /*
-Load loads config by read a config file and environment variables.
+Load loads config by read the config content and environment variables.
 
-This function supports 4 struct tags:
+The Config generic supports 4 struct tags:
 
- 1. "json": Used to mark json fields.
- 2. "yaml": Used to mark yaml fields.
+ 1. "json": Used to mark JSON fields.
+ 2. "yaml": Used to mark YAML fields.
  3. "env": Used to mark environment variable fields. The value is parsed using strconv.
  4. "default": Used to mark the default value of a field. The value is parsed using strconv.
 
 The parsing process is as follows:
 
- 1. Initialize a struct literal and assign default values to corresponding fields.
- 2. Read JSON or YAML file and unmarshal the content to this struct literal. This will override the default values
-    assigned in the previous step.
+ 1. Initialize a Config struct literal and assign default values to corresponding fields.
+ 2. Unmarshal the config content to this struct literal. This will override the default values assigned in the previous
+    step.
  3. Read the environment variables and assign it to corresponding fields. This will override the values assigned in the
     previous step.
 
 Params:
-  - path string: The file path. If this argument is empty, only environment variables will be used.
-  - typ string: The file type. Possible values are "json" and "yaml". If this argument is empty, only environment
-    variables will be used.
+  - content []byte: The config content. For example, you can use os.ReadFile() to read the content from a local file.
+    If this argument is nil or an empty slice, only environment variables will be used.
+  - typ Type: The config type. If TypeNil is passed, only environment variables will be used.
 
 Returns:
-  - *Config: The config structure.
+  - *Config: The config struct.
   - error: The error occurred during the execution. Nil will be returned if no error occurrs.
 */
-func Load[Config any](path string, typ string) (*Config, error) {
+func Load[Config any](content []byte, typ Type) (*Config, error) {
 	var cfg Config
 
 	// Config must be a Struct
@@ -54,26 +66,21 @@ func Load[Config any](path string, typ string) (*Config, error) {
 	// Override default values
 	overrideWithDefaultValues(&cfg)
 
-	// Load config from file
-	if len(path) > 0 && len(typ) > 0 {
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return nil, err
-		}
-
+	// Load config content
+	if len(content) > 0 && typ != TypeNil {
 		switch typ {
-		case "json":
-			err = json.Unmarshal(content, &cfg)
+		case TypeJSON:
+			err := json.Unmarshal(content, &cfg)
 			if err != nil {
 				return nil, err
 			}
-		case "yaml":
-			err = yaml.Unmarshal(content, &cfg)
+		case TypeYAML:
+			err := yaml.Unmarshal(content, &cfg)
 			if err != nil {
 				return nil, err
 			}
 		default:
-			return nil, fmt.Errorf("unsupported type: %s", typ)
+			return nil, fmt.Errorf("unsupported type: %+v", typ)
 		}
 	}
 

@@ -12,6 +12,7 @@ import (
 // nolint:gocyclo,paralleltest
 func TestLoadConfig(t *testing.T) {
 	t.Parallel()
+
 	// Do not use t.Parallel() in t.Run() to avoid environment variable conflicts.
 
 	// Define a sample Config struct with struct tags for JSON, YAML, and env variables.
@@ -19,22 +20,6 @@ func TestLoadConfig(t *testing.T) {
 		Name  string `json:"name" yaml:"name" env:"CONFIG_NAME"`
 		Port  int    `json:"port" yaml:"port" env:"CONFIG_PORT"`
 		Debug bool   `json:"debug" yaml:"debug" env:"CONFIG_DEBUG"`
-	}
-
-	// Helper function to create a temporary file with given content.
-	createTempFile := func(content string, suffix string) (string, func(), error) {
-		file, err := os.CreateTemp("", "config_*"+suffix)
-		if err != nil {
-			return "", nil, err
-		}
-		defer file.Close()
-
-		if _, err := file.WriteString(content); err != nil {
-			return "", nil, err
-		}
-
-		cleanup := func() { os.Remove(file.Name()) }
-		return file.Name(), cleanup, nil
 	}
 
 	t.Run("Load from JSON file", func(t *testing.T) {
@@ -47,13 +32,7 @@ func TestLoadConfig(t *testing.T) {
 }
 `
 
-		path, cleanup, err := createTempFile(jsonContent, ".json")
-		if err != nil {
-			t.Fatalf("Failed to create temp JSON file: %v", err)
-		}
-		defer cleanup()
-
-		got, err := loadconfig.Load[Config](path, "json")
+		got, err := loadconfig.Load[Config]([]byte(jsonContent), loadconfig.TypeJSON)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -77,13 +56,7 @@ port: 7070
 debug: true
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
-		got, err := loadconfig.Load[Config](path, "yaml")
+		got, err := loadconfig.Load[Config]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -118,13 +91,7 @@ debug: true
 }
 `
 
-		path, cleanup, err := createTempFile(jsonContent, ".json")
-		if err != nil {
-			t.Fatalf("Failed to create temp JSON file: %v", err)
-		}
-		defer cleanup()
-
-		got, err := loadconfig.Load[Config](path, "json")
+		got, err := loadconfig.Load[Config]([]byte(jsonContent), loadconfig.TypeJSON)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -141,7 +108,7 @@ debug: true
 	})
 
 	t.Run("Load with no file path and type", func(t *testing.T) {
-		got, err := loadconfig.Load[Config]("", "")
+		got, err := loadconfig.Load[Config](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -163,7 +130,7 @@ debug: true
 		defer os.Unsetenv("CONFIG_PORT")
 		defer os.Unsetenv("CONFIG_DEBUG")
 
-		got, err := loadconfig.Load[Config]("", "")
+		got, err := loadconfig.Load[Config](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -179,13 +146,6 @@ debug: true
 		}
 	})
 
-	t.Run("Non-existent file", func(t *testing.T) {
-		_, err := loadconfig.Load[Config]("nonexistent.json", "json")
-		if err == nil {
-			t.Errorf("Want error for non-existent file, got nil")
-		}
-	})
-
 	t.Run("Invalid JSON content", func(t *testing.T) {
 		invalidJSON := `
 {
@@ -194,13 +154,7 @@ debug: true
 }
 `
 
-		path, cleanup, err := createTempFile(invalidJSON, ".json")
-		if err != nil {
-			t.Fatalf("Failed to create temp invalid JSON file: %v", err)
-		}
-		defer cleanup()
-
-		_, err = loadconfig.Load[Config](path, "json")
+		_, err := loadconfig.Load[Config]([]byte(invalidJSON), loadconfig.TypeJSON)
 		if err == nil {
 			t.Errorf("Want error for invalid JSON content, got nil")
 		}
@@ -212,26 +166,15 @@ name: test
 port: invalidPort
 debug: yes
 `
-		path, cleanup, err := createTempFile(invalidYAML, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp invalid YAML file: %v", err)
-		}
-		defer cleanup()
 
-		_, err = loadconfig.Load[Config](path, "yaml")
+		_, err := loadconfig.Load[Config]([]byte(invalidYAML), loadconfig.TypeYAML)
 		if err == nil {
 			t.Errorf("Want error for invalid YAML content, got nil")
 		}
 	})
 
 	t.Run("Unsupported file type", func(t *testing.T) {
-		path, cleanup, err := createTempFile(``, ".txt")
-		if err != nil {
-			t.Fatalf("Failed to create temp file: %v", err)
-		}
-		defer cleanup()
-
-		_, err = loadconfig.Load[Config](path, "txt")
+		_, err := loadconfig.Load[Config]([]byte("x"), loadconfig.Type(-1))
 		if err == nil {
 			t.Errorf("Want error for unsupported file type, got nil")
 		}
@@ -254,17 +197,11 @@ debug: yes
             }
         }`
 
-		path, cleanup, err := createTempFile(jsonContent, ".json")
-		if err != nil {
-			t.Fatalf("Failed to create temp JSON file: %v", err)
-		}
-		defer cleanup()
-
 		// Set environment variable to override nested struct field.
 		os.Setenv("NESTED_URL", "https://www.example.com")
 		defer os.Unsetenv("NESTED_URL")
 
-		got, err := loadconfig.Load[ConfigWithNested](path, "json")
+		got, err := loadconfig.Load[ConfigWithNested]([]byte(jsonContent), loadconfig.TypeJSON)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -299,7 +236,7 @@ debug: yes
 		defer os.Unsetenv("CONFIG_PORT")
 		defer os.Unsetenv("NESTED_URL")
 
-		got, err := loadconfig.Load[ConfigWithPointer]("", "")
+		got, err := loadconfig.Load[ConfigWithPointer](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -334,13 +271,7 @@ debug: yes
             "flags": {"debug": true, "verbose": false}
         }`
 
-		path, cleanup, err := createTempFile(jsonContent, ".json")
-		if err != nil {
-			t.Fatalf("Failed to create temp JSON file: %v", err)
-		}
-		defer cleanup()
-
-		got, err := loadconfig.Load[ConfigWithSlice](path, "json")
+		got, err := loadconfig.Load[ConfigWithSlice]([]byte(jsonContent), loadconfig.TypeJSON)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -363,7 +294,7 @@ debug: yes
 			Fn func()   `json:"-"`
 		}
 
-		got, err := loadconfig.Load[ConfigUnsupported]("", "")
+		got, err := loadconfig.Load[ConfigUnsupported](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -380,7 +311,7 @@ debug: yes
 			Debug bool   `json:"debug" yaml:"debug" default:"true"`
 		}
 
-		got, err := loadconfig.Load[ConfigWithDefaults]("", "")
+		got, err := loadconfig.Load[ConfigWithDefaults](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -409,13 +340,7 @@ port: 9090
 debug: true
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
-		got, err := loadconfig.Load[ConfigWithDefaults](path, "yaml")
+		got, err := loadconfig.Load[ConfigWithDefaults]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -444,12 +369,6 @@ port: 9090
 debug: false
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
 		os.Setenv("CONFIG_NAME", "envapp")
 		os.Setenv("CONFIG_PORT", "7070")
 		os.Setenv("CONFIG_DEBUG", "true")
@@ -457,7 +376,7 @@ debug: false
 		defer os.Unsetenv("CONFIG_PORT")
 		defer os.Unsetenv("CONFIG_DEBUG")
 
-		got, err := loadconfig.Load[ConfigWithDefaults](path, "yaml")
+		got, err := loadconfig.Load[ConfigWithDefaults]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -479,7 +398,7 @@ debug: false
 			Debug bool `json:"debug" yaml:"debug" default:"notabool"`
 		}
 
-		got, err := loadconfig.Load[ConfigWithInvalidDefaults]("", "")
+		got, err := loadconfig.Load[ConfigWithInvalidDefaults](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -509,18 +428,12 @@ debug: false
 }
 `
 
-		path, cleanup, err := createTempFile(jsonContent, ".json")
-		if err != nil {
-			t.Fatalf("Failed to create temp JSON file: %v", err)
-		}
-		defer cleanup()
-
 		os.Setenv("CONFIG_VERSION", "2.3.4")
 		os.Setenv("CONFIG_UNEXPORT", "99")
 		defer os.Unsetenv("CONFIG_VERSION")
 		defer os.Unsetenv("CONFIG_UNEXPORT")
 
-		got, err := loadconfig.Load[ConfigWithUnexported](path, "json")
+		got, err := loadconfig.Load[ConfigWithUnexported]([]byte(jsonContent), loadconfig.TypeJSON)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -551,13 +464,7 @@ port: 8080
 debug: false
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
-		got, err := loadconfig.Load[Config](path, "yaml")
+		got, err := loadconfig.Load[Config]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -589,16 +496,10 @@ name: testapp
 url: http://configurl.com
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
 		os.Setenv("NESTED_URL", "http://envurl.com")
 		defer os.Unsetenv("NESTED_URL")
 
-		got, err := loadconfig.Load[Config](path, "yaml")
+		got, err := loadconfig.Load[Config]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -623,7 +524,7 @@ url: http://configurl.com
 			} `json:"nested" yaml:"nested"`
 		}
 
-		got, err := loadconfig.Load[Config]("", "")
+		got, err := loadconfig.Load[Config](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -646,7 +547,7 @@ url: http://configurl.com
 		os.Setenv("CONFIG_TIMEOUT", "20s")
 		defer os.Unsetenv("CONFIG_TIMEOUT")
 
-		got, err := loadconfig.Load[Config]("", "")
+		got, err := loadconfig.Load[Config](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}
@@ -666,16 +567,10 @@ url: http://configurl.com
 name: ""
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
 		os.Setenv("CONFIG_NAME", "")
 		defer os.Unsetenv("CONFIG_NAME")
 
-		got, err := loadconfig.Load[Config](path, "yaml")
+		got, err := loadconfig.Load[Config]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err != nil {
 			t.Fatalf("LoadConfig failed: %v", err)
 		}
@@ -698,13 +593,7 @@ name: ""
 complex: "(1+2i)"
 `
 
-		path, cleanup, err := createTempFile(yamlContent, ".yaml")
-		if err != nil {
-			t.Fatalf("Failed to create temp YAML file: %v", err)
-		}
-		defer cleanup()
-
-		_, err = loadconfig.Load[Config](path, "yaml")
+		_, err := loadconfig.Load[Config]([]byte(yamlContent), loadconfig.TypeYAML)
 		if err == nil {
 			t.Errorf("Expected error when loading unsupported type, got none")
 		}
@@ -717,7 +606,7 @@ complex: "(1+2i)"
 			Debug bool
 		}
 
-		got, err := loadconfig.Load[Config]("", "")
+		got, err := loadconfig.Load[Config](nil, loadconfig.TypeNil)
 		if err != nil {
 			t.Errorf("LoadConfig failed: %v", err)
 		}

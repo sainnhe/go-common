@@ -14,7 +14,7 @@ const logPath = "/tmp/test/log"
 func TestLog_NewLog(t *testing.T) {
 	t.Parallel()
 
-	defaultCfg, err := loadconfig.Load[log.Config]("", "")
+	defaultCfg, err := loadconfig.Load[log.Config](nil, loadconfig.TypeNil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func TestLog_NewLog(t *testing.T) {
 
 // nolint:paralleltest
 func TestLog_Logger(t *testing.T) {
-	defaultCfg, err := loadconfig.Load[log.Config]("", "")
+	defaultCfg, err := loadconfig.Load[log.Config](nil, loadconfig.TypeNil)
 	if err != nil {
 		t.Fatal(err)
 	}
