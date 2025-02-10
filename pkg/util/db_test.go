@@ -23,13 +23,13 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 				"age":      "20",
 				"email":    "'test@example.com'",
 			},
-			want: "insert into users (age, email, username) values (20, 'test@example.com', $1) returning id",
+			want: "INSERT INTO users (age, email, username) VALUES (20, 'test@example.com', $1)",
 		},
 		{
 			name: "Empty columns",
 			tbl:  "test",
 			cols: map[string]string{},
-			want: "insert into test () values () returning id",
+			want: "INSERT INTO test () VALUES ()",
 		},
 		{
 			name: "Single column",
@@ -37,7 +37,7 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 			cols: map[string]string{
 				"name": "'product'",
 			},
-			want: "insert into products (name) values ('product') returning id",
+			want: "INSERT INTO products (name) VALUES ('product')",
 		},
 	}
 
@@ -66,19 +66,19 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 			name:  "Multiple conditions sorted",
 			tbl:   "users",
 			conds: map[string]string{"username": "$1", "age": "20"},
-			want:  "select * from users where age = 20 and username = $1",
+			want:  "SELECT * FROM users WHERE age = 20 AND username = $1",
 		},
 		{
 			name:  "Single condition",
 			tbl:   "products",
 			conds: map[string]string{"id": "5"},
-			want:  "select * from products where id = 5",
+			want:  "SELECT * FROM products WHERE id = 5",
 		},
 		{
 			name:  "No conditions",
 			tbl:   "orders",
 			conds: map[string]string{},
-			want:  "select * from orders where ",
+			want:  "SELECT * FROM orders",
 		},
 	}
 
@@ -105,7 +105,7 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 		want  string
 	}{
 		{
-			name: "Multiple cols and conds",
+			name: "Multiple cols AND conds",
 			tbl:  "users",
 			cols: map[string]string{
 				"username": "$1",
@@ -115,21 +115,21 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 				"id":     "5",
 				"status": "'active'",
 			},
-			want: "update users set age = 20, username = $1 where id = 5 and status = 'active'",
+			want: "UPDATE users SET age = 20, username = $1 WHERE id = 5 AND status = 'active'",
 		},
 		{
 			name:  "Empty cols",
 			tbl:   "test",
 			cols:  map[string]string{},
 			conds: map[string]string{"id": "1"},
-			want:  "update test set  where id = 1",
+			want:  "UPDATE test SET  WHERE id = 1",
 		},
 		{
 			name:  "Empty conds",
 			tbl:   "test",
 			cols:  map[string]string{"name": "'test'"},
 			conds: map[string]string{},
-			want:  "update test set name = 'test' where ",
+			want:  "UPDATE test SET name = 'test'",
 		},
 	}
 
@@ -158,13 +158,13 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 			name:  "Multiple conditions",
 			tbl:   "users",
 			conds: map[string]string{"id": "5", "status": "'inactive'"},
-			want:  "delete from users where id = 5 and status = 'inactive'",
+			want:  "DELETE FROM users WHERE id = 5 AND status = 'inactive'",
 		},
 		{
 			name:  "No conditions",
 			tbl:   "orders",
 			conds: map[string]string{},
-			want:  "delete from orders where ",
+			want:  "DELETE FROM orders",
 		},
 	}
 
@@ -193,19 +193,19 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 			name: "Sorted columns",
 			tbl:  "users",
 			cols: []string{"username", "age"},
-			want: "insert into users (age, username) values (:age, :username) returning id",
+			want: "INSERT INTO users (age, username) VALUES (:age, :username)",
 		},
 		{
 			name: "Empty columns",
 			tbl:  "test",
 			cols: []string{},
-			want: "insert into test () values () returning id",
+			want: "INSERT INTO test () VALUES ()",
 		},
 		{
 			name: "Single column",
 			tbl:  "products",
 			cols: []string{"name"},
-			want: "insert into products (name) values (:name) returning id",
+			want: "INSERT INTO products (name) VALUES (:name)",
 		},
 	}
 
@@ -234,13 +234,13 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 			name:  "Sorted conditions",
 			tbl:   "users",
 			conds: []string{"username", "age"},
-			want:  "select * from users where age = :age and username = :username",
+			want:  "SELECT * FROM users WHERE age = :age AND username = :username",
 		},
 		{
 			name:  "No conditions",
 			tbl:   "test",
 			conds: []string{},
-			want:  "select * from test where ",
+			want:  "SELECT * FROM test",
 		},
 	}
 
@@ -267,25 +267,25 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 		want  string
 	}{
 		{
-			name:  "Sorted cols and conds",
+			name:  "Sorted cols AND conds",
 			tbl:   "users",
 			cols:  []string{"username", "age"},
 			conds: []string{"id", "status"},
-			want:  "update users set age = :age, username = :username where id = :id and status = :status",
+			want:  "UPDATE users SET age = :age, username = :username WHERE id = :id AND status = :status",
 		},
 		{
 			name:  "Empty cols",
 			tbl:   "test",
 			cols:  []string{},
 			conds: []string{"id"},
-			want:  "update test set  where id = :id",
+			want:  "UPDATE test SET  WHERE id = :id",
 		},
 		{
 			name:  "Empty conds",
 			tbl:   "test",
 			cols:  []string{"name"},
 			conds: []string{},
-			want:  "update test set name = :name where ",
+			want:  "UPDATE test SET name = :name",
 		},
 	}
 
@@ -314,13 +314,13 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 			name:  "Sorted conditions",
 			tbl:   "users",
 			conds: []string{"id", "status"},
-			want:  "delete from users where id = :id and status = :status",
+			want:  "DELETE FROM users WHERE id = :id AND status = :status",
 		},
 		{
 			name:  "No conditions",
 			tbl:   "test",
 			conds: []string{},
-			want:  "delete from test where ",
+			want:  "DELETE FROM test",
 		},
 	}
 

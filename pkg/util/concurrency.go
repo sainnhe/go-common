@@ -76,12 +76,13 @@ func ConcurrentRun[Arg interface{}, Result interface{}](
 		close(wrChan)
 	}()
 	// Get the execution results and sort them.
-	wrs := []WrappedResult{}
+	wrs := make([]WrappedResult, 0, len(args))
 	for wr := range wrChan {
 		wrs = append(wrs, wr)
 	}
 	sort.Slice(wrs, func(i, j int) bool { return wrs[i].i < wrs[j].i })
 	// Integrate results and return.
+	results = make([]Result, 0, len(args))
 	for _, wr := range wrs {
 		results = append(results, wr.r)
 	}

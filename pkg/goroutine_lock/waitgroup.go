@@ -1,4 +1,3 @@
-// Package goroutinelock implements goroutine locks.
 package goroutinelock
 
 import (
