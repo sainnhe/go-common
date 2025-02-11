@@ -22,8 +22,17 @@ func Unlock() {
 	wg.Done()
 }
 
-// Wait waits for all goroutine locks to be released, or the timeout period has been exceeded.
-func Wait(timeout time.Duration) {
+// Wait waits for all goroutine locks to be released.
+func Wait() {
+	wg.StartShutdown()
+	if count := wg.GetCount(); count > 0 {
+		log.GetDefault().Info("Waiting for goroutine locks to be released...", "remain", count)
+		wg.Wait()
+	}
+}
+
+// WaitWithTimeout waits for all goroutine locks to be released, or the timeout period has been exceeded.
+func WaitWithTimeout(timeout time.Duration) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	wgDone := make(chan struct{})
