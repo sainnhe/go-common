@@ -1,27 +1,27 @@
 package trafficlimit
 
-// Config defines the traffic limit config model.
-type Config struct {
-	// RateLimit is the rate limit config.
-	RateLimit *RateLimit `json:"rate_limit" yaml:"rate_limit"`
-	// PeakShaving is the peak shaving config.
-	PeakShaving *PeakShaving `json:"peak_shaving" yaml:"peak_shaving"`
-}
-
-// RateLimit defines the rate limit config.
-type RateLimit struct {
+// RateLimitConfig defines the rate limit config.
+type RateLimitConfig struct {
 	// Enable indicates whether rate limit is enabled.
 	Enable bool `json:"enable" yaml:"enable" env:"TrafficLimitRateLimitEnable" default:"true"`
-	// QPS is the QPS of rate limit.
-	QPS int64 `json:"qps" yaml:"qps" env:"TrafficLimitRateLimitQPS" default:"1"`
+	// Prefix is the prefix for keys, which can be used to describe current business and avoid conflicts.
+	Prefix string `json:"prefix" yaml:"prefix" env:"TrafficLimitRateLimitPrefix" default:"*"`
+	// Limit is the limit of requests in a given time window.
+	Limit int `json:"limit" yaml:"limit" env:"TrafficLimitRateLimitLimit" default:"1"`
+	// WindowMs is the time window for measurement in milliseconds.
+	WindowMs int `json:"window_ms" yaml:"window_ms" env:"TrafficLimitRateLimitWindowMs" default:"1000"`
 }
 
-// PeakShaving defines the peak shaving config.
-type PeakShaving struct {
+// PeakShavingConfig defines the peak shaving config.
+type PeakShavingConfig struct {
 	// Enable indicates whether peak shaving is enabled.
 	Enable bool `json:"enable" yaml:"enable" env:"TrafficLimitPeakShavingEnable" default:"true"`
-	// QPS is the QPS of peak shaving.
-	QPS int64 `json:"qps" yaml:"qps" env:"TrafficLimitPeakShavingQPS" default:"1"`
+	// Prefix is the prefix for keys, which can be used to describe current business and avoid conflicts.
+	Prefix string `json:"prefix" yaml:"prefix" env:"TrafficLimitPeakShavingPrefix" default:"*"`
+	// Limit is the limit of requests in a given time window.
+	Limit int `json:"limit" yaml:"limit" env:"TrafficLimitPeakShavingLimit" default:"1"`
+	// WindowMs is the time window for measurement in milliseconds.
+	WindowMs int `json:"window_ms" yaml:"window_ms" env:"TrafficLimitPeakShavingWindowMs" default:"1000"`
 	// MaxAttempts is the max number of attempts.
 	MaxAttempts int `json:"max_attempts" yaml:"max_attempts" env:"TrafficLimitPeakShavingMaxAttempts" default:"10"`
 	// AttemptIntervalMs is the interval between each attempt.

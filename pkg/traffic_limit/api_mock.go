@@ -12,6 +12,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	valkeylimiter "github.com/valkey-io/valkey-go/valkeylimiter"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -39,114 +40,134 @@ func (m *MockProxy) EXPECT() *MockProxyMockRecorder {
 	return m.recorder
 }
 
-// PeakShaving mocks base method.
-func (m *MockProxy) PeakShaving(ctx context.Context) error {
+// Allow mocks base method.
+func (m *MockProxy) Allow(ctx context.Context, identifier string, options ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PeakShaving", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
+	varargs := []any{ctx, identifier}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Allow", varargs...)
+	ret0, _ := ret[0].(valkeylimiter.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// PeakShaving indicates an expected call of PeakShaving.
-func (mr *MockProxyMockRecorder) PeakShaving(ctx any) *MockProxyPeakShavingCall {
+// Allow indicates an expected call of Allow.
+func (mr *MockProxyMockRecorder) Allow(ctx, identifier any, options ...any) *MockProxyAllowCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PeakShaving", reflect.TypeOf((*MockProxy)(nil).PeakShaving), ctx)
-	return &MockProxyPeakShavingCall{Call: call}
+	varargs := append([]any{ctx, identifier}, options...)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Allow", reflect.TypeOf((*MockProxy)(nil).Allow), varargs...)
+	return &MockProxyAllowCall{Call: call}
 }
 
-// MockProxyPeakShavingCall wrap *gomock.Call
-type MockProxyPeakShavingCall struct {
+// MockProxyAllowCall wrap *gomock.Call
+type MockProxyAllowCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockProxyPeakShavingCall) Return(arg0 error) *MockProxyPeakShavingCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockProxyAllowCall) Return(arg0 valkeylimiter.Result, arg1 error) *MockProxyAllowCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockProxyPeakShavingCall) Do(f func(context.Context) error) *MockProxyPeakShavingCall {
+func (c *MockProxyAllowCall) Do(f func(context.Context, string, ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error)) *MockProxyAllowCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockProxyPeakShavingCall) DoAndReturn(f func(context.Context) error) *MockProxyPeakShavingCall {
+func (c *MockProxyAllowCall) DoAndReturn(f func(context.Context, string, ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error)) *MockProxyAllowCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
-// RateLimit mocks base method.
-func (m *MockProxy) RateLimit(ctx context.Context) error {
+// AllowN mocks base method.
+func (m *MockProxy) AllowN(ctx context.Context, identifier string, n int64, options ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RateLimit", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
+	varargs := []any{ctx, identifier, n}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AllowN", varargs...)
+	ret0, _ := ret[0].(valkeylimiter.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// RateLimit indicates an expected call of RateLimit.
-func (mr *MockProxyMockRecorder) RateLimit(ctx any) *MockProxyRateLimitCall {
+// AllowN indicates an expected call of AllowN.
+func (mr *MockProxyMockRecorder) AllowN(ctx, identifier, n any, options ...any) *MockProxyAllowNCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RateLimit", reflect.TypeOf((*MockProxy)(nil).RateLimit), ctx)
-	return &MockProxyRateLimitCall{Call: call}
+	varargs := append([]any{ctx, identifier, n}, options...)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AllowN", reflect.TypeOf((*MockProxy)(nil).AllowN), varargs...)
+	return &MockProxyAllowNCall{Call: call}
 }
 
-// MockProxyRateLimitCall wrap *gomock.Call
-type MockProxyRateLimitCall struct {
+// MockProxyAllowNCall wrap *gomock.Call
+type MockProxyAllowNCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockProxyRateLimitCall) Return(arg0 error) *MockProxyRateLimitCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockProxyAllowNCall) Return(arg0 valkeylimiter.Result, arg1 error) *MockProxyAllowNCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockProxyRateLimitCall) Do(f func(context.Context) error) *MockProxyRateLimitCall {
+func (c *MockProxyAllowNCall) Do(f func(context.Context, string, int64, ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error)) *MockProxyAllowNCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockProxyRateLimitCall) DoAndReturn(f func(context.Context) error) *MockProxyRateLimitCall {
+func (c *MockProxyAllowNCall) DoAndReturn(f func(context.Context, string, int64, ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error)) *MockProxyAllowNCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
-// SetPrefix mocks base method.
-func (m *MockProxy) SetPrefix(prefix string) {
+// Check mocks base method.
+func (m *MockProxy) Check(ctx context.Context, identifier string, options ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetPrefix", prefix)
+	varargs := []any{ctx, identifier}
+	for _, a := range options {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Check", varargs...)
+	ret0, _ := ret[0].(valkeylimiter.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// SetPrefix indicates an expected call of SetPrefix.
-func (mr *MockProxyMockRecorder) SetPrefix(prefix any) *MockProxySetPrefixCall {
+// Check indicates an expected call of Check.
+func (mr *MockProxyMockRecorder) Check(ctx, identifier any, options ...any) *MockProxyCheckCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetPrefix", reflect.TypeOf((*MockProxy)(nil).SetPrefix), prefix)
-	return &MockProxySetPrefixCall{Call: call}
+	varargs := append([]any{ctx, identifier}, options...)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockProxy)(nil).Check), varargs...)
+	return &MockProxyCheckCall{Call: call}
 }
 
-// MockProxySetPrefixCall wrap *gomock.Call
-type MockProxySetPrefixCall struct {
+// MockProxyCheckCall wrap *gomock.Call
+type MockProxyCheckCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockProxySetPrefixCall) Return() *MockProxySetPrefixCall {
-	c.Call = c.Call.Return()
+func (c *MockProxyCheckCall) Return(arg0 valkeylimiter.Result, arg1 error) *MockProxyCheckCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockProxySetPrefixCall) Do(f func(string)) *MockProxySetPrefixCall {
+func (c *MockProxyCheckCall) Do(f func(context.Context, string, ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error)) *MockProxyCheckCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockProxySetPrefixCall) DoAndReturn(f func(string)) *MockProxySetPrefixCall {
+func (c *MockProxyCheckCall) DoAndReturn(f func(context.Context, string, ...valkeylimiter.RateLimitOption) (valkeylimiter.Result, error)) *MockProxyCheckCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

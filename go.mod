@@ -8,6 +8,7 @@ require (
 	github.com/samber/slog-loki/v3 v3.5.4
 	github.com/samber/slog-otel v0.1.0
 	github.com/valkey-io/valkey-go v1.0.54
+	github.com/valkey-io/valkey-go/valkeyotel v1.0.54
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v1.34.0
 	go.opentelemetry.io/otel/metric v1.34.0

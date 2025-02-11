@@ -8,10 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/teamsorghum/go-common/pkg/cache"
 	loadconfig "github.com/teamsorghum/go-common/pkg/load_config"
 	"github.com/teamsorghum/go-common/pkg/log"
 	trafficlimit "github.com/teamsorghum/go-common/pkg/traffic_limit"
+	"github.com/valkey-io/valkey-go"
+	"github.com/valkey-io/valkey-go/valkeyotel"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/sdk/metric"
@@ -29,22 +30,12 @@ func TestTrafficLimitService(t *testing.T) {
 
 	ctx := context.Background()
 
-	cacheConfig, err := loadconfig.Load[cache.Config](nil, loadconfig.TypeNil)
-	if cacheConfig == nil || err != nil {
-		t.Fatalf("Load config failed: config = %+v, err = %+v", cacheConfig, err)
-	}
-	trafficLimitConfig := &trafficlimit.Config{
-		RateLimit: &trafficlimit.RateLimit{
-			Enable: true,
-			QPS:    1,
-		},
-		PeakShaving: &trafficlimit.PeakShaving{
-			Enable:            true,
-			QPS:               1,
-			MaxAttempts:       2,
-			AttemptIntervalMs: 1000,
-		},
-	}
+	rateLimitCfg, _ := loadconfig.Load[trafficlimit.RateLimitConfig](nil, loadconfig.TypeNil)
+	rateLimitCfg.Prefix = "test"
+	peakShavingCfg, _ := loadconfig.Load[trafficlimit.PeakShavingConfig](nil, loadconfig.TypeNil)
+	peakShavingCfg.MaxAttempts = 2
+	peakShavingCfg.AttemptIntervalMs = 1000
+	peakShavingCfg.Prefix = "test"
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -56,56 +47,66 @@ func TestTrafficLimitService(t *testing.T) {
 	logger.EXPECT().Warn(gomock.Any(), gomock.Any()).AnyTimes()
 	logger.EXPECT().Error(gomock.Any(), gomock.Any()).AnyTimes()
 
-	cacheProxy, cacheCleanup, err := cache.NewProxyImpl(cacheConfig, logger)
+	valkeyClient, err := valkeyotel.NewClient(valkey.ClientOption{
+		InitAddress: []string{"127.0.0.1:6379"},
+	})
 	if err != nil {
-		t.Fatalf("Init cache proxy failed: %+v", err)
+		t.Fatalf("Init valkey client failed: %+v", err)
 	}
-	defer cacheCleanup()
-	proxy, cleanup, err := trafficlimit.NewProxyImpl(trafficLimitConfig, logger, cacheProxy)
-	if err != nil {
-		t.Fatalf("Init traffic limit proxy failed: %+v", err)
-	}
-	defer cleanup()
-	proxy.SetPrefix("test")
 
-	t.Run("Rate limit", func(t *testing.T) { // nolint:paralleltest
+	rateLimitProxy, _, _ := trafficlimit.NewRateLimitImpl(rateLimitCfg, valkeyClient, log.GetDefault())
+	peakShavingProxy, _, _ := trafficlimit.NewPeakShavingImpl(peakShavingCfg, valkeyClient, log.GetDefault())
+
+	t.Run("Rate limit", func(t *testing.T) {
+		t.Parallel()
+
 		wg := &sync.WaitGroup{}
-		errCount := int32(0)
+		failedCount := int32(0)
 		sleepUntilNextSecond()
 		for i := 0; i < 2; i++ {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				if err := proxy.RateLimit(ctx); err != nil {
-					atomic.AddInt32(&errCount, 1)
+				result, err := rateLimitProxy.Allow(ctx, "test")
+				if err != nil {
+					t.Errorf("Rate limit error: %+v", err)
+				}
+				if !result.Allowed {
+					atomic.AddInt32(&failedCount, 1)
 				}
 			}()
 		}
 		wg.Wait()
 		// Two concurrent requests should have one fail.
-		if errCount != 1 {
-			t.Errorf("Error count = %d, expect to be 1.", errCount)
+		if failedCount != 1 {
+			t.Errorf("Failed count = %d, expect to be 1.", failedCount)
 		}
 	})
 
-	t.Run("Peak shaving", func(t *testing.T) { // nolint:paralleltest
+	t.Run("Peak shaving", func(t *testing.T) {
+		t.Parallel()
+
 		wg := &sync.WaitGroup{}
-		errCount := int32(0)
+		failedCount := int32(0)
 		sleepUntilNextSecond()
 		for i := 0; i < 3; i++ {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				if err := proxy.PeakShaving(ctx); err != nil {
-					atomic.AddInt32(&errCount, 1)
+				result, err := peakShavingProxy.Allow(ctx, "test")
+				if err != nil {
+					t.Errorf("Peak shaving error: %+v", err)
+				}
+				if !result.Allowed {
+					atomic.AddInt32(&failedCount, 1)
 				}
 			}()
 		}
 		wg.Wait()
 		// One of the three requests should succeed, one should wait for 1s and then succeed, and one should fail after
 		// reaching the maximum number of retries.
-		if errCount != 1 {
-			t.Errorf("Error count = %d, expect to be 1.", errCount)
+		if failedCount != 1 {
+			t.Errorf("Failed count = %d, expect to be 1.", failedCount)
 		}
 	})
 
