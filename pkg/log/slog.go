@@ -35,6 +35,14 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 		MaxSize:    cfg.Slog.MaxSizeMB,
 		MaxBackups: cfg.Slog.MaxBackups,
 	}
+	cleanup = func() {
+		if err := fileWriter.Close(); err != nil {
+			logger.Errorf("Close fileWriter failed: %+v", err)
+		}
+		if err := syscall.Sync(); err != nil {
+			fmt.Printf("Sync failed: %+v", err)
+		}
+	}
 	multiWriter := io.MultiWriter(consoleWriter, fileWriter)
 	var logLevel slog.Level
 	switch cfg.Level {
@@ -47,7 +55,8 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 	case "error":
 		logLevel = slog.LevelError
 	default:
-		return nil, nil, errors.New("invalid log level")
+		err = errors.New("invalid log level")
+		return
 	}
 	slogLogger := slog.New(tint.NewHandler(multiWriter, &tint.Options{
 		AddSource:  true,
@@ -60,14 +69,6 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 		slogLogger,
 		nil,
 		[]any{},
-	}
-	cleanup = func() {
-		if err := fileWriter.Close(); err != nil {
-			logger.Errorf("Close fileWriter failed: %+v", err)
-		}
-		if err := syscall.Sync(); err != nil {
-			fmt.Printf("Sync failed: %+v", err)
-		}
 	}
 	return
 }

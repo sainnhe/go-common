@@ -13,7 +13,7 @@ func ProvideLogger(cfg *Config) (logger Logger, cleanup func(), err error) {
 	}
 	switch cfg.Type {
 	case "light":
-		logger, cleanup, err = NewLight(), func() {}, nil
+		logger, cleanup, err = NewLight(), nil, nil
 	case "slog":
 		logger, cleanup, err = NewSlog(cfg)
 	case "loki":

@@ -58,7 +58,9 @@ func TestLog_Logger(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer cleanup() // nolint:gocritic
+		if cleanup != nil {
+			defer cleanup() // nolint:gocritic
+		}
 
 		t.Run(tt.name+" default output", func(_ *testing.T) {
 			output(logger, msg, attrs, args)

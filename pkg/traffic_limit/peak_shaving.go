@@ -23,7 +23,7 @@ type peakShavingImpl struct {
 
 // NewPeakShavingImpl initializes a new peak shaving proxy.
 func NewPeakShavingImpl(
-	cfg *PeakShavingConfig, valkeyClient valkey.Client, logger log.Logger) (proxy Proxy, cleanup func(), err error) {
+	cfg *PeakShavingConfig, valkeyClient valkey.Client, logger log.Logger) (proxy Proxy, err error) {
 	if cfg == nil || logger == nil || valkeyClient == nil {
 		err = fmt.Errorf("nil dependency: cfg = %+v, valkeyClient == %+v, logger = %+v", cfg, valkeyClient, logger)
 		return
@@ -35,7 +35,7 @@ func NewPeakShavingImpl(
 		Window:        time.Duration(cfg.WindowMs) * time.Millisecond,
 	})
 	if err != nil {
-		return nil, func() {}, err
+		return nil, err
 	}
 	return &peakShavingImpl{
 		limiter,
@@ -43,7 +43,7 @@ func NewPeakShavingImpl(
 		cfg,
 		"*",
 		otel.Meter("github.com/teamsorghum/go-common/pkg/traffic_limit"),
-	}, func() {}, nil
+	}, nil
 }
 
 func (p *peakShavingImpl) Check(ctx context.Context, identifier string,

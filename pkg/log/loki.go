@@ -47,7 +47,8 @@ func NewLoki(cfg *Config) (logger Logger, cleanup func(), err error) {
 	case "error":
 		logLevel = slog.LevelError
 	default:
-		return nil, nil, errors.New("invalid log level")
+		err = errors.New("invalid log level")
+		return
 	}
 	slogLogger := slog.New(slogloki.Option{
 		Level:     logLevel,
