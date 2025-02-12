@@ -1,9 +1,9 @@
-package dbutil_test
+package util_test
 
 import (
 	"testing"
 
-	dbutil "github.com/teamsorghum/go-common/pkg/util/db"
+	"github.com/teamsorghum/go-common/pkg/util"
 )
 
 func TestBuildMappedInsertSQL(t *testing.T) {
@@ -12,13 +12,13 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 	tests := []struct {
 		name string
 		tbl  string
-		cols []dbutil.KV
+		cols []util.KV
 		want string
 	}{
 		{
 			name: "Multiple columns with sorting",
 			tbl:  "users",
-			cols: []dbutil.KV{
+			cols: []util.KV{
 				{"age", "20"},
 				{"email", "'test@example.com'"},
 				{"username", "$1"},
@@ -28,13 +28,13 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 		{
 			name: "Empty columns",
 			tbl:  "test",
-			cols: []dbutil.KV{},
+			cols: []util.KV{},
 			want: "INSERT INTO test () VALUES ()",
 		},
 		{
 			name: "Single column",
 			tbl:  "products",
-			cols: []dbutil.KV{
+			cols: []util.KV{
 				{"name", "'product'"},
 			},
 			want: "INSERT INTO products (name) VALUES ('product')",
@@ -45,7 +45,7 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedInsertSQL(tt.tbl, tt.cols)
+			got := util.BuildMappedInsertSQL(tt.tbl, tt.cols)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -59,25 +59,25 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 	tests := []struct {
 		name  string
 		tbl   string
-		conds []dbutil.KV
+		conds []util.KV
 		want  string
 	}{
 		{
 			name:  "Multiple conditions sorted",
 			tbl:   "users",
-			conds: []dbutil.KV{{"age", "20"}, {"username", "$1"}},
+			conds: []util.KV{{"age", "20"}, {"username", "$1"}},
 			want:  "SELECT * FROM users WHERE age = 20 AND username = $1",
 		},
 		{
 			name:  "Single condition",
 			tbl:   "products",
-			conds: []dbutil.KV{{"id", "5"}},
+			conds: []util.KV{{"id", "5"}},
 			want:  "SELECT * FROM products WHERE id = 5",
 		},
 		{
 			name:  "No conditions",
 			tbl:   "orders",
-			conds: []dbutil.KV{},
+			conds: []util.KV{},
 			want:  "SELECT * FROM orders",
 		},
 	}
@@ -86,7 +86,7 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedQuerySQL(tt.tbl, tt.conds)
+			got := util.BuildMappedQuerySQL(tt.tbl, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -100,18 +100,18 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 	tests := []struct {
 		name  string
 		tbl   string
-		cols  []dbutil.KV
-		conds []dbutil.KV
+		cols  []util.KV
+		conds []util.KV
 		want  string
 	}{
 		{
 			name: "Multiple cols AND conds",
 			tbl:  "users",
-			cols: []dbutil.KV{
+			cols: []util.KV{
 				{"age", "20"},
 				{"username", "$1"},
 			},
-			conds: []dbutil.KV{
+			conds: []util.KV{
 				{"id", "5"},
 				{"status", "'active'"},
 			},
@@ -120,15 +120,15 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 		{
 			name:  "Empty cols",
 			tbl:   "test",
-			cols:  []dbutil.KV{},
-			conds: []dbutil.KV{{"id", "1"}},
+			cols:  []util.KV{},
+			conds: []util.KV{{"id", "1"}},
 			want:  "UPDATE test SET  WHERE id = 1",
 		},
 		{
 			name:  "Empty conds",
 			tbl:   "test",
-			cols:  []dbutil.KV{{"name", "'test'"}},
-			conds: []dbutil.KV{},
+			cols:  []util.KV{{"name", "'test'"}},
+			conds: []util.KV{},
 			want:  "UPDATE test SET name = 'test'",
 		},
 	}
@@ -137,7 +137,7 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedUpdateSQL(tt.tbl, tt.cols, tt.conds)
+			got := util.BuildMappedUpdateSQL(tt.tbl, tt.cols, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -151,19 +151,19 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 	tests := []struct {
 		name  string
 		tbl   string
-		conds []dbutil.KV
+		conds []util.KV
 		want  string
 	}{
 		{
 			name:  "Multiple conditions",
 			tbl:   "users",
-			conds: []dbutil.KV{{"id", "5"}, {"status", "'inactive'"}},
+			conds: []util.KV{{"id", "5"}, {"status", "'inactive'"}},
 			want:  "DELETE FROM users WHERE id = 5 AND status = 'inactive'",
 		},
 		{
 			name:  "No conditions",
 			tbl:   "orders",
-			conds: []dbutil.KV{},
+			conds: []util.KV{},
 			want:  "DELETE FROM orders",
 		},
 	}
@@ -172,7 +172,7 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildMappedDeleteSQL(tt.tbl, tt.conds)
+			got := util.BuildMappedDeleteSQL(tt.tbl, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -213,7 +213,7 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedInsertSQL(tt.tbl, tt.cols)
+			got := util.BuildNamedInsertSQL(tt.tbl, tt.cols)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -248,7 +248,7 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedQuerySQL(tt.tbl, tt.conds)
+			got := util.BuildNamedQuerySQL(tt.tbl, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -293,7 +293,7 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedUpdateSQL(tt.tbl, tt.cols, tt.conds)
+			got := util.BuildNamedUpdateSQL(tt.tbl, tt.cols, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -328,7 +328,7 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := dbutil.BuildNamedDeleteSQL(tt.tbl, tt.conds)
+			got := util.BuildNamedDeleteSQL(tt.tbl, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}

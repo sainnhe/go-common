@@ -1,5 +1,4 @@
-// Package dbutil implements some utility functions for database.
-package dbutil
+package util
 
 import (
 	"fmt"
