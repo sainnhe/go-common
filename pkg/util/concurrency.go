@@ -4,7 +4,7 @@ import (
 	"sort"
 	"sync"
 
-	goroutinelock "github.com/teamsorghum/go-common/pkg/goroutine_lock"
+	"github.com/teamsorghum/go-common/pkg/glock"
 )
 
 /*
@@ -48,8 +48,8 @@ Example:
 func ConcurrentRun[Arg interface{}, Result interface{}](
 	concurrency int32, args []Arg, f func(Arg) Result) (results []Result) {
 	// Add goroutine lock.
-	goroutinelock.Lock()
-	defer goroutinelock.Unlock()
+	glock.Lock()
+	defer glock.Unlock()
 	// Add index to the Result structure for easy sorting.
 	type WrappedResult struct {
 		r Result

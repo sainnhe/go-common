@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	goroutinelock "github.com/teamsorghum/go-common/pkg/goroutine_lock"
+	"github.com/teamsorghum/go-common/pkg/glock"
 	"github.com/teamsorghum/go-common/pkg/log"
 	"github.com/teamsorghum/go-common/pkg/util"
 )
@@ -81,7 +81,7 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 			glCtx, glCancel := context.WithCancel(context.Background())
 			go func() {
 				defer glCancel()
-				goroutinelock.Wait()
+				glock.Wait()
 			}()
 			select {
 			case <-glCtx.Done():

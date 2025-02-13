@@ -1,5 +1,5 @@
-// Package goroutinelock implements goroutine lock.
-package goroutinelock
+// Package glock implements goroutine lock.
+package glock
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/teamsorghum/go-common/pkg/log"
 )
 
-// wg is the waitgroup for implementing goroutine locks.
+// wg is the waitgroup used to implement goroutine lock.
 var wg = &waitGroupImpl{}
 
 // Lock locks goroutine to ensure that the task won't be interrupted.
@@ -16,7 +16,7 @@ func Lock() {
 	wg.Add(1)
 }
 
-// Unlock releases a goroutine lock.
+// Unlock unlocks a goroutine lock.
 // NOTE: This function must be used via defer to avoid panic in the middle and causing the lock to not be released.
 func Unlock() {
 	wg.Done()

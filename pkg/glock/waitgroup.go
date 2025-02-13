@@ -1,4 +1,4 @@
-package goroutinelock
+package glock
 
 import (
 	"sync"

@@ -1,4 +1,4 @@
-package goroutinelock // nolint:testpackage
+package glock // nolint:testpackage
 
 import (
 	"testing"
