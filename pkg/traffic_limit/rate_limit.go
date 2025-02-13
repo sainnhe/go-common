@@ -25,7 +25,7 @@ type rateLimitImpl struct {
 func NewRateLimitImpl(
 	cfg *RateLimitConfig, valkeyClient valkey.Client, logger log.Logger) (proxy Proxy, err error) {
 	if cfg == nil || logger == nil || valkeyClient == nil {
-		err = fmt.Errorf("nil dependency: cfg = %+v, valkeyClient == %+v, logger = %+v", cfg, valkeyClient, logger)
+		err = fmt.Errorf("nil dependency: cfg = %+v, valkeyClient = %+v, logger = %+v", cfg, valkeyClient, logger)
 		return
 	}
 	limiter, err := valkeylimiter.NewRateLimiter(valkeylimiter.RateLimiterOption{
