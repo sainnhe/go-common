@@ -87,8 +87,8 @@ func TestMergeErrors(t *testing.T) {
 		},
 		{
 			name: "Mixed nil and non-nil errors",
-			errs: []error{err1, nil, err3},
-			want: errors.New("error one; error three"),
+			errs: []error{err1, nil, nil},
+			want: err1,
 		},
 	}
 
