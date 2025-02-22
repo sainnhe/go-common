@@ -74,7 +74,7 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 			select {
 			case <-shutdownCtx.Done():
 			case <-timeoutCtx.Done():
-				l.Error("Shutdown times out.", "cost_time", util.ToStr(time.Since(startTime)))
+				l.Error("Shutdown times out.", "cost", util.ToStr(time.Since(startTime)))
 				os.Exit(1)
 			}
 			// Wait for goroutine locks.
@@ -85,9 +85,9 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 			}()
 			select {
 			case <-glCtx.Done():
-				l.Info("Graceful shutdown finish.", "cost_time", util.ToStr(time.Since(startTime)))
+				l.Info("Graceful shutdown finish.", "cost", util.ToStr(time.Since(startTime)))
 			case <-timeoutCtx.Done():
-				l.Error("Wait for goroutine locks times out.", "cost_time", util.ToStr(time.Since(startTime)))
+				l.Error("Wait for goroutine locks times out.", "cost", util.ToStr(time.Since(startTime)))
 				os.Exit(1)
 			}
 		}()
