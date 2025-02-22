@@ -54,8 +54,8 @@ func TestTrafficLimitService(t *testing.T) {
 		t.Fatalf("Init valkey client failed: %+v", err)
 	}
 
-	rateLimitProxy, _ := trafficlimit.NewRateLimitImpl(rateLimitCfg, valkeyClient, log.GetDefault())
-	peakShavingProxy, _ := trafficlimit.NewPeakShavingImpl(peakShavingCfg, valkeyClient, log.GetDefault())
+	rateLimitProxy, _ := trafficlimit.NewRateLimitImpl(rateLimitCfg, valkeyClient, logger)
+	peakShavingProxy, _ := trafficlimit.NewPeakShavingImpl(peakShavingCfg, valkeyClient, logger)
 
 	t.Run("Rate limit", func(t *testing.T) {
 		t.Parallel()

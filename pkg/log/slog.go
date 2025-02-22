@@ -39,9 +39,7 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 		if err := fileWriter.Close(); err != nil {
 			logger.Errorf("Close fileWriter failed: %+v", err)
 		}
-		if err := syscall.Sync(); err != nil {
-			fmt.Printf("Sync failed: %+v", err)
-		}
+		syscall.Sync() // nolint:errcheck
 	}
 	multiWriter := io.MultiWriter(consoleWriter, fileWriter)
 	var logLevel slog.Level
