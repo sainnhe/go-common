@@ -20,8 +20,6 @@ func ProvideLogger(cfg *Config) (logger Logger, cleanup func(), err error) {
 		logger, cleanup, err = NewLight(), nil, nil
 	case "slog":
 		logger, cleanup, err = NewSlog(cfg)
-	case "loki":
-		logger, cleanup, err = NewLoki(cfg)
 	default:
 		err = errors.New("invalid logger type")
 	}

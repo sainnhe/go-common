@@ -17,8 +17,6 @@ func TestLog_Logger(t *testing.T) {
 	}
 	slogCfg := *defaultCfg
 	slogCfg.Type = "slog"
-	lokiCfg := *defaultCfg
-	lokiCfg.Type = "loki"
 
 	tests := []struct {
 		name string
@@ -31,10 +29,6 @@ func TestLog_Logger(t *testing.T) {
 		{
 			"Slog",
 			&slogCfg,
-		},
-		{
-			"Loki",
-			&lokiCfg,
 		},
 	}
 
