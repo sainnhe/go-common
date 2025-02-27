@@ -3,6 +3,7 @@ module github.com/teamsorghum/go-common
 go 1.23.3
 
 require (
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/lmittmann/tint v1.0.7
 	github.com/valkey-io/valkey-go v1.0.54
 	github.com/valkey-io/valkey-go/valkeyotel v1.0.54
