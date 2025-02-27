@@ -30,12 +30,22 @@ type Repo[T any] interface {
 type DO struct {
 	// ID is the primary key.
 	ID int64 `db:"id"`
-	// CreateTime is the create time of record.
+	// CreateTime is the create time of a record.
 	CreateTime time.Time `db:"create_time"`
-	// UpdateTime is the update time of record.
+	// UpdateTime is the update time of a record.
 	UpdateTime time.Time `db:"update_time"`
-	// Ext is the extension of record, it should have a json type in db.
+	// Ext is the extension field. If the table structure is hard to modify after running for a period of time and you
+	// want to add a new column, you can use ext as a temporary alternative. The ext field should be of type json in the
+	// database.
 	Ext string `db:"ext"`
+}
+
+// DOCols contains the column names of [DO].
+var DOCols = []string{
+	"id",
+	"create_time",
+	"update_time",
+	"ext",
 }
 
 // NewPool initializes a new database connection pool.
