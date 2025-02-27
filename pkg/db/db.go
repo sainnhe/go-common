@@ -74,12 +74,10 @@ type DO struct {
 	Ext string `db:"ext"`
 }
 
-// Stmts contains prepared statements. The key should have a type of string, and the value should have a type of
+// NewPool initializes a new database connection pool, and returns a connection pool, a map that contains prepared
+// statements, a cleanup function and an error. The map should have a key of type string, and a value of type
 // [*sqlx.Stmts].
-var Stmts = &sync.Map{}
-
-// NewPool initializes a new database connection pool.
-func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error) {
+func NewPool(driver, dsn string) (pool *sqlx.DB, stmts *sync.Map, cleanup func() error, err error) {
 	pool, err = sqlx.Open(driver, dsn)
 	if err != nil {
 		return
@@ -89,7 +87,7 @@ func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error
 	err = pool.PingContext(ctx)
 	cleanup = func() error {
 		e := error(nil)
-		for _, stmt := range Stmts.Range {
+		for _, stmt := range stmts.Range {
 			s, ok := stmt.(*sqlx.Stmt)
 			if !ok {
 				return errors.New("wrong stmt type")
