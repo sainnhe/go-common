@@ -5,8 +5,6 @@ package db
 
 import (
 	"context"
-	"errors"
-	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -74,10 +72,8 @@ type DO struct {
 	Ext string `db:"ext"`
 }
 
-// NewPool initializes a new database connection pool, and returns a connection pool, a map that contains prepared
-// statements, a cleanup function and an error. The map should have a key of type string, and a value of type
-// [*sqlx.Stmts].
-func NewPool(driver, dsn string) (pool *sqlx.DB, stmts *sync.Map, cleanup func() error, err error) {
+// NewPool initializes a new database connection pool.
+func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error) {
 	pool, err = sqlx.Open(driver, dsn)
 	if err != nil {
 		return
@@ -85,16 +81,6 @@ func NewPool(driver, dsn string) (pool *sqlx.DB, stmts *sync.Map, cleanup func()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(3)*time.Second) // nolint:mnd
 	defer cancel()
 	err = pool.PingContext(ctx)
-	cleanup = func() error {
-		e := error(nil)
-		for _, stmt := range stmts.Range {
-			s, ok := stmt.(*sqlx.Stmt)
-			if !ok {
-				return errors.New("wrong stmt type")
-			}
-			e = errors.Join(e, s.Close())
-		}
-		return errors.Join(e, pool.Close())
-	}
+	cleanup = pool.Close
 	return
 }
