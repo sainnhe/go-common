@@ -10,8 +10,10 @@ package db
 
 import (
 	context "context"
+	sql "database/sql"
 	reflect "reflect"
 
+	sqlx "github.com/jmoiron/sqlx"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -37,6 +39,21 @@ func NewMockRepo[T any](ctrl *gomock.Controller) *MockRepo[T] {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepo[T]) EXPECT() *MockRepoMockRecorder[T] {
 	return m.recorder
+}
+
+// BeginTx mocks base method.
+func (m *MockRepo[T]) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BeginTx", ctx, opts)
+	ret0, _ := ret[0].(*sqlx.Tx)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BeginTx indicates an expected call of BeginTx.
+func (mr *MockRepoMockRecorder[T]) BeginTx(ctx, opts any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginTx", reflect.TypeOf((*MockRepo[T])(nil).BeginTx), ctx, opts)
 }
 
 // Delete mocks base method.

@@ -5,6 +5,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -12,52 +13,17 @@ import (
 
 // Repo defines interface for common database operations.
 type Repo[T any] interface {
-	/*
-		Insert inserts a record into database and updates the ID field of the data object based on returned ID.
-
-		Params:
-			- ctx context.Context: The context of request.
-			- do *T: The data object to be inserted.
-
-		Returns:
-			- error: The error.
-	*/
+	// Insert inserts a record and updates the ID field of the given data object based on returned ID.
 	Insert(ctx context.Context, do *T) error
-	/*
-		QueryByID queries record by ID.
-
-		Params:
-			- ctx context.Context: The context of request.
-			- id int64: The ID to be queried by.
-
-		Returns:
-			- *T: Query result. Nil will be returned if the expected record is not found.
-			- error: If no record is found, return ErrNoRows, otherwise it will return an error that may occur during
-			execution or nil.
-	*/
+	// QueryByID queries record by ID. If no record is found, return [sql.ErrNoRows], otherwise it will return an error
+	// that may occur during execution or nil.
 	QueryByID(ctx context.Context, id int64) (*T, error)
-	/*
-		Update updates a record.
-
-		Params:
-			- ctx context.Context: The context of request.
-			- do *T: The data object to be updated.
-
-		Returns:
-			- error: The error.
-	*/
+	// Update updates a record.
 	Update(ctx context.Context, do *T) error
-	/*
-		Delete deletes a record.
-
-		Params:
-			- ctx context.Context: The context of request.
-			- do *T: The data object to be deleted.
-
-		Returns:
-			- error: The error.
-	*/
+	// Delete deletes a record.
 	Delete(ctx context.Context, do *T) error
+	// BeginTx begins a transaction.
+	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 }
 
 // DO defines a common data object. You should embed this struct in your own data object.
