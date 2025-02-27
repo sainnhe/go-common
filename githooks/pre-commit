@@ -7,4 +7,6 @@ echo "==> Checking go mod..." && \
     echo "==> Running golangci-lint..." && \
     golangci-lint run && \
     echo "==> Running go test..." && \
-    go test ./...
+    go test -coverprofile=cover.out ./... && \
+    echo "==> Generating test coverage..." && \
+    go tool cover -html=cover.out -o=cover.html
