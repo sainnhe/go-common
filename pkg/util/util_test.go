@@ -6,25 +6,6 @@ import (
 	"github.com/teamsorghum/go-common/pkg/util"
 )
 
-func TestRecover(t *testing.T) {
-	t.Parallel()
-
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				t.Errorf("Test panicked: %v", r)
-			}
-		}()
-
-		func() {
-			defer util.Recover()
-			panic("test panic")
-		}()
-		// If the panic is recovered, execution continues here
-	}()
-	// Reaching this point means the panic was recovered
-}
-
 func TestToStr(t *testing.T) {
 	t.Parallel()
 

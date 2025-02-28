@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// GenSalt generates the salt that can be used in argon2 hashing algorithm.
+// GenSalt generates the salt that can be used in [argon2] hashing algorithm.
 func GenSalt() string {
 	salt := make([]byte, constant.CryptoSaltLen)
 	_, err := rand.Read(salt)
@@ -18,7 +18,7 @@ func GenSalt() string {
 	return base64.RawStdEncoding.EncodeToString(salt)
 }
 
-// HashPassword calculates the hash of a given password via argon2 hashing algorithm.
+// HashPassword calculates the hash of a given password via [argon2] hashing algorithm.
 func HashPassword(password, salt string) string {
 	s, _ := base64.RawStdEncoding.DecodeString(salt)
 	h := argon2.IDKey([]byte(password), s,
