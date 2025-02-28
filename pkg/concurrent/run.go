@@ -1,4 +1,4 @@
-package util
+package concurrent
 
 import (
 	"sort"
@@ -8,8 +8,8 @@ import (
 )
 
 /*
-ConcurrentRun runs tasks concurrently, waits for all tasks to be executed and the ordered results are returned. [glock]
-is supported during execution, so you don't need to manually add locks in handler function.
+Run runs tasks concurrently, waits for all tasks to be executed and return ordered results. [glock] is supported during
+execution, so you don't need to manually add locks in handler function.
 
 Params:
   - concurrency int32: The maximum number of tasks that can run concurrently.
@@ -19,8 +19,7 @@ Params:
 Returns:
   - results []Result: The returned results, sorted by incoming arguments.
 */
-func ConcurrentRun[Arg any, Result any](
-	concurrency int32, args []Arg, f func(Arg) Result) (results []Result) {
+func Run[Arg any, Result any](concurrency int32, args []Arg, f func(Arg) Result) (results []Result) {
 	// Add goroutine lock.
 	glock.Lock()
 	defer glock.Unlock()
