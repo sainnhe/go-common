@@ -48,6 +48,13 @@ var DOCols = []string{
 	"ext",
 }
 
+// DOColsWithoutID contains the column names of [DO] but excludes the "id" column.
+var DOColsWithoutID = []string{
+	"create_time",
+	"update_time",
+	"ext",
+}
+
 // NewPool initializes a new database connection pool.
 func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error) {
 	pool, err = sqlx.Open(driver, dsn)
