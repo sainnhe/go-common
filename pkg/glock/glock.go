@@ -18,6 +18,7 @@ func Lock() {
 }
 
 // Unlock unlocks a goroutine lock.
+//
 // NOTE: This function must be used via defer to avoid panic in the middle and causing the lock to not be released.
 func Unlock() {
 	wg.Done()

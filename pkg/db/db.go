@@ -16,8 +16,8 @@ type Repo[DO any] interface {
 	// Insert inserts a record and updates the ID field of the given data object based on returned ID.
 	Insert(ctx context.Context, do *DO) error
 
-	// QueryByID queries record by ID. If no record is found, return [sql.ErrNoRows], otherwise it will return an error
-	// that may occur during execution or nil.
+	// QueryByID queries record by ID.
+	// If no record is found, return [sql.ErrNoRows], otherwise it will return an error that may occur during execution.
 	QueryByID(ctx context.Context, id int64) (*DO, error)
 
 	// Update updates a record.
@@ -41,9 +41,11 @@ type DO struct {
 	// UpdateTime is the update time of a record.
 	UpdateTime time.Time `db:"update_time"`
 
-	// Ext is the extension field. If the table structure is hard to modify after running for a period of time and you
-	// want to add a new column, you can use ext as a temporary alternative. The ext field should be of type json in the
-	// database.
+	// Ext is the extension field.
+	// If the table structure is hard to modify after running for a period of time and you want to add a new column, you
+	// can use ext as a temporary alternative.
+	//
+	// NOTE: The ext field should be of type json in the database.
 	Ext string `db:"ext"`
 }
 
@@ -55,8 +57,9 @@ var DOCols = []string{
 	"ext",
 }
 
-// NewPool initializes a new database connection pool. The driver and DSN (Data Source Name) can be found in your SQL
-// driver documentation, for example [github.com/go-sql-driver/mysql].
+// NewPool initializes a new database connection pool.
+// The driver and DSN (Data Source Name) can be found in your SQL driver documentation, for example
+// [github.com/go-sql-driver/mysql].
 func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error) {
 	pool, err = sqlx.Open(driver, dsn)
 	if err != nil {

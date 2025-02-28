@@ -7,8 +7,10 @@ import (
 )
 
 // This example demonstrates how to generate a salt value and the hash value of a password and verify a incoming
-// password using them. A typical usage is storing the generated salt and hash values into a database, and verifying the
-// incoming password by looking at whether the password and the hash and salt values match.
+// password using them.
+//
+// A typical usage is storing the generated salt and hash values into a database, and verifying the incoming password by
+// looking at whether the password and the hash and salt values match.
 func Example_crypto() {
 	// Define your password
 	password := "your_password"
