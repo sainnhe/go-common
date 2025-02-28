@@ -3,13 +3,10 @@ package concurrent
 import (
 	"sort"
 	"sync"
-
-	"github.com/teamsorghum/go-common/pkg/glock"
 )
 
 /*
-Run runs tasks concurrently, waits for all tasks to be executed and return ordered results. [glock] is supported during
-execution, so you don't need to manually add locks in handler function.
+Run runs tasks concurrently, waits for all tasks to be executed and return ordered results.
 
 Params:
   - concurrency int32: The maximum number of tasks that can run concurrently.
@@ -20,10 +17,6 @@ Returns:
   - results []Result: The returned results, sorted by incoming arguments.
 */
 func Run[Arg any, Result any](concurrency int32, args []Arg, f func(Arg) Result) (results []Result) {
-	// Add goroutine lock.
-	glock.Lock()
-	defer glock.Unlock()
-
 	// Add index to the Result structure for easy sorting.
 	type WrappedResult struct {
 		r Result
