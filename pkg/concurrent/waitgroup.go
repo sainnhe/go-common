@@ -82,9 +82,9 @@ func (w *WaitGroup) shouldLog() bool {
 func (w *WaitGroup) logCompletion(count int64) {
 	if count > 0 {
 		if len(w.Name) > 0 {
-			w.Logger.Info("[WaitGroup] Count updated.", logAttrName, w.Name, logAttrCount, count)
+			w.Logger.Info("[WaitGroup] Counter updated.", logAttrName, w.Name, logAttrCount, count)
 		} else {
-			w.Logger.Info("[WaitGroup] Count updated.", logAttrCount, count)
+			w.Logger.Info("[WaitGroup] Counter updated.", logAttrCount, count)
 		}
 	} else {
 		if len(w.Name) > 0 {
