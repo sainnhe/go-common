@@ -1,11 +1,11 @@
-package ctxutil_test
+package log_test
 
 import (
 	"context"
 	"reflect"
 	"testing"
 
-	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
+	"github.com/teamsorghum/go-common/pkg/log"
 )
 
 func TestContext_GetContextFields(t *testing.T) {
@@ -23,7 +23,7 @@ func TestContext_GetContextFields(t *testing.T) {
 		},
 		{
 			"Non empty fields",
-			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
+			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
 				"key": "value",
 			}),
 			map[any]any{
@@ -36,7 +36,7 @@ func TestContext_GetContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := ctxutil.GetFields(tt.ctx)
+			got := log.GetContextFields(tt.ctx)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Fatalf("Want %+v, got %+v", tt.want, got)
 			}
@@ -71,20 +71,20 @@ func TestContext_PutContextFields(t *testing.T) {
 			map[any]any{
 				"key": "value",
 			},
-			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
+			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
 				"key": "value",
 			}),
 		},
 		{
 			"Overwrite kv",
-			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
+			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
 				"key1": "value1",
 				"key2": "value2",
 			}),
 			map[any]any{
 				"key1": "aloha",
 			},
-			context.WithValue(context.Background(), ctxutil.Key, ctxutil.ValueType{
+			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
 				"key1": "aloha",
 				"key2": "value2",
 			}),
@@ -95,12 +95,12 @@ func TestContext_PutContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := ctxutil.PutFields(tt.ctx, tt.fields)
+			ctx := log.PutContextFields(tt.ctx, tt.fields)
 			if tt.want == nil && ctx != nil {
 				t.Fatalf("Want ctx to be nil, got %+v", ctx)
 			}
-			want := ctxutil.GetFields(tt.want)
-			got := ctxutil.GetFields(ctx)
+			want := log.GetContextFields(tt.want)
+			got := log.GetContextFields(ctx)
 			if len(want) == 0 && len(got) == 0 {
 				return
 			}

@@ -12,7 +12,6 @@ import (
 
 	"github.com/lmittmann/tint"
 	"github.com/teamsorghum/go-common/pkg/constant"
-	ctxutil "github.com/teamsorghum/go-common/pkg/util/ctx"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -74,7 +73,7 @@ func NewSlog(cfg *Config) (logger Logger, cleanup func(), err error) {
 // buildLogger builds a new logger from ctx and attrs
 func (s *slogImpl) buildLogger() {
 	// Build all attrs
-	ctxFields := ctxutil.GetFields(s.ctx)
+	ctxFields := GetContextFields(s.ctx)
 	resultAttrs := make([]any, 0, 2*len(ctxFields)+len(s.attrs))
 	for k, v := range ctxFields {
 		resultAttrs = append(resultAttrs, fmt.Sprintf("ctx_%+v", k), v)
@@ -104,7 +103,7 @@ func (s *slogImpl) WithAttrs(attrs ...any) Logger {
 }
 
 func (s *slogImpl) WithContext(ctx context.Context) Logger {
-	if len(ctxutil.GetFields(ctx)) == 0 {
+	if len(GetContextFields(ctx)) == 0 {
 		return s
 	}
 	newLogger := &slogImpl{
