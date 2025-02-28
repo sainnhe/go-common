@@ -68,7 +68,7 @@ func TestWaitGroup(t *testing.T) {
 
 			tt.wg.Add(1)
 			tt.wg.Done()
-			tt.wg.Add(-2)
+			tt.wg.Done()
 
 			if count := tt.wg.GetCount(); count != 0 {
 				t.Fatalf("Expect count = 0, got %d", count)
