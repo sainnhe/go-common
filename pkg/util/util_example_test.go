@@ -16,7 +16,7 @@ func ExampleRecover() {
 		panic("test panic")
 	}()
 
-	// If recovery from panic is successful, this line will be printed.
+	// If recovery from panic is successful, this message will be printed.
 	fmt.Println("Recovered.")
 
 	// Output: Recovered.
