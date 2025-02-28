@@ -18,31 +18,31 @@ import (
 )
 
 // MockRepo is a mock of Repo interface.
-type MockRepo[T any] struct {
+type MockRepo[DO any] struct {
 	ctrl     *gomock.Controller
-	recorder *MockRepoMockRecorder[T]
+	recorder *MockRepoMockRecorder[DO]
 	isgomock struct{}
 }
 
 // MockRepoMockRecorder is the mock recorder for MockRepo.
-type MockRepoMockRecorder[T any] struct {
-	mock *MockRepo[T]
+type MockRepoMockRecorder[DO any] struct {
+	mock *MockRepo[DO]
 }
 
 // NewMockRepo creates a new mock instance.
-func NewMockRepo[T any](ctrl *gomock.Controller) *MockRepo[T] {
-	mock := &MockRepo[T]{ctrl: ctrl}
-	mock.recorder = &MockRepoMockRecorder[T]{mock}
+func NewMockRepo[DO any](ctrl *gomock.Controller) *MockRepo[DO] {
+	mock := &MockRepo[DO]{ctrl: ctrl}
+	mock.recorder = &MockRepoMockRecorder[DO]{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRepo[T]) EXPECT() *MockRepoMockRecorder[T] {
+func (m *MockRepo[DO]) EXPECT() *MockRepoMockRecorder[DO] {
 	return m.recorder
 }
 
 // BeginTx mocks base method.
-func (m *MockRepo[T]) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
+func (m *MockRepo[DO]) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BeginTx", ctx, opts)
 	ret0, _ := ret[0].(*sqlx.Tx)
@@ -51,13 +51,13 @@ func (m *MockRepo[T]) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.T
 }
 
 // BeginTx indicates an expected call of BeginTx.
-func (mr *MockRepoMockRecorder[T]) BeginTx(ctx, opts any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) BeginTx(ctx, opts any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginTx", reflect.TypeOf((*MockRepo[T])(nil).BeginTx), ctx, opts)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginTx", reflect.TypeOf((*MockRepo[DO])(nil).BeginTx), ctx, opts)
 }
 
 // Delete mocks base method.
-func (m *MockRepo[T]) Delete(ctx context.Context, do *T) error {
+func (m *MockRepo[DO]) Delete(ctx context.Context, do *DO) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", ctx, do)
 	ret0, _ := ret[0].(error)
@@ -65,13 +65,13 @@ func (m *MockRepo[T]) Delete(ctx context.Context, do *T) error {
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockRepoMockRecorder[T]) Delete(ctx, do any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) Delete(ctx, do any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepo[T])(nil).Delete), ctx, do)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepo[DO])(nil).Delete), ctx, do)
 }
 
 // Insert mocks base method.
-func (m *MockRepo[T]) Insert(ctx context.Context, do *T) error {
+func (m *MockRepo[DO]) Insert(ctx context.Context, do *DO) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Insert", ctx, do)
 	ret0, _ := ret[0].(error)
@@ -79,28 +79,28 @@ func (m *MockRepo[T]) Insert(ctx context.Context, do *T) error {
 }
 
 // Insert indicates an expected call of Insert.
-func (mr *MockRepoMockRecorder[T]) Insert(ctx, do any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) Insert(ctx, do any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepo[T])(nil).Insert), ctx, do)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepo[DO])(nil).Insert), ctx, do)
 }
 
 // QueryByID mocks base method.
-func (m *MockRepo[T]) QueryByID(ctx context.Context, id int64) (*T, error) {
+func (m *MockRepo[DO]) QueryByID(ctx context.Context, id int64) (*DO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "QueryByID", ctx, id)
-	ret0, _ := ret[0].(*T)
+	ret0, _ := ret[0].(*DO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // QueryByID indicates an expected call of QueryByID.
-func (mr *MockRepoMockRecorder[T]) QueryByID(ctx, id any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) QueryByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryByID", reflect.TypeOf((*MockRepo[T])(nil).QueryByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryByID", reflect.TypeOf((*MockRepo[DO])(nil).QueryByID), ctx, id)
 }
 
 // Update mocks base method.
-func (m *MockRepo[T]) Update(ctx context.Context, do *T) error {
+func (m *MockRepo[DO]) Update(ctx context.Context, do *DO) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, do)
 	ret0, _ := ret[0].(error)
@@ -108,7 +108,7 @@ func (m *MockRepo[T]) Update(ctx context.Context, do *T) error {
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepoMockRecorder[T]) Update(ctx, do any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) Update(ctx, do any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepo[T])(nil).Update), ctx, do)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepo[DO])(nil).Update), ctx, do)
 }

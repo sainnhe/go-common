@@ -25,7 +25,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	INSERT INTO mytbl (username, nickname, create_at) VALUES ($1, 'foo', NOW())
 */
@@ -53,7 +53,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	SELECT * FROM mytbl WHERE username = $1 AND nickname = 'foo'
 */
@@ -85,7 +85,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	UPDATE mytbl SET username = $1, nickname = 'foo' WHERE username = $2 AND nickname = 'bar'
 */
@@ -122,7 +122,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	DELETE FROM mytbl WHERE username = $1 AND nickname = 'foo'
 */
@@ -153,7 +153,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	INSERT INTO mytbl (username, nickname) VALUES (:username, :nickname)
 */
@@ -182,7 +182,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	SELECT * FROM mytbl WHERE username = :username AND nickname = :nickname
 */
@@ -215,7 +215,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	UPDATE mytbl SET username = :username, nickname = :nickname WHERE age = :age AND gender = :gender
 */
@@ -254,7 +254,7 @@ Params:
 Returns:
   - string: The SQL statement.
 
-Example:
+Example output:
 
 	DELETE FROM mytbl WHERE username = :username AND nickname = :nickname
 */
