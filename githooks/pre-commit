@@ -9,4 +9,4 @@ echo "==> Checking go mod..." && \
     echo "==> Running go test..." && \
     go test -coverprofile=cover.out ./... && \
     echo "==> Generating test coverage report..." && \
-    go tool cover -html=cover.out -o=cover.html
+    go tool cover -html=cover.out -o=cover.html && rm cover.out
