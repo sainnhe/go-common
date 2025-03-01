@@ -50,7 +50,7 @@ func (w *WaitGroup) Add(delta int) {
 	}
 }
 
-// Done decrements the counter by 1 and signals completion to the internal WaitGroup.
+// Done decrements the counter by 1.
 func (w *WaitGroup) Done() {
 	// Update status
 	count, waitStarted := w.updateStatus(-1, false)
@@ -61,7 +61,8 @@ func (w *WaitGroup) Done() {
 	}
 }
 
-// Wait blocks until the counter reaches zero. Enables logging of subsequent operations.
+// Wait blocks until the counter reaches zero or negative.
+// The subsequent operations will be logged if Logger is a non-nil value.
 func (w *WaitGroup) Wait() {
 	// Update status
 	count, _ := w.updateStatus(0, true)
@@ -77,7 +78,7 @@ func (w *WaitGroup) Wait() {
 		w.mu.Unlock()
 	}
 
-	// Blocks until the counter reaches zero
+	// Blocks until the counter reaches zero or negative
 	<-w.ch
 }
 
