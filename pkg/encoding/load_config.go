@@ -1,63 +1,60 @@
-// Package loadconfig loads config from a file and environment variables.
-package loadconfig
+package encoding
 
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"reflect"
 	"strconv"
 
-	"github.com/teamsorghum/go-common/pkg/log"
 	"gopkg.in/yaml.v2"
 )
 
-// Type is the type of the config.
-type Type int
+var (
+	// ErrLoadConfigNotStruct indicates an error that the Config is not a struct.
+	ErrLoadConfigNotStruct = errors.New("config must be a struct")
 
-const (
-	// TypeNil means no type, which results in only environment variables being used to load the config.
-	TypeNil Type = 0
-	// TypeJSON is the JSON type.
-	TypeJSON Type = 1
-	// TypeYAML is the YAML type.
-	TypeYAML Type = 2
+	// ErrLoadConfigUnsupportedType indicates an error that the type is unsupported.
+	ErrLoadConfigUnsupportedType = errors.New("unsupported type")
 )
 
 /*
-Load loads config by read the config content and environment variables.
+LoadConfig loads config by reading the config content and environment variables.
 
-The Config generic supports 4 struct tags:
+The Config generic should be a struct and supports 4 struct tags:
 
  1. "json": Used to mark JSON fields.
  2. "yaml": Used to mark YAML fields.
- 3. "env": Used to mark environment variable fields. The value is parsed using strconv.
- 4. "default": Used to mark the default value of a field. The value is parsed using strconv.
+ 3. "env": Used to mark environment variable fields.
+ 4. "default": Used to mark the default value of a field.
+
+The "env" and "default" tag is parsed using [strconv] for basic data types, and [json.Unmarshal] for arrays, slices,
+maps and structs.
 
 The parsing process is as follows:
 
  1. Initialize a Config struct literal and assign default values to corresponding fields.
  2. Unmarshal the config content to this struct literal. This will override the default values assigned in the previous
-    step.
+    step if such field exists in the config content.
  3. Read the environment variables and assign it to corresponding fields. This will override the values assigned in the
-    previous step.
+    previous step if such environment variable exists.
 
 Params:
-  - content []byte: The config content. For example, you can use os.ReadFile() to read the content from a local file.
-    If this argument is nil or an empty slice, only environment variables will be used.
-  - typ Type: The config type. If TypeNil is passed, only environment variables will be used.
+  - content []byte: The config content. For example, you can use [os.ReadFile] to read the content from a local file.
+    If this argument is nil or an empty slice, only default values and environment variables will be used.
+  - typ [Type]: The config type. If [TypeNil] is passed, only default values and environment variables will be used.
 
 Returns:
   - *Config: The config struct.
-  - error: The error occurred during the execution. Nil will be returned if no error occurrs.
+  - error: The error occurred during the execution, which may be [ErrLoadConfigNotStruct],
+    [ErrLoadConfigUnsupportedType] or other runtime errors.
 */
-func Load[Config any](content []byte, typ Type) (*Config, error) {
+func LoadConfig[Config any](content []byte, typ Type) (*Config, error) {
 	var cfg Config
 
-	// Config must be a Struct
+	// Config must be a struct
 	if reflect.ValueOf(cfg).Kind() != reflect.Struct {
-		return nil, errors.New("config must be a struct")
+		return nil, ErrLoadConfigNotStruct
 	}
 
 	// Initialize nil pointers
@@ -67,8 +64,10 @@ func Load[Config any](content []byte, typ Type) (*Config, error) {
 	overrideWithDefaultValues(&cfg)
 
 	// Load config content
-	if len(content) > 0 && typ != TypeNil {
+	if len(content) > 0 {
 		switch typ {
+		case TypeNil:
+			break
 		case TypeJSON:
 			err := json.Unmarshal(content, &cfg)
 			if err != nil {
@@ -80,33 +79,43 @@ func Load[Config any](content []byte, typ Type) (*Config, error) {
 				return nil, err
 			}
 		default:
-			return nil, fmt.Errorf("unsupported type: %+v", typ)
+			return nil, ErrLoadConfigUnsupportedType
 		}
 	}
 
 	// Override with environment variables.
 	overrideWithEnvVars(&cfg)
 
-	log.GetDefault().Infof("Loaded config: %+v", cfg)
-
 	return &cfg, nil
 }
 
-func initNilPointers(v reflect.Value) {
-	switch v.Kind() {
+// initNilPointers initializes nil pointers recursively.
+func initNilPointers(val reflect.Value) {
+
+	switch val.Kind() {
 	case reflect.Pointer:
-		if v.IsNil() {
-			elemType := v.Type().Elem()
+		if val.IsNil() {
+			if !val.CanSet() {
+				return
+			}
+			elemType := val.Type().Elem()
 			newVal := reflect.New(elemType)
-			v.Set(newVal)
+			val.Set(newVal)
 			initNilPointers(newVal.Elem())
 		} else {
-			initNilPointers(v.Elem())
+			initNilPointers(val.Elem())
 		}
 	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
-			field := v.Field(i)
-			initNilPointers(field)
+		for i := range val.NumField() {
+			initNilPointers(val.Field(i))
+		}
+	case reflect.Array, reflect.Slice:
+		for i := range val.Len() {
+			initNilPointers(val.Index(i))
+		}
+	case reflect.Map:
+		for _, key := range val.MapKeys() {
+			initNilPointers(val.MapIndex(key))
 		}
 	}
 }
@@ -115,23 +124,17 @@ func overrideWithDefaultValues(cfg any) {
 	cfgVal := reflect.ValueOf(cfg).Elem()
 
 	// Iterate over each field
-	for i := 0; i < cfgVal.NumField(); i++ {
+	for i := range cfgVal.NumField() {
 		val := cfgVal.Field(i)
 		defaultTag := cfgVal.Type().Field(i).Tag.Get("default")
 
-		// Skip if can't set
-		if !val.CanSet() {
-			continue
-		}
-
-		// Handle default value override if defaultTag is set
-		if defaultTag != "" {
+		// Handle default value override if defaultVal is set
+		if len(defaultTag) > 0 {
 			if val.Kind() == reflect.Pointer {
 				setVal(val.Elem(), defaultTag)
 			} else {
 				setVal(val, defaultTag)
 			}
-			continue
 		}
 
 		// Now handle recursive structs or pointers
@@ -150,25 +153,19 @@ func overrideWithEnvVars(cfg any) {
 	cfgVal := reflect.ValueOf(cfg).Elem()
 
 	// Iterate over each field
-	for i := 0; i < cfgVal.NumField(); i++ {
+	for i := range cfgVal.NumField() {
 		val := cfgVal.Field(i)
 		envTag := cfgVal.Type().Field(i).Tag.Get("env")
 
-		// Skip if can't set
-		if !val.CanSet() {
-			continue
-		}
-
 		// Handle environment variable override if envTag is set
-		if envTag != "" {
+		if len(envTag) != 0 {
 			envVal := os.Getenv(envTag)
-			if envVal != "" {
+			if len(envVal) != 0 {
 				if val.Kind() == reflect.Pointer {
 					setVal(val.Elem(), envVal)
 				} else {
 					setVal(val, envVal)
 				}
-				continue
 			}
 		}
 
@@ -185,6 +182,9 @@ func overrideWithEnvVars(cfg any) {
 }
 
 func setVal(field reflect.Value, val string) {
+	if !field.CanSet() {
+		return
+	}
 	switch field.Kind() {
 	case reflect.String:
 		field.SetString(val)
@@ -212,6 +212,11 @@ func setVal(field reflect.Value, val string) {
 		complexVal, err := strconv.ParseComplex(val, field.Type().Bits())
 		if err == nil {
 			field.SetComplex(complexVal)
+		}
+	case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct:
+		target := reflect.New(field.Type()).Interface()
+		if json.Unmarshal([]byte(val), target) == nil {
+			field.Set(reflect.ValueOf(target).Elem())
 		}
 	}
 }

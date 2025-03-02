@@ -19,7 +19,7 @@ Note that this function will use string replace, so make sure the values passed 
 
 Params:
   - tbl string: The table name.
-  - cols []KV: The column names and values. For example [{"username", "$1"}, {"nickname", "'foo'"}, {"create_at",
+  - cols [][KV]: The column names and values. For example [{"username", "$1"}, {"nickname", "'foo'"}, {"create_at",
     "NOW()"}].
 
 Returns:
@@ -48,7 +48,7 @@ Note that this function will use string replace, so make sure the values passed 
 
 Params:
   - tbl string: The table name.
-  - conds []KV: The equal conditions. For example [{"username", "$1"}, {"nickname", "'foo'"}].
+  - conds [][KV]: The equal conditions. For example [{"username", "$1"}, {"nickname", "'foo'"}].
 
 Returns:
   - string: The SQL statement.
@@ -79,8 +79,8 @@ Note that this function will use string replace, so make sure the values passed 
 
 Params:
   - tbl string: The table name.
-  - cols []KV: The column names and values. For example [{"username", "$1"}, {"nickname", "'foo'"}].
-  - conds []KV: The equal conditions. For example [{"username", "$2"}, {"nickname", "'bar'"}].
+  - cols [][KV]: The column names and values. For example [{"username", "$1"}, {"nickname", "'foo'"}].
+  - conds [][KV]: The equal conditions. For example [{"username", "$2"}, {"nickname", "'bar'"}].
 
 Returns:
   - string: The SQL statement.
@@ -117,7 +117,7 @@ Note that this function will use string replace, so make sure the values passed 
 
 Params:
   - tbl string: The table name.
-  - conds []KV: The equal conditions. For example [{"username", "$1"}, {"nickname", "'foo'"}].
+  - conds [][KV]: The equal conditions. For example [{"username", "$1"}, {"nickname", "'foo'"}].
 
 Returns:
   - string: The SQL statement.

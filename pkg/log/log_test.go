@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	loadconfig "github.com/teamsorghum/go-common/pkg/load_config"
+	"github.com/teamsorghum/go-common/pkg/encoding"
 	"github.com/teamsorghum/go-common/pkg/log"
 )
 
 // nolint:paralleltest
 func TestLog_Logger(t *testing.T) {
-	defaultCfg, err := loadconfig.Load[log.Config](nil, loadconfig.TypeNil)
+	defaultCfg, err := encoding.LoadConfig[log.Config](nil, encoding.TypeNil)
 	if err != nil {
 		t.Fatal(err)
 	}
