@@ -23,8 +23,12 @@ const (
 //
 // NOTE: A WaitGroup must not be copied after first use.
 type WaitGroup struct {
-	Name        string     // Optional identifier that will be used in logging
-	Logger      log.Logger // Optional logger instance
+	// Name is the optional identifier that will be used in logging.
+	Name string
+
+	// Logger is the optional logger instance. Set this field to a non-nil value will enable logging.
+	Logger log.Logger
+
 	count       int64
 	waitStarted bool
 	ch          chan struct{}
