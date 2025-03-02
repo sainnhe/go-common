@@ -66,8 +66,8 @@ func TestLog_Logger(t *testing.T) {
 		})
 
 		t.Run(tt.name+" with context", func(_ *testing.T) {
-			wrongCtx := log.PutContextFields(context.Background(), map[any]any{"wrong": "wrong"})
-			ctx := log.PutContextFields(context.Background(), map[any]any{"k": "v"})
+			wrongCtx := log.PutCtxFields(context.Background(), map[any]any{"wrong": "wrong"})
+			ctx := log.PutCtxFields(context.Background(), map[any]any{"k": "v"})
 			output(
 				logger.WithContext(wrongCtx).WithContext(ctx),
 				msg, attrs, args)
@@ -76,7 +76,7 @@ func TestLog_Logger(t *testing.T) {
 		t.Run(tt.name+" with attrs and context", func(_ *testing.T) {
 			output(
 				logger.WithAttrs("k1", "v1").WithAttrs("k2", "v2").WithContext(
-					log.PutContextFields(context.Background(), map[any]any{"k": "v"})),
+					log.PutCtxFields(context.Background(), map[any]any{"k": "v"})),
 				msg, attrs, args)
 		})
 	}

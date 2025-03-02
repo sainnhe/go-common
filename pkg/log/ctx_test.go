@@ -1,14 +1,13 @@
-package log_test
+// nolint:testpackage
+package log
 
 import (
 	"context"
 	"reflect"
 	"testing"
-
-	"github.com/teamsorghum/go-common/pkg/log"
 )
 
-func TestContext_GetContextFields(t *testing.T) {
+func TestGetCtxFields(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -23,7 +22,7 @@ func TestContext_GetContextFields(t *testing.T) {
 		},
 		{
 			"Non empty fields",
-			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
+			context.WithValue(context.Background(), ctxKey, ctxValueT{
 				"key": "value",
 			}),
 			map[any]any{
@@ -36,7 +35,7 @@ func TestContext_GetContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := log.GetContextFields(tt.ctx)
+			got := GetCtxFields(tt.ctx)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Fatalf("Want %+v, got %+v", tt.want, got)
 			}
@@ -44,7 +43,7 @@ func TestContext_GetContextFields(t *testing.T) {
 	}
 }
 
-func TestContext_PutContextFields(t *testing.T) {
+func TestPutCtxFields(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -71,20 +70,20 @@ func TestContext_PutContextFields(t *testing.T) {
 			map[any]any{
 				"key": "value",
 			},
-			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
+			context.WithValue(context.Background(), ctxKey, ctxValueT{
 				"key": "value",
 			}),
 		},
 		{
 			"Overwrite kv",
-			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
+			context.WithValue(context.Background(), ctxKey, ctxValueT{
 				"key1": "value1",
 				"key2": "value2",
 			}),
 			map[any]any{
 				"key1": "aloha",
 			},
-			context.WithValue(context.Background(), log.ContextKey, log.ContextValueType{
+			context.WithValue(context.Background(), ctxKey, ctxValueT{
 				"key1": "aloha",
 				"key2": "value2",
 			}),
@@ -95,12 +94,12 @@ func TestContext_PutContextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := log.PutContextFields(tt.ctx, tt.fields)
+			ctx := PutCtxFields(tt.ctx, tt.fields)
 			if tt.want == nil && ctx != nil {
 				t.Fatalf("Want ctx to be nil, got %+v", ctx)
 			}
-			want := log.GetContextFields(tt.want)
-			got := log.GetContextFields(ctx)
+			want := GetCtxFields(tt.want)
+			got := GetCtxFields(ctx)
 			if len(want) == 0 && len(got) == 0 {
 				return
 			}
