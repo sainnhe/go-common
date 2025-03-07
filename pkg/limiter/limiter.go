@@ -1,4 +1,4 @@
-//go:generate mockgen -typed -write_package_comment=false -source=api.go -destination=api_mock.go -package limiter
+//go:generate mockgen -typed -write_package_comment=false -source=limiter.go -destination=limiter_mock.go -package limiter
 
 // Package limiter implements traffic limiter, including rate limit and peak shaving.
 //
