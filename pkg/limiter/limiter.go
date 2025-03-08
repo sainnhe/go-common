@@ -1,3 +1,8 @@
+// -------------------------------------------------------------------------------------------
+// Copyright (c) Team Sorghum. All rights reserved.
+// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
+// -------------------------------------------------------------------------------------------
+
 //go:generate mockgen -typed -write_package_comment=false -source=limiter.go -destination=limiter_mock.go -package limiter
 
 // Package limiter implements traffic limiter, including rate limit and peak shaving.

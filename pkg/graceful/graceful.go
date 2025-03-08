@@ -1,3 +1,8 @@
+// -------------------------------------------------------------------------------------------
+// Copyright (c) Team Sorghum. All rights reserved.
+// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
+// -------------------------------------------------------------------------------------------
+
 // Package graceful implements general graceful shutdown functions.
 //
 // The idea of graceful shutdown is that when a kill signal like [syscall.SIGINT] is received, instead of exiting

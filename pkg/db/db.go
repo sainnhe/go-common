@@ -1,3 +1,8 @@
+// -------------------------------------------------------------------------------------------
+// Copyright (c) Team Sorghum. All rights reserved.
+// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
+// -------------------------------------------------------------------------------------------
+
 //go:generate mockgen -write_package_comment=false -source=db.go -destination=db_mock.go -package db
 
 // Package db defines database related APIs.
