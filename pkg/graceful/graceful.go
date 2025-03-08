@@ -59,7 +59,7 @@ func RegisterPostShutdownHook(hook func()) {
 func RegisterShutdown(timeout time.Duration, shutdown func()) {
 	registerShutdownOnce.Do(func() {
 		go func() {
-			l := log.GetDefault()
+			l := log.Global()
 			signalCtx, signalCancel := signal.NotifyContext(context.Background(),
 				syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 			defer signalCancel()

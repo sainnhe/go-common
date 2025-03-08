@@ -42,7 +42,7 @@ func TestPeakShaving_disable(t *testing.T) {
 	}
 
 	proxy, err := limiter.NewRedisPeakShavingProxy(
-		&limiter.PeakShavingConfig{}, rueidisClient, log.GetDefault())
+		&limiter.PeakShavingConfig{}, rueidisClient, log.Global())
 	if proxy == nil || err != nil {
 		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
 	}
@@ -67,7 +67,7 @@ func TestPeakShaving_disable(t *testing.T) {
 	}
 
 	proxy, err = limiter.NewValkeyPeakShavingProxy(
-		&limiter.PeakShavingConfig{}, valkeyClient, log.GetDefault())
+		&limiter.PeakShavingConfig{}, valkeyClient, log.Global())
 	if proxy == nil || err != nil {
 		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
 	}
@@ -106,7 +106,7 @@ func TestPeakShaving_failed(t *testing.T) {
 			WindowMs:          500,
 			MaxAttempts:       2,
 			AttemptIntervalMs: 500,
-		}, rueidisClient, log.GetDefault())
+		}, rueidisClient, log.Global())
 	if proxy == nil || err != nil {
 		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
 	}
@@ -133,7 +133,7 @@ func TestPeakShaving_failed(t *testing.T) {
 			WindowMs:          500,
 			MaxAttempts:       2,
 			AttemptIntervalMs: 500,
-		}, valkeyClient, log.GetDefault())
+		}, valkeyClient, log.Global())
 	if proxy == nil || err != nil {
 		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
 	}

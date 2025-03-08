@@ -2,14 +2,13 @@ package limiter
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/redis/rueidis"
 	"github.com/redis/rueidis/rueidislimiter"
 	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/log"
 	"github.com/valkey-io/valkey-go"
 	"github.com/valkey-io/valkey-go/valkeylimiter"
 	"go.opentelemetry.io/otel"
@@ -21,7 +20,7 @@ type rateLimitImpl struct {
 	vl     valkeylimiter.RateLimiterClient
 	rp     sync.Pool
 	vp     sync.Pool
-	l      log.Logger
+	l      *slog.Logger
 	cfg    *RateLimitConfig
 	prefix string
 	meter  metric.Meter
@@ -29,10 +28,10 @@ type rateLimitImpl struct {
 
 // NewRedisRateLimitProxy initializes a new rate limit proxy using Redis.
 func NewRedisRateLimitProxy(
-	cfg *RateLimitConfig, rueidisClient rueidis.Client, logger log.Logger) (proxy Proxy, err error) {
+	cfg *RateLimitConfig, rueidisClient rueidis.Client, logger *slog.Logger) (proxy Proxy, err error) {
 	// Check arguments
 	if cfg == nil || logger == nil || rueidisClient == nil {
-		err = fmt.Errorf("nil dependency: cfg = %+v, rueidisClient = %+v, logger = %+v", cfg, rueidisClient, logger)
+		err = constant.ErrNilDep
 		return
 	}
 
@@ -57,7 +56,7 @@ func NewRedisRateLimitProxy(
 			},
 		},
 		sync.Pool{},
-		logger.WithAttrs(constant.LogAttrAPI, "rate_limit"),
+		logger.With(constant.LogAttrAPI, "rate_limit"),
 		cfg,
 		"*",
 		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
@@ -66,10 +65,10 @@ func NewRedisRateLimitProxy(
 
 // NewValkeyRateLimitProxy initializes a new rate limit proxy using Valkey.
 func NewValkeyRateLimitProxy(
-	cfg *RateLimitConfig, valkeyClient valkey.Client, logger log.Logger) (proxy Proxy, err error) {
+	cfg *RateLimitConfig, valkeyClient valkey.Client, logger *slog.Logger) (proxy Proxy, err error) {
 	// Check arguments
 	if cfg == nil || logger == nil || valkeyClient == nil {
-		err = fmt.Errorf("nil dependency: cfg = %+v, valkeyClient = %+v, logger = %+v", cfg, valkeyClient, logger)
+		err = constant.ErrNilDep
 		return
 	}
 
@@ -94,7 +93,7 @@ func NewValkeyRateLimitProxy(
 				return new(valkeylimiter.Result)
 			},
 		},
-		logger.WithAttrs(constant.LogAttrAPI, "rate_limit"),
+		logger.With(constant.LogAttrAPI, "rate_limit"),
 		cfg,
 		"*",
 		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
@@ -102,11 +101,11 @@ func NewValkeyRateLimitProxy(
 }
 
 func (r *rateLimitImpl) Check(ctx context.Context, identifier string) (result *Result, err error) {
-	l := r.l.WithContext(ctx).WithAttrs(constant.LogAttrMethod, "Check", "identifier", identifier)
+	l := r.l.With(constant.LogAttrMethod, "Check", "identifier", identifier)
 
 	// Return Allowed if rate limit is disabled.
 	if !r.cfg.Enable {
-		l.Debug("Rate limit disabled. Skipping...")
+		l.DebugContext(ctx, "Rate limit disabled. Skipping...")
 		return &Result{Allowed: true}, nil
 	}
 
@@ -126,20 +125,20 @@ func (r *rateLimitImpl) Check(ctx context.Context, identifier string) (result *R
 }
 
 func (r *rateLimitImpl) Allow(ctx context.Context, identifier string) (*Result, error) {
-	l := r.l.WithContext(ctx).WithAttrs(constant.LogAttrMethod, "Allow", "identifier", identifier)
+	l := r.l.With(constant.LogAttrMethod, "Allow", "identifier", identifier)
 	return r.allowN(ctx, identifier, 1, l)
 }
 
 func (r *rateLimitImpl) AllowN(ctx context.Context, identifier string, n int64) (*Result, error) {
-	l := r.l.WithContext(ctx).WithAttrs(constant.LogAttrMethod, "AllowN", "identifier", identifier)
+	l := r.l.With(constant.LogAttrMethod, "AllowN", "identifier", identifier)
 	return r.allowN(ctx, identifier, n, l)
 }
 
 func (r *rateLimitImpl) allowN(
-	ctx context.Context, identifier string, n int64, logger log.Logger) (result *Result, err error) {
+	ctx context.Context, identifier string, n int64, logger *slog.Logger) (result *Result, err error) {
 	// Return Allowed if rate limit is disabled.
 	if !r.cfg.Enable {
-		logger.Debug("Rate limit disabled. Skipping...")
+		logger.DebugContext(ctx, "Rate limit disabled. Skipping...")
 		return &Result{Allowed: true}, nil
 	}
 
@@ -147,7 +146,7 @@ func (r *rateLimitImpl) allowN(
 	mc, err := r.meter.Int64Counter("limiter.ratelimit.failed",
 		metric.WithDescription("Rate limit failed"), metric.WithUnit("1"))
 	if err != nil {
-		logger.Error("Get meter failed.", constant.LogAttrError, err.Error())
+		logger.ErrorContext(ctx, "Get meter failed.", constant.LogAttrError, err.Error())
 	}
 
 	// AllowN
@@ -166,14 +165,14 @@ func (r *rateLimitImpl) allowN(
 	// Handle result
 	if err != nil {
 		mc.Add(ctx, 1)
-		logger.Error("Rate limit error.", constant.LogAttrError, err.Error())
+		logger.ErrorContext(ctx, "Rate limit error.", constant.LogAttrError, err.Error())
 		return result, err
 	}
 	if !result.Allowed {
 		mc.Add(ctx, 1)
-		logger.Error("Exceeds rate limit.")
+		logger.ErrorContext(ctx, "Exceeds rate limit.")
 	} else {
-		logger.Debug("Rate limit allowed.")
+		logger.DebugContext(ctx, "Rate limit allowed.")
 	}
 	return result, err
 }

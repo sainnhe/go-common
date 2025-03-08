@@ -2,82 +2,138 @@ package log_test
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/encoding"
 	"github.com/teamsorghum/go-common/pkg/log"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
+	"go.opentelemetry.io/otel/log/global"
+	otellog "go.opentelemetry.io/otel/sdk/log"
 )
 
-// nolint:paralleltest
-func TestLog_Logger(t *testing.T) {
-	defaultCfg, err := encoding.LoadConfig[log.Config](nil, encoding.TypeNil)
+func TestLog_NewLogger(t *testing.T) {
+	t.Parallel()
+
+	// Setup otel logger provider
+	logExporter, err := stdoutlog.New()
 	if err != nil {
 		t.Fatal(err)
 	}
-	slogCfg := *defaultCfg
-	slogCfg.Type = "slog"
-
-	tests := []struct {
-		name string
-		cfg  *log.Config
-	}{
-		{
-			"Default config",
-			defaultCfg,
-		},
-		{
-			"Slog",
-			&slogCfg,
-		},
-	}
-
-	output := func(logger log.Logger, msg string, attrs, args []any) {
-		logger.Debug(msg, attrs...)
-		logger.Debugf(msg, args...)
-		logger.Info(msg, attrs...)
-		logger.Infof(msg, args...)
-		logger.Warn(msg, attrs...)
-		logger.Warnf(msg, args...)
-		logger.Error(msg, attrs...)
-		logger.Errorf(msg, args...)
-	}
-
-	msg := "Test %s"
-	attrs := []any{"attr1", "attr1", "attr2", "attr2"}
-	args := []any{"arg"}
-
-	for _, tt := range tests {
-		logger, cleanup, err := log.ProvideLogger(tt.cfg)
-		if err != nil {
+	loggerProvider := otellog.NewLoggerProvider(
+		otellog.WithProcessor(otellog.NewBatchProcessor(logExporter)),
+	)
+	global.SetLoggerProvider(loggerProvider)
+	defer func() {
+		if err := loggerProvider.Shutdown(context.Background()); err != nil {
 			t.Fatal(err)
 		}
-		if cleanup != nil {
-			defer cleanup() // nolint:gocritic
-		}
+	}()
 
-		t.Run(tt.name+" default output", func(_ *testing.T) {
-			output(logger, msg, attrs, args)
-		})
+	const pathPrefix = "/tmp/teamsorghum-go-common-test"
 
-		t.Run(tt.name+" with attrs", func(_ *testing.T) {
-			output(
-				logger.WithAttrs("k1", "v1").WithAttrs("k2", "v2"),
-				msg, attrs, args)
-		})
+	tests := []struct {
+		name        string
+		cfg         *log.Config
+		expectError bool
+	}{
+		{
+			"light",
+			&log.Config{
+				Type:  "light",
+				Level: "debug",
+			},
+			false,
+		},
+		{
+			"local",
+			&log.Config{
+				Type:  "local",
+				Level: "debug",
+				Local: log.LocalConfig{
+					Path:       pathPrefix + "/testlog",
+					MaxSizeMB:  1,
+					MaxBackups: 3,
+				},
+			},
+			false,
+		},
+		{
+			"otel",
+			&log.Config{
+				Type: "otel",
+				OTel: log.OTelConfig{
+					Name:    "testlog",
+					Version: "v0.1.0",
+				},
+			},
+			false,
+		},
+		{
+			"default type and level",
+			&log.Config{},
+			false,
+		},
+		{
+			"unsupported level",
+			&log.Config{
+				Level: "nil",
+			},
+			true,
+		},
+		{
+			"nil config",
+			nil,
+			true,
+		},
+		{
+			"unsupported level",
+			&log.Config{
+				Level: "nil",
+			},
+			true,
+		},
+		{
+			"unsupported type",
+			&log.Config{
+				Type: "nil",
+			},
+			true,
+		},
+	}
 
-		t.Run(tt.name+" with context", func(_ *testing.T) {
-			wrongCtx := log.PutCtxFields(context.Background(), map[any]any{"wrong": "wrong"})
-			ctx := log.PutCtxFields(context.Background(), map[any]any{"k": "v"})
-			output(
-				logger.WithContext(wrongCtx).WithContext(ctx),
-				msg, attrs, args)
-		})
+	output := func(logger *slog.Logger, msg string, attrs []any) {
+		logger.Debug(msg, attrs...)
+		logger.Info(msg, attrs...)
+		logger.Warn(msg, attrs...)
+		logger.Error(msg, attrs...)
+	}
 
-		t.Run(tt.name+" with attrs and context", func(_ *testing.T) {
-			output(
-				logger.WithAttrs("k1", "v1").WithAttrs("k2", "v2").WithContext(
-					log.PutCtxFields(context.Background(), map[any]any{"k": "v"})),
-				msg, attrs, args)
+	msg := "Test"
+	attrs := []any{"attr1", "attr1", "attr2", "attr2"}
+
+	for _, tt := range tests { // nolint:paralleltest
+		t.Run(tt.name, func(t *testing.T) {
+			logger, cleanup, err := log.NewLogger(tt.cfg)
+			if tt.expectError != (err != nil) {
+				t.Fatalf("Expect error = %t, got %+v", tt.expectError, err)
+			}
+			if err != nil {
+				return
+			}
+			output(logger, msg, attrs)
+			cleanup()
 		})
 	}
+}
+
+func TestLog_Global(t *testing.T) {
+	t.Parallel()
+
+	// Test data race
+	go func() {
+		log.Global().Info("test global")
+	}()
+	go func() {
+		log.SetGlobal(log.NewLight(slog.LevelDebug))
+	}()
 }

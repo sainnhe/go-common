@@ -2,6 +2,7 @@
 package graceful_test
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,7 +17,7 @@ import (
 // This example demonstrates how to implement graceful shutdown in a web server using this package.
 func Example_gracefulShutdown() {
 	// Get logger
-	logger := log.GetDefault()
+	logger := log.Global()
 
 	// Register pre-shutdown hooks that will be executed before shutdown. These hook functions will be executed in the
 	// order of registration.
@@ -63,7 +64,12 @@ func Example_gracefulShutdown() {
 
 	// Start the server.
 	if err := server.ListenAndServe(); err != nil {
-		logger.Fatal("Listen and serve failed.", constant.LogAttrError, err.Error())
+		if errors.Is(err, http.ErrServerClosed) {
+			logger.Info(err.Error())
+		} else {
+			logger.Error("Listen and serve failed.", constant.LogAttrError, err.Error())
+			os.Exit(1)
+		}
 	}
 
 	// This message will be printed if the kill signal is successfully captured.

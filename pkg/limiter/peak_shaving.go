@@ -2,14 +2,13 @@ package limiter
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/redis/rueidis"
 	"github.com/redis/rueidis/rueidislimiter"
 	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/log"
 	"github.com/valkey-io/valkey-go"
 	"github.com/valkey-io/valkey-go/valkeylimiter"
 	"go.opentelemetry.io/otel"
@@ -21,7 +20,7 @@ type peakShavingImpl struct {
 	vl     valkeylimiter.RateLimiterClient
 	rp     sync.Pool
 	vp     sync.Pool
-	l      log.Logger
+	l      *slog.Logger
 	cfg    *PeakShavingConfig
 	prefix string
 	meter  metric.Meter
@@ -29,10 +28,10 @@ type peakShavingImpl struct {
 
 // NewRedisPeakShavingProxy initializes a new peak shaving proxy using Redis.
 func NewRedisPeakShavingProxy(
-	cfg *PeakShavingConfig, rueidisClient rueidis.Client, logger log.Logger) (proxy Proxy, err error) {
+	cfg *PeakShavingConfig, rueidisClient rueidis.Client, logger *slog.Logger) (proxy Proxy, err error) {
 	// Check arguments
 	if cfg == nil || logger == nil || rueidisClient == nil {
-		err = fmt.Errorf("nil dependency: cfg = %+v, rueidisClient = %+v, logger = %+v", cfg, rueidisClient, logger)
+		err = constant.ErrNilDep
 		return
 	}
 
@@ -57,7 +56,7 @@ func NewRedisPeakShavingProxy(
 			},
 		},
 		sync.Pool{},
-		logger.WithAttrs(constant.LogAttrAPI, "peak_shaving"),
+		logger.With(constant.LogAttrAPI, "peak_shaving"),
 		cfg,
 		"*",
 		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
@@ -66,10 +65,10 @@ func NewRedisPeakShavingProxy(
 
 // NewValkeyPeakShavingProxy initializes a new peak shaving proxy using Valkey.
 func NewValkeyPeakShavingProxy(
-	cfg *PeakShavingConfig, valkeyClient valkey.Client, logger log.Logger) (proxy Proxy, err error) {
+	cfg *PeakShavingConfig, valkeyClient valkey.Client, logger *slog.Logger) (proxy Proxy, err error) {
 	// Check arguments
 	if cfg == nil || logger == nil || valkeyClient == nil {
-		err = fmt.Errorf("nil dependency: cfg = %+v, valkeyClient = %+v, logger = %+v", cfg, valkeyClient, logger)
+		err = constant.ErrNilDep
 		return
 	}
 
@@ -94,7 +93,7 @@ func NewValkeyPeakShavingProxy(
 				return new(valkeylimiter.Result)
 			},
 		},
-		logger.WithAttrs(constant.LogAttrAPI, "peak_shaving"),
+		logger.With(constant.LogAttrAPI, "peak_shaving"),
 		cfg,
 		"*",
 		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
@@ -102,11 +101,11 @@ func NewValkeyPeakShavingProxy(
 }
 
 func (p *peakShavingImpl) Check(ctx context.Context, identifier string) (result *Result, err error) {
-	l := p.l.WithContext(ctx).WithAttrs(constant.LogAttrMethod, "Check", "identifier", identifier)
+	l := p.l.With(constant.LogAttrMethod, "Check", "identifier", identifier)
 
 	// Return Allowed if peak shaving is disabled.
 	if !p.cfg.Enable {
-		l.Debug("Peak shaving disabled. Skipping...")
+		l.DebugContext(ctx, "Peak shaving disabled. Skipping...")
 		return &Result{Allowed: true}, nil
 	}
 
@@ -126,21 +125,21 @@ func (p *peakShavingImpl) Check(ctx context.Context, identifier string) (result 
 }
 
 func (p *peakShavingImpl) Allow(ctx context.Context, identifier string) (*Result, error) {
-	l := p.l.WithContext(ctx).WithAttrs(constant.LogAttrMethod, "Allow", "identifier", identifier)
+	l := p.l.With(constant.LogAttrMethod, "Allow", "identifier", identifier)
 	return p.allowN(ctx, identifier, 1, l)
 }
 
 func (p *peakShavingImpl) AllowN(ctx context.Context, identifier string, n int64) (*Result, error) {
-	l := p.l.WithContext(ctx).WithAttrs(constant.LogAttrMethod, "AllowN", "identifier", identifier)
+	l := p.l.With(constant.LogAttrMethod, "AllowN", "identifier", identifier)
 	return p.allowN(ctx, identifier, n, l)
 }
 
 func (p *peakShavingImpl) allowN(
-	ctx context.Context, identifier string, n int64, logger log.Logger) (result *Result, err error) {
+	ctx context.Context, identifier string, n int64, logger *slog.Logger) (result *Result, err error) {
 
 	// Return Allowed if peak shaving is disabled.
 	if !p.cfg.Enable {
-		logger.Debug("Peak shaving disabled. Skipping...")
+		logger.DebugContext(ctx, "Peak shaving disabled. Skipping...")
 		return &Result{Allowed: true}, nil
 	}
 
@@ -148,12 +147,12 @@ func (p *peakShavingImpl) allowN(
 	mc, err := p.meter.Int64Counter("limiter.peakshaving.failed",
 		metric.WithDescription("Peak shaving failed"), metric.WithUnit("1"))
 	if err != nil {
-		logger.Error("Get meter failed.", constant.LogAttrError, err.Error())
+		logger.ErrorContext(ctx, "Get meter failed.", constant.LogAttrError, err.Error())
 	}
 
 	// Try for MaxAttempts times
 	for i := range p.cfg.MaxAttempts {
-		tmpLogger := logger.WithAttrs("attempt", i+1)
+		tmpLogger := logger.With("attempt", i+1)
 
 		// AllowN
 		if p.rl != nil { // If Redis is used
@@ -171,17 +170,17 @@ func (p *peakShavingImpl) allowN(
 		// Handle result
 		if err != nil {
 			mc.Add(ctx, 1)
-			tmpLogger.Error("Peak shaving error.", constant.LogAttrError, err.Error())
+			tmpLogger.ErrorContext(ctx, "Peak shaving error.", constant.LogAttrError, err.Error())
 			return
 		}
 		if result.Allowed {
-			tmpLogger.Debug("Peak shaving allowed.")
+			tmpLogger.DebugContext(ctx, "Peak shaving allowed.")
 			return
 		}
-		tmpLogger.Warn("Reaches peak shaving limit. Sleep and retry.")
+		tmpLogger.WarnContext(ctx, "Reaches peak shaving limit. Sleep and retry.")
 		time.Sleep(time.Duration(p.cfg.AttemptIntervalMs) * time.Millisecond)
 	}
 	mc.Add(ctx, 1)
-	logger.Error("Peak shaving hits max attempts.")
+	logger.ErrorContext(ctx, "Peak shaving hits max attempts.")
 	return
 }

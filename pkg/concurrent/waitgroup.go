@@ -2,10 +2,9 @@ package concurrent
 
 import (
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
-
-	"github.com/teamsorghum/go-common/pkg/log"
 )
 
 const (
@@ -27,7 +26,7 @@ type WaitGroup struct {
 	Name string
 
 	// Logger is the optional logger instance. Set this field to a non-nil value will enable logging.
-	Logger log.Logger
+	Logger *slog.Logger
 
 	count       int64
 	waitStarted bool

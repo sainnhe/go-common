@@ -42,7 +42,7 @@ func TestRateLimit_disable(t *testing.T) {
 	}
 
 	proxy, err := limiter.NewRedisRateLimitProxy(
-		&limiter.RateLimitConfig{}, rueidisClient, log.GetDefault())
+		&limiter.RateLimitConfig{}, rueidisClient, log.Global())
 	if proxy == nil || err != nil {
 		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
 	}
@@ -67,7 +67,7 @@ func TestRateLimit_disable(t *testing.T) {
 	}
 
 	proxy, err = limiter.NewValkeyRateLimitProxy(
-		&limiter.RateLimitConfig{}, valkeyClient, log.GetDefault())
+		&limiter.RateLimitConfig{}, valkeyClient, log.Global())
 	if proxy == nil || err != nil {
 		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
 	}

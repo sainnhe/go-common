@@ -9,7 +9,7 @@ import (
 // wg is the wait group used to implement goroutine lock.
 var wg = &concurrent.WaitGroup{
 	Name:   "glock",
-	Logger: log.GetDefault(),
+	Logger: log.Global(),
 }
 
 // Lock locks goroutine to ensure that the task won't be interrupted.

@@ -4,6 +4,7 @@ package limiter_test
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -17,14 +18,15 @@ import (
 // This example demonstrates how to perform rate limit using Redis.
 // It assumes you have a working Redis server listened on localhost:6379 with empty username and password.
 func Example_rateLimitRedis() {
-	logger := log.GetDefault()
+	logger := log.Global()
 
 	// Initialize a rueidis client.
 	rueidisClient, err := rueidis.NewClient(rueidis.ClientOption{
 		InitAddress: []string{"127.0.0.1:6379"},
 	})
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Initialize a new rate limit proxy.
@@ -35,7 +37,8 @@ func Example_rateLimitRedis() {
 		WindowMs: 1000,            // Time window for measurement in milliseconds.
 	}, rueidisClient, logger)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Let's launch 3 goroutines:
@@ -59,7 +62,7 @@ func Example_rateLimitRedis() {
 	go func() {
 		result, err := proxy.Allow(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
 			atomic.AddInt32(&failedCount, 1)
@@ -71,7 +74,7 @@ func Example_rateLimitRedis() {
 		time.Sleep(time.Duration(200) * time.Millisecond)
 		result, err := proxy.AllowN(ctx, identifier, 3)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
 			atomic.AddInt32(&failedCount, 3)
@@ -83,7 +86,7 @@ func Example_rateLimitRedis() {
 		time.Sleep(time.Duration(500) * time.Millisecond)
 		result, err := proxy.Check(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		mu.Lock()
 		checkSuccess = result.Allowed
@@ -101,14 +104,15 @@ func Example_rateLimitRedis() {
 // This example demonstrates how to perform rate limit using Valkey.
 // It assumes you have a working Valkey server listened on localhost:6379 with empty username and password.
 func Example_rateLimitValkey() {
-	logger := log.GetDefault()
+	logger := log.Global()
 
 	// Initialize a valkey client.
 	valkeyClient, err := valkey.NewClient(valkey.ClientOption{
 		InitAddress: []string{"127.0.0.1:6379"},
 	})
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Initialize a new rate limit proxy.
@@ -119,7 +123,8 @@ func Example_rateLimitValkey() {
 		WindowMs: 1000,             // Time window for measurement in milliseconds.
 	}, valkeyClient, logger)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Let's launch 3 goroutines:
@@ -143,7 +148,7 @@ func Example_rateLimitValkey() {
 	go func() {
 		result, err := proxy.Allow(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
 			atomic.AddInt32(&failedCount, 1)
@@ -155,7 +160,7 @@ func Example_rateLimitValkey() {
 		time.Sleep(time.Duration(200) * time.Millisecond)
 		result, err := proxy.AllowN(ctx, identifier, 3)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
 			atomic.AddInt32(&failedCount, 3)
@@ -167,7 +172,7 @@ func Example_rateLimitValkey() {
 		time.Sleep(time.Duration(500) * time.Millisecond)
 		result, err := proxy.Check(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		mu.Lock()
 		checkSuccess = result.Allowed
@@ -185,14 +190,15 @@ func Example_rateLimitValkey() {
 // This example demonstrates how to perform peak shaving using Redis.
 // It assumes you have a working Redis server listened on localhost:6379 with empty username and password.
 func Example_peakShavingRedis() {
-	logger := log.GetDefault()
+	logger := log.Global()
 
 	// Initialize a rueidis client.
 	rueidisClient, err := rueidis.NewClient(rueidis.ClientOption{
 		InitAddress: []string{"127.0.0.1:6379"},
 	})
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Initialize a new peak shaving proxy.
@@ -205,7 +211,8 @@ func Example_peakShavingRedis() {
 		AttemptIntervalMs: 500,             // interval between each attempt in milliseconds
 	}, rueidisClient, logger)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Let's launch 3 goroutines:
@@ -228,10 +235,10 @@ func Example_peakShavingRedis() {
 	go func() {
 		result, err := proxy.Allow(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
-			logger.Fatalf("Expect allowed, got %+v", result)
+			logger.Error(fmt.Sprintf("Expect allowed, got %+v", result))
 		}
 		wg.Done()
 	}()
@@ -240,10 +247,10 @@ func Example_peakShavingRedis() {
 		time.Sleep(time.Duration(250) * time.Millisecond)
 		result, err := proxy.AllowN(ctx, identifier, 3)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
-			logger.Fatalf("2Expect allowed, got %+v", result)
+			logger.Error(fmt.Sprintf("Expect allowed, got %+v", result))
 		}
 		wg.Done()
 	}()
@@ -251,10 +258,10 @@ func Example_peakShavingRedis() {
 	go func() {
 		result, err := proxy.Check(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
-			logger.Fatalf("Expect allowed, got %+v", result)
+			logger.Error(fmt.Sprintf("Expect allowed, got %+v", result))
 		}
 		wg.Done()
 	}()
@@ -273,14 +280,15 @@ func Example_peakShavingRedis() {
 // This example demonstrates how to perform peak shaving using Valkey.
 // It assumes you have a working Valkey server listened on localhost:6379 with empty username and password.
 func Example_peakShavingValkey() {
-	logger := log.GetDefault()
+	logger := log.Global()
 
 	// Initialize a valkey client.
 	valkeyClient, err := valkey.NewClient(valkey.ClientOption{
 		InitAddress: []string{"127.0.0.1:6379"},
 	})
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Initialize a new peak shaving proxy.
@@ -293,7 +301,8 @@ func Example_peakShavingValkey() {
 		AttemptIntervalMs: 500,              // interval between each attempt in milliseconds
 	}, valkeyClient, logger)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	// Let's launch 3 goroutines:
@@ -316,10 +325,10 @@ func Example_peakShavingValkey() {
 	go func() {
 		result, err := proxy.Allow(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
-			logger.Fatalf("Expect allowed, got %+v", result)
+			logger.Error(fmt.Sprintf("Expect allowed, got %+v", result))
 		}
 		wg.Done()
 	}()
@@ -328,10 +337,10 @@ func Example_peakShavingValkey() {
 		time.Sleep(time.Duration(250) * time.Millisecond)
 		result, err := proxy.AllowN(ctx, identifier, 3)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
-			logger.Fatalf("2Expect allowed, got %+v", result)
+			logger.Error(fmt.Sprintf("Expect allowed, got %+v", result))
 		}
 		wg.Done()
 	}()
@@ -339,10 +348,10 @@ func Example_peakShavingValkey() {
 	go func() {
 		result, err := proxy.Check(ctx, identifier)
 		if err != nil {
-			logger.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 		if !result.Allowed {
-			logger.Fatalf("Expect allowed, got %+v", result)
+			logger.Error(fmt.Sprintf("Expect allowed, got %+v", result))
 		}
 		wg.Done()
 	}()

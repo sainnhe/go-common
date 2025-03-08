@@ -13,7 +13,10 @@ import (
 // NOTE: It should be used via defer, otherwise panics can't be captured.
 func Recover() {
 	if err := recover(); err != nil {
-		log.GetDefault().Errorf("Recovered from panic: %+v\n%s", err, debug.Stack())
+		// We must use [fmt.Sprintf] here otherwise [debug.Stack] will be printed in a single line.
+		log.Global().Error(
+			fmt.Sprintf("Recovered from panic: %+v\n%s", err, string(debug.Stack())),
+		)
 	}
 }
 
