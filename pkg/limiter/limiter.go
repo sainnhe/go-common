@@ -11,20 +11,7 @@
 // a new limiter [Proxy].
 //
 // Metrics will be collected using the global [metric.MeterProvider].
-// For example, you can use the following code to register a global MeterProvider that outputs metrics to stdout every 3
-// seconds:
-//
-//	metricExporter, err := stdoutmetric.New()
-//	if err != nil {
-//	    logger.Fatal(err.Error())
-//	}
-//	otel.SetMeterProvider(metric.NewMeterProvider(
-//	    metric.WithReader(
-//	        metric.NewPeriodicReader(
-//	            metricExporter, metric.WithInterval(time.Duration(3)*time.Second))),
-//	))
-//
-// There are 2 metric counters:
+// There are 2 metric counters that will be collected:
 //
 //   - "limiter.ratelimit.failed": Indicates failed rate limit in Allow and AllowN.
 //   - "limiter.peakshaving.failed": Indicates failed peak shaving in Allow and AllowN.
