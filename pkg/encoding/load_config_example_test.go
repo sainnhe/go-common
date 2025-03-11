@@ -3,6 +3,7 @@
 // Licensed under the GPL v3 License. See LICENSE in the project root for license information.
 // -------------------------------------------------------------------------------------------
 
+// nolint:lll
 package encoding_test
 
 import (
@@ -16,19 +17,19 @@ import (
 
 func ExampleLoadConfig() {
 	// Define config struct. Pointer fields are supported.
-	// Remember the priority is: env > json/yaml > default
+	// Remember the priority is: env > json/yaml/toml/xml > default
 	type Config struct {
-		Name  string          `json:"name" yaml:"name"`
-		Host  string          `json:"host" yaml:"host"`
-		Ports []int           `json:"ports" yaml:"ports" env:"PORTS" default:"[10001, 10002, 10003]"`
-		Used  map[string]bool `json:"used" yaml:"used" env:"USED" default:"{\"foo\": true, \"bar\": false}"`
+		Name  string          `json:"name" yaml:"name" toml:"name" xml:"name"`
+		Host  string          `json:"host" yaml:"host" toml:"host" xml:"host"`
+		Ports []int           `json:"ports" yaml:"ports" toml:"ports" xml:"ports" env:"PORTS" default:"[10001, 10002, 10003]"`
+		Used  map[string]bool `json:"used" yaml:"used" toml:"used" xml:"used" env:"USED" default:"{\"foo\": true, \"bar\": false}"`
 		Auth  struct {
-			Username string `json:"username" yaml:"username" env:"USERNAME" default:"xxx"`
-			Password string `json:"password" yaml:"password" env:"PASSWORD" default:"123"`
-		} `json:"auth" yaml:"auth"`
+			Username string `json:"username" yaml:"username" toml:"username" xml:"username" env:"USERNAME" default:"xxx"`
+			Password string `json:"password" yaml:"password" toml:"password" xml:"password" env:"PASSWORD" default:"123"`
+		} `json:"auth" yaml:"auth" toml:"auth" xml:"auth"`
 	}
 
-	// Define JSON and YAML config content
+	// Define JSON, YAML, TOML and XML config content
 	jsonContent := `
 {
 	"name": "mydb",
@@ -45,6 +46,26 @@ host: localhost
 auth:
   username: yyy
   password: 456
+`
+
+	tomlContent := `
+name = "mydb"
+host = "localhost"
+
+[auth]
+username = "yyy"
+password = "456"
+`
+
+	xmlContent := `
+<config>
+  <name>mydb</name>
+  <host>localhost</host>
+  <auth>
+    <username>yyy</username>
+    <password>456</password>
+  </auth>
+</config>
 `
 
 	// Set environment variables
@@ -69,7 +90,23 @@ auth:
 	}
 	fmt.Printf("%+v\n", yamlConfig)
 
+	// Load TOML config
+	tomlConfig, err := encoding.LoadConfig[Config]([]byte(tomlContent), encoding.TypeTOML)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	fmt.Printf("%+v\n", tomlConfig)
+
+	// Load XML config
+	xmlConfig, err := encoding.LoadConfig[Config]([]byte(xmlContent), encoding.TypeXML)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	fmt.Printf("%+v\n", xmlConfig)
+
 	// Output:
+	// &{Name:mydb Host:localhost Ports:[10004 10005 10006] Used:map[bar:false foo:true] Auth:{Username:zzz Password:456}}
+	// &{Name:mydb Host:localhost Ports:[10004 10005 10006] Used:map[bar:false foo:true] Auth:{Username:zzz Password:456}}
 	// &{Name:mydb Host:localhost Ports:[10004 10005 10006] Used:map[bar:false foo:true] Auth:{Username:zzz Password:456}}
 	// &{Name:mydb Host:localhost Ports:[10004 10005 10006] Used:map[bar:false foo:true] Auth:{Username:zzz Password:456}}
 }

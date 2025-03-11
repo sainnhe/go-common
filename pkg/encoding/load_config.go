@@ -7,11 +7,13 @@ package encoding
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"os"
 	"reflect"
 	"strconv"
 
+	"github.com/pelletier/go-toml/v2"
 	"gopkg.in/yaml.v2"
 )
 
@@ -26,12 +28,14 @@ var (
 /*
 LoadConfig loads config by reading the config content and environment variables.
 
-The Config generic should be a struct and supports 4 struct tags:
+The Config generic should be a struct and supports 6 struct tags:
 
  1. "json": Used to mark JSON fields.
  2. "yaml": Used to mark YAML fields.
- 3. "env": Used to mark environment variable fields.
- 4. "default": Used to mark the default value of a field.
+ 3. "toml": Used to mark TOML fields.
+ 4. "xml": Used to mark XML fields.
+ 5. "env": Used to mark environment variable fields.
+ 6. "default": Used to mark the default value of a field.
 
 The "env" and "default" tag is parsed using [strconv] for basic data types, and [json.Unmarshal] for arrays, slices,
 maps and structs.
@@ -80,6 +84,16 @@ func LoadConfig[Config any](content []byte, typ Type) (*Config, error) {
 			}
 		case TypeYAML:
 			err := yaml.Unmarshal(content, &cfg)
+			if err != nil {
+				return nil, err
+			}
+		case TypeTOML:
+			err := toml.Unmarshal(content, &cfg)
+			if err != nil {
+				return nil, err
+			}
+		case TypeXML:
+			err := xml.Unmarshal(content, &cfg)
 			if err != nil {
 				return nil, err
 			}

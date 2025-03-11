@@ -6,6 +6,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lmittmann/tint v1.0.7
+	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/redis/rueidis v1.0.55
 	github.com/valkey-io/valkey-go v1.0.53
 	github.com/valkey-io/valkey-go/valkeylimiter v1.0.53

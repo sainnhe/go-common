@@ -12,8 +12,16 @@ type Type int
 const (
 	// TypeNil indicates no type.
 	TypeNil Type = 0
+
 	// TypeJSON is the JSON type.
 	TypeJSON Type = 1
+
 	// TypeYAML is the YAML type.
 	TypeYAML Type = 2
+
+	// TypeTOML is the TOML type.
+	TypeTOML Type = 3
+
+	// TypeXML is the XML type.
+	TypeXML Type = 4
 )
