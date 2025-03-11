@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/teamsorghum/go-common/pkg/constant"
+	"github.com/teamsorghum/go-common/pkg/log"
 )
 
 // Repo defines a interface for common database operations, where DO is the struct of data object.
@@ -65,7 +67,7 @@ var DOCols = []string{
 // NewPool initializes a new database connection pool.
 // The driver and DSN (Data Source Name) can be found in your SQL driver documentation, for example
 // [github.com/go-sql-driver/mysql].
-func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error) {
+func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func(), err error) {
 	pool, err = sqlx.Open(driver, dsn)
 	if err != nil {
 		return
@@ -73,6 +75,10 @@ func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func() error, err error
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(3)*time.Second) // nolint:mnd
 	defer cancel()
 	err = pool.PingContext(ctx)
-	cleanup = pool.Close
+	cleanup = func() {
+		if err := pool.Close(); err != nil {
+			log.Global().Error("Close db connection pool failed.", constant.LogAttrError, err)
+		}
+	}
 	return
 }

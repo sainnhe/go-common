@@ -19,13 +19,11 @@ func TestNewPool(t *testing.T) {
 		t.Parallel()
 
 		pool, cleanup, err := db.NewPool("pgx", "postgres://teamsorghum:teamsorghum@localhost:5432/test")
+		defer cleanup()
 		if pool == nil {
 			t.Fatal("pool is nil")
 		}
 		if err != nil {
-			t.Fatal(err)
-		}
-		if err := cleanup(); err != nil {
 			t.Fatal(err)
 		}
 	})
