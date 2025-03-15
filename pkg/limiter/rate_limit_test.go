@@ -20,15 +20,15 @@ func TestRateLimit_nilDependency(t *testing.T) {
 	t.Parallel()
 
 	// Redis
-	proxy, err := limiter.NewRedisRateLimitProxy(nil, nil, nil)
-	if proxy != nil || err == nil {
-		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
+	s, err := limiter.NewRedisRateLimitService(nil, nil, nil)
+	if s != nil || err == nil {
+		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 
 	// Valkey
-	proxy, err = limiter.NewValkeyRateLimitProxy(nil, nil, nil)
-	if proxy != nil || err == nil {
-		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
+	s, err = limiter.NewValkeyRateLimitService(nil, nil, nil)
+	if s != nil || err == nil {
+		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 }
 
@@ -46,15 +46,15 @@ func TestRateLimit_disable(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	proxy, err := limiter.NewRedisRateLimitProxy(
+	s, err := limiter.NewRedisRateLimitService(
 		&limiter.RateLimitConfig{}, rueidisClient, log.Global())
-	if proxy == nil || err != nil {
-		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
+	if s == nil || err != nil {
+		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 
-	result1, err1 := proxy.Allow(ctx, identifier)
-	result2, err2 := proxy.AllowN(ctx, identifier, 3)
-	result3, err3 := proxy.Check(ctx, identifier)
+	result1, err1 := s.Allow(ctx, identifier)
+	result2, err2 := s.AllowN(ctx, identifier, 3)
+	result3, err3 := s.Check(ctx, identifier)
 
 	if !result1.Allowed || !result2.Allowed || !result3.Allowed {
 		t.Fatalf("Expect all allowed, got result1 = %+v, result2 = %+v, result3 = %+v", result1, result2, result3)
@@ -71,15 +71,15 @@ func TestRateLimit_disable(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	proxy, err = limiter.NewValkeyRateLimitProxy(
+	s, err = limiter.NewValkeyRateLimitService(
 		&limiter.RateLimitConfig{}, valkeyClient, log.Global())
-	if proxy == nil || err != nil {
-		t.Fatalf("Got proxy = %+v, err = %+v", proxy, err)
+	if s == nil || err != nil {
+		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 
-	result1, err1 = proxy.Allow(ctx, identifier)
-	result2, err2 = proxy.AllowN(ctx, identifier, 3)
-	result3, err3 = proxy.Check(ctx, identifier)
+	result1, err1 = s.Allow(ctx, identifier)
+	result2, err2 = s.AllowN(ctx, identifier, 3)
+	result3, err3 = s.Check(ctx, identifier)
 
 	if !result1.Allowed || !result2.Allowed || !result3.Allowed {
 		t.Fatalf("Expect all allowed, got result1 = %+v, result2 = %+v, result3 = %+v", result1, result2, result3)

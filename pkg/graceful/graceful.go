@@ -39,6 +39,9 @@ var (
 
 // RegisterPreShutdownHook registers a hook function that will be run before shutdown.
 func RegisterPreShutdownHook(hook func()) {
+	if hook == nil {
+		return
+	}
 	hooksMutex.Lock()
 	defer hooksMutex.Unlock()
 	preShutdownHooks = append(preShutdownHooks, hook)
@@ -46,6 +49,9 @@ func RegisterPreShutdownHook(hook func()) {
 
 // RegisterPostShutdownHook register a hook function that will be run after shutdown.
 func RegisterPostShutdownHook(hook func()) {
+	if hook == nil {
+		return
+	}
 	hooksMutex.Lock()
 	defer hooksMutex.Unlock()
 	postShutdownHooks = append(postShutdownHooks, hook)
@@ -62,6 +68,9 @@ func RegisterPostShutdownHook(hook func()) {
 // NOTE: The shutdown process will wait for goroutine locks implemented in [glock] to be released, and the waiting time
 // respects the timeout argument.
 func RegisterShutdown(timeout time.Duration, shutdown func()) {
+	if shutdown == nil {
+		return
+	}
 	registerShutdownOnce.Do(func() {
 		go func() {
 			l := log.Global()

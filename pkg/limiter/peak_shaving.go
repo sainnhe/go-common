@@ -20,7 +20,8 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-type peakShavingImpl struct {
+// PeakShavingService is the peak shaving service.
+type PeakShavingService struct {
 	rl     rueidislimiter.RateLimiterClient
 	vl     valkeylimiter.RateLimiterClient
 	rp     sync.Pool
@@ -31,13 +32,12 @@ type peakShavingImpl struct {
 	meter  metric.Meter
 }
 
-// NewRedisPeakShavingProxy initializes a new peak shaving proxy using Redis.
-func NewRedisPeakShavingProxy(
-	cfg *PeakShavingConfig, rueidisClient rueidis.Client, logger *slog.Logger) (proxy Proxy, err error) {
+// NewRedisPeakShavingService initializes a new peak shaving service using Redis.
+func NewRedisPeakShavingService(
+	cfg *PeakShavingConfig, rueidisClient rueidis.Client, logger *slog.Logger) (*PeakShavingService, error) {
 	// Check arguments
 	if cfg == nil || logger == nil || rueidisClient == nil {
-		err = constant.ErrNilDep
-		return
+		return nil, constant.ErrNilDeps
 	}
 
 	// Initialize rueidis limiter
@@ -51,8 +51,8 @@ func NewRedisPeakShavingProxy(
 		return nil, err
 	}
 
-	// Initialize peakShavingImpl
-	return &peakShavingImpl{
+	// Initialize PeakShavingService
+	return &PeakShavingService{
 		limiter,
 		nil,
 		sync.Pool{
@@ -68,13 +68,12 @@ func NewRedisPeakShavingProxy(
 	}, nil
 }
 
-// NewValkeyPeakShavingProxy initializes a new peak shaving proxy using Valkey.
-func NewValkeyPeakShavingProxy(
-	cfg *PeakShavingConfig, valkeyClient valkey.Client, logger *slog.Logger) (proxy Proxy, err error) {
+// NewValkeyPeakShavingService initializes a new peak shaving service using Valkey.
+func NewValkeyPeakShavingService(
+	cfg *PeakShavingConfig, valkeyClient valkey.Client, logger *slog.Logger) (*PeakShavingService, error) {
 	// Check arguments
 	if cfg == nil || logger == nil || valkeyClient == nil {
-		err = constant.ErrNilDep
-		return
+		return nil, constant.ErrNilDeps
 	}
 
 	// Initialize valkey limiter
@@ -88,8 +87,8 @@ func NewValkeyPeakShavingProxy(
 		return nil, err
 	}
 
-	// Initialize peakShavingImpl
-	return &peakShavingImpl{
+	// Initialize PeakShavingService
+	return &PeakShavingService{
 		nil,
 		limiter,
 		sync.Pool{},
@@ -105,7 +104,9 @@ func NewValkeyPeakShavingProxy(
 	}, nil
 }
 
-func (p *peakShavingImpl) Check(ctx context.Context, identifier string) (result *Result, err error) {
+// Check checks if a request is allowed under the limit without incrementing the counter.
+// The identifier is used to group traffics. Requests with the same identifier share the same counter.
+func (p *PeakShavingService) Check(ctx context.Context, identifier string) (result *Result, err error) {
 	l := p.l.With(constant.LogAttrMethod, "Check", "identifier", identifier)
 
 	// Return Allowed if peak shaving is disabled.
@@ -129,17 +130,22 @@ func (p *peakShavingImpl) Check(ctx context.Context, identifier string) (result 
 	return convertResult(nil, vr), err
 }
 
-func (p *peakShavingImpl) Allow(ctx context.Context, identifier string) (*Result, error) {
+// Allow allows a single request, incrementing the counter if allowed.
+// The identifier is used to group traffics. Requests with the same identifier share the same counter.
+func (p *PeakShavingService) Allow(ctx context.Context, identifier string) (*Result, error) {
 	l := p.l.With(constant.LogAttrMethod, "Allow", "identifier", identifier)
 	return p.allowN(ctx, identifier, 1, l)
 }
 
-func (p *peakShavingImpl) AllowN(ctx context.Context, identifier string, n int64) (*Result, error) {
+// AllowN allows n requests, incrementing the counter accordingly if allowed.
+// The identifier is used to group traffics. Requests with the same identifier share the same counter.
+func (p *PeakShavingService) AllowN(ctx context.Context, identifier string, n int64) (*Result, error) {
 	l := p.l.With(constant.LogAttrMethod, "AllowN", "identifier", identifier)
 	return p.allowN(ctx, identifier, n, l)
 }
 
-func (p *peakShavingImpl) allowN(
+// allowN is the actual underlying implementation of Allow and AllowN.
+func (p *PeakShavingService) allowN(
 	ctx context.Context, identifier string, n int64, logger *slog.Logger) (result *Result, err error) {
 
 	// Return Allowed if peak shaving is disabled.

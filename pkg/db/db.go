@@ -65,10 +65,12 @@ var DOCols = []string{
 }
 
 // NewPool initializes a new database connection pool.
-// The driver and DSN (Data Source Name) can be found in your SQL driver documentation, for example
-// [github.com/go-sql-driver/mysql].
-func NewPool(driver, dsn string) (pool *sqlx.DB, cleanup func(), err error) {
-	pool, err = sqlx.Open(driver, dsn)
+func NewPool(cfg *Config) (pool *sqlx.DB, cleanup func(), err error) {
+	if cfg == nil {
+		err = constant.ErrNilDeps
+		return
+	}
+	pool, err = sqlx.Open(cfg.Driver, cfg.DSN)
 	if err != nil {
 		return
 	}

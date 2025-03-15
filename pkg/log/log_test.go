@@ -42,10 +42,34 @@ func TestLog_NewLogger(t *testing.T) {
 		expectError bool
 	}{
 		{
-			"light",
+			"debug",
 			&log.Config{
 				Type:  "light",
 				Level: "debug",
+			},
+			false,
+		},
+		{
+			"info",
+			&log.Config{
+				Type:  "light",
+				Level: "info",
+			},
+			false,
+		},
+		{
+			"warn",
+			&log.Config{
+				Type:  "light",
+				Level: "warn",
+			},
+			false,
+		},
+		{
+			"error",
+			&log.Config{
+				Type:  "light",
+				Level: "error",
 			},
 			false,
 		},

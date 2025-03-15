@@ -7,6 +7,7 @@ package util_test
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/teamsorghum/go-common/pkg/util"
 )
@@ -21,7 +22,11 @@ func Example_crypto() {
 	password := "your_password"
 
 	// Generate salt.
-	salt := util.GenSalt()
+	salt, err := util.GenSalt()
+	if err != nil {
+		fmt.Printf("Error on generating salt: %s", err.Error())
+		os.Exit(1)
+	}
 
 	// Calculate hash
 	hash := util.HashPassword(password, salt)

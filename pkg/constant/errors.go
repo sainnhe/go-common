@@ -7,5 +7,5 @@ package constant
 
 import "errors"
 
-// ErrNilDep indicates that the given dependency is nil.
-var ErrNilDep = errors.New("nil dependency")
+// ErrNilDeps indicates that there exists nil dependencies.
+var ErrNilDeps = errors.New("nil dependencies")

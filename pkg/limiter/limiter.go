@@ -3,8 +3,6 @@
 // Licensed under the GPL v3 License. See LICENSE in the project root for license information.
 // -------------------------------------------------------------------------------------------
 
-//go:generate mockgen -typed -write_package_comment=false -source=limiter.go -destination=limiter_mock.go -package limiter
-
 // Package limiter implements traffic limiter, including rate limit and peak shaving.
 //
 // Rate limit performs rate limitation. If the current traffic exceeds the specified limitation, return failure.
@@ -13,7 +11,7 @@
 // retry for N times. If the traffic still exceeds the specified limitation, return failure.
 //
 // This implementation supports both [Redis] and [Valkey]. You can use [rueidis.Client] or [valkey.Client] to initialize
-// a new limiter [Proxy].
+// a new [RateLimitService] or [PeakShavingService].
 //
 // Metrics will be collected using the global [metric.MeterProvider].
 // There are 2 metric counters that will be collected:
@@ -25,8 +23,6 @@
 // [Valkey]: https://valkey.io/
 package limiter
 
-import "context"
-
 // Result is the result of a limiter operation.
 type Result struct {
 	// Allowed indicates whether the request is allowed.
@@ -37,19 +33,4 @@ type Result struct {
 
 	// ResetAtMs is the Unix timestamp in milliseconds at which the rate limit will reset.
 	ResetAtMs int64
-}
-
-// Proxy defines the interface for a limiter.
-type Proxy interface {
-	// Check checks if a request is allowed under the limit without incrementing the counter.
-	// The identifier is used to group traffics. Requests with the same identifier share the same counter.
-	Check(ctx context.Context, identifier string) (*Result, error)
-
-	// Allow allows a single request, incrementing the counter if allowed.
-	// The identifier is used to group traffics. Requests with the same identifier share the same counter.
-	Allow(ctx context.Context, identifier string) (*Result, error)
-
-	// AllowN allows n requests, incrementing the counter accordingly if allowed.
-	// The identifier is used to group traffics. Requests with the same identifier share the same counter.
-	AllowN(ctx context.Context, identifier string, n int64) (*Result, error)
 }

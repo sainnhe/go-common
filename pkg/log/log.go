@@ -45,7 +45,7 @@ func Global() *slog.Logger {
 // NewLogger initializes a new [slog.Logger] based on the given [Config].
 func NewLogger(cfg *Config) (logger *slog.Logger, cleanup func(), err error) {
 	if cfg == nil {
-		err = constant.ErrNilDep
+		err = constant.ErrNilDeps
 		return
 	}
 

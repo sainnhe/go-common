@@ -20,7 +20,8 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-type rateLimitImpl struct {
+// RateLimitService is the rate limit service.
+type RateLimitService struct {
 	rl     rueidislimiter.RateLimiterClient
 	vl     valkeylimiter.RateLimiterClient
 	rp     sync.Pool
@@ -31,13 +32,12 @@ type rateLimitImpl struct {
 	meter  metric.Meter
 }
 
-// NewRedisRateLimitProxy initializes a new rate limit proxy using Redis.
-func NewRedisRateLimitProxy(
-	cfg *RateLimitConfig, rueidisClient rueidis.Client, logger *slog.Logger) (proxy Proxy, err error) {
+// NewRedisRateLimitService initializes a new rate limit service using Redis.
+func NewRedisRateLimitService(
+	cfg *RateLimitConfig, rueidisClient rueidis.Client, logger *slog.Logger) (*RateLimitService, error) {
 	// Check arguments
 	if cfg == nil || logger == nil || rueidisClient == nil {
-		err = constant.ErrNilDep
-		return
+		return nil, constant.ErrNilDeps
 	}
 
 	// Initialize rueidis limiter
@@ -51,8 +51,8 @@ func NewRedisRateLimitProxy(
 		return nil, err
 	}
 
-	// Initialize rateLimitImpl
-	return &rateLimitImpl{
+	// Initialize RateLimitService
+	return &RateLimitService{
 		limiter,
 		nil,
 		sync.Pool{
@@ -68,13 +68,12 @@ func NewRedisRateLimitProxy(
 	}, nil
 }
 
-// NewValkeyRateLimitProxy initializes a new rate limit proxy using Valkey.
-func NewValkeyRateLimitProxy(
-	cfg *RateLimitConfig, valkeyClient valkey.Client, logger *slog.Logger) (proxy Proxy, err error) {
+// NewValkeyRateLimitService initializes a new rate limit service using Valkey.
+func NewValkeyRateLimitService(
+	cfg *RateLimitConfig, valkeyClient valkey.Client, logger *slog.Logger) (*RateLimitService, error) {
 	// Check arguments
 	if cfg == nil || logger == nil || valkeyClient == nil {
-		err = constant.ErrNilDep
-		return
+		return nil, constant.ErrNilDeps
 	}
 
 	// Initialize valkey limiter
@@ -88,8 +87,8 @@ func NewValkeyRateLimitProxy(
 		return nil, err
 	}
 
-	// Initialize rateLimitImpl
-	return &rateLimitImpl{
+	// Initialize RateLimitService
+	return &RateLimitService{
 		nil,
 		limiter,
 		sync.Pool{},
@@ -105,7 +104,9 @@ func NewValkeyRateLimitProxy(
 	}, nil
 }
 
-func (r *rateLimitImpl) Check(ctx context.Context, identifier string) (result *Result, err error) {
+// Check checks if a request is allowed under the limit without incrementing the counter.
+// The identifier is used to group traffics. Requests with the same identifier share the same counter.
+func (r *RateLimitService) Check(ctx context.Context, identifier string) (result *Result, err error) {
 	l := r.l.With(constant.LogAttrMethod, "Check", "identifier", identifier)
 
 	// Return Allowed if rate limit is disabled.
@@ -129,17 +130,22 @@ func (r *rateLimitImpl) Check(ctx context.Context, identifier string) (result *R
 	return convertResult(nil, vr), err
 }
 
-func (r *rateLimitImpl) Allow(ctx context.Context, identifier string) (*Result, error) {
+// Allow allows a single request, incrementing the counter if allowed.
+// The identifier is used to group traffics. Requests with the same identifier share the same counter.
+func (r *RateLimitService) Allow(ctx context.Context, identifier string) (*Result, error) {
 	l := r.l.With(constant.LogAttrMethod, "Allow", "identifier", identifier)
 	return r.allowN(ctx, identifier, 1, l)
 }
 
-func (r *rateLimitImpl) AllowN(ctx context.Context, identifier string, n int64) (*Result, error) {
+// AllowN allows n requests, incrementing the counter accordingly if allowed.
+// The identifier is used to group traffics. Requests with the same identifier share the same counter.
+func (r *RateLimitService) AllowN(ctx context.Context, identifier string, n int64) (*Result, error) {
 	l := r.l.With(constant.LogAttrMethod, "AllowN", "identifier", identifier)
 	return r.allowN(ctx, identifier, n, l)
 }
 
-func (r *rateLimitImpl) allowN(
+// allowN is the actual underlying implementation of Allow and AllowN.
+func (r *RateLimitService) allowN(
 	ctx context.Context, identifier string, n int64, logger *slog.Logger) (result *Result, err error) {
 	// Return Allowed if rate limit is disabled.
 	if !r.cfg.Enable {

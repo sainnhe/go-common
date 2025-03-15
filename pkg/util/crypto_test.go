@@ -16,7 +16,10 @@ import (
 func TestGenSalt(t *testing.T) {
 	t.Parallel()
 
-	got := util.GenSalt()
+	got, err := util.GenSalt()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == "" {
 		t.Error("Generated salt is empty")
 	}
@@ -32,7 +35,10 @@ func TestHashPassword(t *testing.T) {
 	t.Parallel()
 
 	password := "password123"
-	salt := util.GenSalt()
+	salt, err := util.GenSalt()
+	if err != nil {
+		t.Fatal(err)
+	}
 	got := util.HashPassword(password, salt)
 
 	if got == "" {
@@ -56,7 +62,10 @@ func TestVerifyPassword(t *testing.T) {
 	t.Parallel()
 
 	password := "password123"
-	salt := util.GenSalt()
+	salt, err := util.GenSalt()
+	if err != nil {
+		t.Fatal(err)
+	}
 	hash := util.HashPassword(password, salt)
 
 	// Test with the correct password

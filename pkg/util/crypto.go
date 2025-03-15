@@ -14,13 +14,13 @@ import (
 )
 
 // GenSalt generates the salt that can be used in [argon2] hashing algorithm.
-func GenSalt() string {
+func GenSalt() (string, error) {
 	salt := make([]byte, constant.CryptoSaltLen)
 	_, err := rand.Read(salt)
 	if err != nil {
-		return constant.CryptoDefaultSalt
+		return "", err
 	}
-	return base64.RawStdEncoding.EncodeToString(salt)
+	return base64.RawStdEncoding.EncodeToString(salt), nil
 }
 
 // HashPassword calculates the hash of a given password via [argon2] hashing algorithm.

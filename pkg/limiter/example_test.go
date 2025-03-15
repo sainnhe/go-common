@@ -34,8 +34,8 @@ func Example_rateLimitRedis() {
 		os.Exit(1)
 	}
 
-	// Initialize a new rate limit proxy.
-	proxy, err := limiter.NewRedisRateLimitProxy(&limiter.RateLimitConfig{
+	// Initialize a new rate limit service.
+	s, err := limiter.NewRedisRateLimitService(&limiter.RateLimitConfig{
 		Enable:   true,            // Enable rate limit.
 		Prefix:   "redis_example", // Prefix for keys used to describe current business and avoid conflicts.
 		Limit:    1,               // Limit of requests in a given time window.
@@ -65,7 +65,7 @@ func Example_rateLimitRedis() {
 	wg.Add(3)
 
 	go func() {
-		result, err := proxy.Allow(ctx, identifier)
+		result, err := s.Allow(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -77,7 +77,7 @@ func Example_rateLimitRedis() {
 
 	go func() {
 		time.Sleep(time.Duration(200) * time.Millisecond)
-		result, err := proxy.AllowN(ctx, identifier, 3)
+		result, err := s.AllowN(ctx, identifier, 3)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -89,7 +89,7 @@ func Example_rateLimitRedis() {
 
 	go func() {
 		time.Sleep(time.Duration(500) * time.Millisecond)
-		result, err := proxy.Check(ctx, identifier)
+		result, err := s.Check(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -120,8 +120,8 @@ func Example_rateLimitValkey() {
 		os.Exit(1)
 	}
 
-	// Initialize a new rate limit proxy.
-	proxy, err := limiter.NewValkeyRateLimitProxy(&limiter.RateLimitConfig{
+	// Initialize a new rate limit service.
+	s, err := limiter.NewValkeyRateLimitService(&limiter.RateLimitConfig{
 		Enable:   true,             // Enable rate limit.
 		Prefix:   "valkey_example", // Prefix for keys used to describe current business and avoid conflicts.
 		Limit:    1,                // Limit of requests in a given time window.
@@ -151,7 +151,7 @@ func Example_rateLimitValkey() {
 	wg.Add(3)
 
 	go func() {
-		result, err := proxy.Allow(ctx, identifier)
+		result, err := s.Allow(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -163,7 +163,7 @@ func Example_rateLimitValkey() {
 
 	go func() {
 		time.Sleep(time.Duration(200) * time.Millisecond)
-		result, err := proxy.AllowN(ctx, identifier, 3)
+		result, err := s.AllowN(ctx, identifier, 3)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -175,7 +175,7 @@ func Example_rateLimitValkey() {
 
 	go func() {
 		time.Sleep(time.Duration(500) * time.Millisecond)
-		result, err := proxy.Check(ctx, identifier)
+		result, err := s.Check(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -206,8 +206,8 @@ func Example_peakShavingRedis() {
 		os.Exit(1)
 	}
 
-	// Initialize a new peak shaving proxy.
-	proxy, err := limiter.NewRedisPeakShavingProxy(&limiter.PeakShavingConfig{
+	// Initialize a new peak shaving service.
+	s, err := limiter.NewRedisPeakShavingService(&limiter.PeakShavingConfig{
 		Enable:            true,            // Enable peak shaving.
 		Prefix:            "redis_example", // Prefix for keys used to describe current business and avoid conflicts.
 		Limit:             3,               // Limit of requests in a given time window.
@@ -238,7 +238,7 @@ func Example_peakShavingRedis() {
 	startTime := time.Now()
 
 	go func() {
-		result, err := proxy.Allow(ctx, identifier)
+		result, err := s.Allow(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -250,7 +250,7 @@ func Example_peakShavingRedis() {
 
 	go func() {
 		time.Sleep(time.Duration(250) * time.Millisecond)
-		result, err := proxy.AllowN(ctx, identifier, 3)
+		result, err := s.AllowN(ctx, identifier, 3)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -261,7 +261,7 @@ func Example_peakShavingRedis() {
 	}()
 
 	go func() {
-		result, err := proxy.Check(ctx, identifier)
+		result, err := s.Check(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -296,8 +296,8 @@ func Example_peakShavingValkey() {
 		os.Exit(1)
 	}
 
-	// Initialize a new peak shaving proxy.
-	proxy, err := limiter.NewValkeyPeakShavingProxy(&limiter.PeakShavingConfig{
+	// Initialize a new peak shaving service.
+	s, err := limiter.NewValkeyPeakShavingService(&limiter.PeakShavingConfig{
 		Enable:            true,             // Enable peak shaving.
 		Prefix:            "valkey_example", // Prefix for keys used to describe current business and avoid conflicts.
 		Limit:             3,                // Limit of requests in a given time window.
@@ -328,7 +328,7 @@ func Example_peakShavingValkey() {
 	startTime := time.Now()
 
 	go func() {
-		result, err := proxy.Allow(ctx, identifier)
+		result, err := s.Allow(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -340,7 +340,7 @@ func Example_peakShavingValkey() {
 
 	go func() {
 		time.Sleep(time.Duration(250) * time.Millisecond)
-		result, err := proxy.AllowN(ctx, identifier, 3)
+		result, err := s.AllowN(ctx, identifier, 3)
 		if err != nil {
 			logger.Error(err.Error())
 		}
@@ -351,7 +351,7 @@ func Example_peakShavingValkey() {
 	}()
 
 	go func() {
-		result, err := proxy.Check(ctx, identifier)
+		result, err := s.Check(ctx, identifier)
 		if err != nil {
 			logger.Error(err.Error())
 		}

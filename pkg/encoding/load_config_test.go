@@ -170,11 +170,38 @@ func TestLoadConfig_nonStructConfig(t *testing.T) {
 	}
 }
 
+func TestLoadConfig_invalidConfig(t *testing.T) {
+	t.Parallel()
+
+	type Config struct {
+		Num int `json:"num" yaml:"num" toml:"num" xml:"num" default:"1"`
+	}
+
+	invalidContent := "invalid"
+
+	_, err := encoding.LoadConfig[Config]([]byte(invalidContent), encoding.TypeJSON)
+	if err == nil {
+		t.Fatal("Expect err != nil, got nil")
+	}
+	_, err = encoding.LoadConfig[Config]([]byte(invalidContent), encoding.TypeYAML)
+	if err == nil {
+		t.Fatal("Expect err != nil, got nil")
+	}
+	_, err = encoding.LoadConfig[Config]([]byte(invalidContent), encoding.TypeTOML)
+	if err == nil {
+		t.Fatal("Expect err != nil, got nil")
+	}
+	_, err = encoding.LoadConfig[Config]([]byte(invalidContent), encoding.TypeXML)
+	if err == nil {
+		t.Fatal("Expect err != nil, got nil")
+	}
+}
+
 func TestLoadConfig_types(t *testing.T) {
 	t.Parallel()
 
 	type Config struct {
-		Num int `json:"num" yaml:"num" default:"1"`
+		Num int `json:"num" yaml:"num" toml:"num" xml:"num" default:"1"`
 	}
 
 	jsonContent := `
@@ -187,12 +214,34 @@ func TestLoadConfig_types(t *testing.T) {
 num: 2
 `
 
+	tomlContent := `
+num = 2
+`
+
+	xmlContent := `
+<config>
+  <num>
+    2
+  </num>
+</config>
+`
+
 	jsonConfig, err := encoding.LoadConfig[Config]([]byte(jsonContent), encoding.TypeJSON)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	yamlConfig, err := encoding.LoadConfig[Config]([]byte(yamlContent), encoding.TypeYAML)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tomlConfig, err := encoding.LoadConfig[Config]([]byte(tomlContent), encoding.TypeTOML)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	xmlConfig, err := encoding.LoadConfig[Config]([]byte(xmlContent), encoding.TypeXML)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,6 +264,12 @@ num: 2
 	}
 	if !reflect.DeepEqual(*yamlConfig, wantConfig) {
 		t.Fatalf("Want %+v, got %+v", wantConfig, yamlConfig)
+	}
+	if !reflect.DeepEqual(*tomlConfig, wantConfig) {
+		t.Fatalf("Want %+v, got %+v", wantConfig, tomlConfig)
+	}
+	if !reflect.DeepEqual(*xmlConfig, wantConfig) {
+		t.Fatalf("Want %+v, got %+v", wantConfig, xmlConfig)
 	}
 	if !reflect.DeepEqual(*defaultConfig, wantDefaultConfig) {
 		t.Fatalf("Want %+v, got %+v", wantDefaultConfig, defaultConfig)

@@ -9,9 +9,6 @@ const (
 	// CryptoSaltLen is the length of salt.
 	CryptoSaltLen = 16
 
-	// CryptoDefaultSalt is the default salt value.
-	CryptoDefaultSalt = "j50PdipVY4og7EqJjEsZCw"
-
 	// CryptoArgon2Time is the time required by argon2.
 	CryptoArgon2Time = 1
 
