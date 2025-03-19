@@ -9,9 +9,9 @@ This repository contains the implementations of some commonly used libraries.
 Requirements:
 
 1. Install go version specified in `go.mod` and `.tool-versions`. You can use [asdf](https://github.com/asdf-vm/asdf) to manage multiple versions.
-2. Install [mockgen](https://github.com/uber-go/mock). If you are using asdf to manage versions, execute `asdf reshim golang` after installing mockgen.
-3. Install [golangci-lint](https://golangci-lint.run/welcome/install/).
-4. Install [wire](https://github.com/google/wire).
+2. Install [golangci-lint](https://golangci-lint.run/welcome/install/).
+3. Install [mockgen](https://github.com/uber-go/mock). If you are using asdf to manage versions, execute `asdf reshim golang` after installing mockgen.
+4. Install [wire](https://github.com/google/wire). If you are using asdf to manage versions, execute `asdf reshim golang` after installing wire.
 5. Install container environment. You can choose either [docker](https://www.docker.com/) or [podman](https://podman.io/).
 6. Execute the following commands to install git hooks:
   - Pre-commit hook will run checks and tests before committing: `ln -s ../../githooks/pre-commit .git/hooks/`
