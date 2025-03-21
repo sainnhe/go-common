@@ -138,7 +138,7 @@ func (w *WaitGroup) updateStatus(delta int, startWait bool) (count int64, waitSt
 // addLogPrefix adds prefix for log message based on w.Name.
 func (w *WaitGroup) addLogPrefix(msg string) string {
 	if len(w.Name) > 0 {
-		return fmt.Sprintf("[WaitGroup-%s] %s", w.Name, msg)
+		return fmt.Sprintf("[wg-%s] %s", w.Name, msg)
 	}
-	return fmt.Sprintf("[WaitGroup] %s", msg)
+	return fmt.Sprintf("[wg] %s", msg)
 }

@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/teamsorghum/go-common/pkg/log"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
 	"go.opentelemetry.io/otel/log/global"
 	otellog "go.opentelemetry.io/otel/sdk/log"
@@ -91,8 +92,7 @@ func TestLog_NewLogger(t *testing.T) {
 			&log.Config{
 				Type: "otel",
 				OTel: log.OTelConfig{
-					Name:    "testlog",
-					Version: "v0.1.0",
+					Name: "",
 				},
 			},
 			false,
@@ -139,9 +139,14 @@ func TestLog_NewLogger(t *testing.T) {
 
 	msg := "Test"
 	attrs := []any{"attr1", "attr1", "attr2", "attr2"}
+	otelAttrs := []attribute.KeyValue{
+		{Key: attribute.Key("otelAttr1"), Value: attribute.BoolValue(true)},
+		{Key: attribute.Key("otelAttr2"), Value: attribute.Int64Value(10)},
+	}
 
 	for _, tt := range tests { // nolint:paralleltest
 		t.Run(tt.name, func(t *testing.T) {
+			// Init logger
 			logger, cleanup, err := log.NewLogger(tt.cfg)
 			if tt.expectError != (err != nil) {
 				t.Fatalf("Expect error = %t, got %+v", tt.expectError, err)
@@ -149,7 +154,17 @@ func TestLog_NewLogger(t *testing.T) {
 			if err != nil {
 				return
 			}
+
+			// Init otel attributes
+			if log.WithOTelAttrs(nil) != nil {
+				t.Fatal("Expect nil logger")
+			}
+			logger = log.WithOTelAttrs(logger, otelAttrs...)
+
+			// Handle output
 			output(logger, msg, attrs)
+
+			// Cleanup
 			cleanup()
 		})
 	}

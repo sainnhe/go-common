@@ -80,7 +80,7 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 
 			// Wait for signals and start graceful shutdown.
 			<-signalCtx.Done()
-			l.Info("Graceful shutdown started.")
+			l.Info("[shutdown] Graceful shutdown started.")
 			startTime := time.Now()
 			timeoutCtx, timeoutCancel := context.WithTimeout(context.Background(), timeout)
 			defer timeoutCancel()
@@ -110,7 +110,7 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 			select {
 			case <-shutdownCtx.Done():
 			case <-timeoutCtx.Done():
-				l.Error("Shutdown times out.", "cost", util.ToStr(time.Since(startTime)))
+				l.Error("[shutdown] Shutdown times out.", "cost", util.ToStr(time.Since(startTime)))
 				os.Exit(1)
 			}
 
@@ -122,9 +122,9 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 			}()
 			select {
 			case <-glCtx.Done():
-				l.Info("Graceful shutdown finish.", "cost", util.ToStr(time.Since(startTime)))
+				l.Info("[shutdown] Graceful shutdown finish.", "cost", util.ToStr(time.Since(startTime)))
 			case <-timeoutCtx.Done():
-				l.Error("Wait for goroutine locks times out.", "cost", util.ToStr(time.Since(startTime)))
+				l.Error("[shutdown] Wait for goroutine locks times out.", "cost", util.ToStr(time.Since(startTime)))
 				os.Exit(1)
 			}
 		}()

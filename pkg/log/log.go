@@ -18,6 +18,7 @@ import (
 	"github.com/lmittmann/tint"
 	"github.com/teamsorghum/go-common/pkg/constant"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
+	"go.opentelemetry.io/otel/attribute"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -75,7 +76,7 @@ func NewLogger(cfg *Config) (logger *slog.Logger, cleanup func(), err error) {
 		logger, cleanup = NewLocal(cfg.Local, level)
 		return
 	case "otel":
-		logger = NewOTel(cfg.OTel)
+		logger = NewOTel(cfg.OTel.Name)
 		return
 	default:
 		err = errors.New("invalid log")
@@ -118,9 +119,26 @@ func NewLocal(cfg LocalConfig, level slog.Level) (logger *slog.Logger, cleanup f
 	return
 }
 
-// NewOTel initializes a new OTel based logger.
-func NewOTel(cfg OTelConfig) *slog.Logger {
-	return otelslog.NewLogger(cfg.Name,
-		otelslog.WithVersion(cfg.Version),
-		otelslog.WithSource(true))
+// NewOTel returns a Logger from the global LoggerProvider. The name must be the
+// name of the library providing instrumentation. This name may be the same as
+// the instrumented code only if that code provides built-in instrumentation.
+// If the name is empty, then a implementation defined default name will be
+// used instead.
+func NewOTel(name string) *slog.Logger {
+	if len(name) == 0 {
+		name = "slog"
+	}
+	return otelslog.NewLogger(name, otelslog.WithSource(true))
+}
+
+// WithOTelAttrs returns a new logger with OpenTelemetry attributes.
+func WithOTelAttrs(logger *slog.Logger, attrs ...attribute.KeyValue) *slog.Logger {
+	if logger == nil {
+		return nil
+	}
+	args := make([]any, 0, 2*len(attrs)) // nolint:mnd
+	for _, attr := range attrs {
+		args = append(args, string(attr.Key), attr.Value.AsString())
+	}
+	return logger.With(args...)
 }

@@ -39,7 +39,4 @@ type LocalConfig struct {
 type OTelConfig struct {
 	// Name is the logger name, which is most commonly the package name of the code.
 	Name string `json:"name" yaml:"name" toml:"name" xml:"name" env:"LOG_OTEL_NAME" default:""`
-
-	// Version is the version used by logger, which should be the version of the package that is being logged.
-	Version string `json:"version" yaml:"version" toml:"version" xml:"version" env:"LOG_OTEL_VERSION" default:""`
 }

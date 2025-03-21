@@ -32,7 +32,7 @@ func Unlock() {
 // Wait waits for all goroutine locks to be released.
 func Wait() {
 	if count := wg.GetCount(); count > 0 {
-		wg.Logger.Info("Waiting for goroutine locks to be released...", "count", count)
+		wg.Logger.Info("[glock] Waiting for goroutine locks to be released...", "count", count)
 		wg.Wait()
 	}
 }

@@ -79,7 +79,7 @@ func NewPool(cfg *Config) (pool *sqlx.DB, cleanup func(), err error) {
 	err = pool.PingContext(ctx)
 	cleanup = func() {
 		if err := pool.Close(); err != nil {
-			log.Global().Error("Close database connection pool failed.", constant.LogAttrError, err)
+			log.Global().Error("[db] Close database connection pool failed.", constant.LogAttrError, err)
 		}
 	}
 	return
