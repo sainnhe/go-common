@@ -9,8 +9,8 @@ const (
 	// LogAttrError defines the log attribute for error.
 	LogAttrError = "error"
 
-	// LogAttrAPI defines the log attribute for API.
-	LogAttrAPI = "api"
+	// LogAttrPackage defines the log attribute for package name.
+	LogAttrPackage = "package"
 
 	// LogAttrMethod defines the log attribute for method.
 	LogAttrMethod = "method"

@@ -22,7 +22,7 @@ import (
 // This example demonstrates how to implement graceful shutdown in a web server using this package.
 func Example_gracefulShutdown() {
 	// Get logger
-	logger := log.Global()
+	logger := log.GetGlobalLogger()
 
 	// Register pre-shutdown hooks that will be executed before shutdown. These hook functions will be executed in the
 	// order of registration.

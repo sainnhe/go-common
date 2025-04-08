@@ -12,7 +12,6 @@ import (
 
 	"github.com/redis/rueidis"
 	"github.com/teamsorghum/go-common/pkg/limiter"
-	"github.com/teamsorghum/go-common/pkg/log"
 	"github.com/valkey-io/valkey-go"
 )
 
@@ -20,13 +19,13 @@ func TestRateLimit_nilDependency(t *testing.T) {
 	t.Parallel()
 
 	// Redis
-	s, err := limiter.NewRedisRateLimitService(nil, nil, nil)
+	s, err := limiter.NewRedisRateLimitService(nil, nil)
 	if s != nil || err == nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 
 	// Valkey
-	s, err = limiter.NewValkeyRateLimitService(nil, nil, nil)
+	s, err = limiter.NewValkeyRateLimitService(nil, nil)
 	if s != nil || err == nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -47,7 +46,7 @@ func TestRateLimit_disable(t *testing.T) {
 	}
 
 	s, err := limiter.NewRedisRateLimitService(
-		&limiter.RateLimitConfig{}, rueidisClient, log.Global())
+		&limiter.RateLimitConfig{}, rueidisClient)
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -72,7 +71,7 @@ func TestRateLimit_disable(t *testing.T) {
 	}
 
 	s, err = limiter.NewValkeyRateLimitService(
-		&limiter.RateLimitConfig{}, valkeyClient, log.Global())
+		&limiter.RateLimitConfig{}, valkeyClient)
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}

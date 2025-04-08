@@ -14,6 +14,7 @@ import (
 	"github.com/redis/rueidis"
 	"github.com/redis/rueidis/rueidislimiter"
 	"github.com/teamsorghum/go-common/pkg/constant"
+	"github.com/teamsorghum/go-common/pkg/log"
 	"github.com/valkey-io/valkey-go"
 	"github.com/valkey-io/valkey-go/valkeylimiter"
 	"go.opentelemetry.io/otel"
@@ -33,10 +34,9 @@ type PeakShavingService struct {
 }
 
 // NewRedisPeakShavingService initializes a new peak shaving service using Redis.
-func NewRedisPeakShavingService(
-	cfg *PeakShavingConfig, rueidisClient rueidis.Client, logger *slog.Logger) (*PeakShavingService, error) {
+func NewRedisPeakShavingService(cfg *PeakShavingConfig, rueidisClient rueidis.Client) (*PeakShavingService, error) {
 	// Check arguments
-	if cfg == nil || logger == nil || rueidisClient == nil {
+	if cfg == nil || rueidisClient == nil {
 		return nil, constant.ErrNilDeps
 	}
 
@@ -61,10 +61,10 @@ func NewRedisPeakShavingService(
 			},
 		},
 		sync.Pool{},
-		logger.With(constant.LogAttrAPI, "peak_shaving"),
+		log.NewLogger(pkgName),
 		cfg,
 		"*",
-		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
+		otel.Meter(pkgName),
 	}, nil
 }
 
@@ -97,10 +97,10 @@ func NewValkeyPeakShavingService(
 				return new(valkeylimiter.Result)
 			},
 		},
-		logger.With(constant.LogAttrAPI, "peak_shaving"),
+		log.NewLogger(pkgName),
 		cfg,
 		"*",
-		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
+		otel.Meter(pkgName),
 	}, nil
 }
 

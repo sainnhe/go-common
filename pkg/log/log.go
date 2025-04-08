@@ -22,113 +22,147 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// global is the global logger.
-var global *slog.Logger
+type loggerTypeT int
+
+const (
+	loggerTypeLight = loggerTypeT(0)
+	loggerTypeLocal = loggerTypeT(1)
+	loggerTypeOTel  = loggerTypeT(2)
+)
+
+var gCfg *Config
+var gLogLevel slog.Level
+var gLoggerType loggerTypeT
+var gLogger *slog.Logger
+var gWriter io.Writer
 var mu sync.Mutex
-
-// SetGlobal sets the global logger.
-func SetGlobal(logger *slog.Logger) {
-	mu.Lock()
-	global = logger
-	mu.Unlock()
+var defaultCfg = &Config{
+	"light",
+	"debug",
+	LocalConfig{},
 }
 
-// Global returns the global logger.
-func Global() *slog.Logger {
-	mu.Lock()
-	defer mu.Unlock()
-	if global == nil {
-		global = NewLight(slog.LevelDebug)
-	}
-	return global
-}
+func handleSetGlobalConfig(cfg *Config) (cleanup func(), err error) {
+	// Init a non-nil cleanup function to avoid panic on calling it.
+	cleanup = func() {}
 
-// NewLogger initializes a new [slog.Logger] based on the given [Config].
-func NewLogger(cfg *Config) (logger *slog.Logger, cleanup func(), err error) {
+	// Check if cfg is nil.
 	if cfg == nil {
 		err = constant.ErrNilDeps
 		return
 	}
 
-	// Let's set a default cleanup function to avoid nil pointer panic.
-	cleanup = func() {}
-
-	var level slog.Level
+	// Check the log level.
+	var logLevel slog.Level
 	switch cfg.Level {
 	case "debug", "":
-		level = slog.LevelDebug
+		logLevel = slog.LevelDebug
 	case "info":
-		level = slog.LevelInfo
+		logLevel = slog.LevelInfo
 	case "warn":
-		level = slog.LevelWarn
+		logLevel = slog.LevelWarn
 	case "error":
-		level = slog.LevelError
+		logLevel = slog.LevelError
 	default:
 		err = errors.New("invalid log level")
 		return
 	}
 
+	// Check the logger type and set global logger
+	var loggerType loggerTypeT
 	switch cfg.Type {
 	case "light", "":
-		logger = NewLight(level)
-		return
+		loggerType = loggerTypeLight
 	case "local":
-		logger, cleanup = NewLocal(cfg.Local, level)
-		return
+		loggerType = loggerTypeLocal
+		cleanup = initMultiWriter(&cfg.Local)
 	case "otel":
-		logger = NewOTel(cfg.OTel.Name)
-		return
+		loggerType = loggerTypeOTel
 	default:
-		err = errors.New("invalid log")
+		err = errors.New("invalid logger type")
 		return
 	}
+
+	// Set global variables.
+	gLogLevel = logLevel
+	gLoggerType = loggerType
+	gCfg = cfg
+	gLogger = handleNewLogger("global")
+
+	return
 }
 
-// NewLight initializes a new light logger.
-func NewLight(level slog.Level) *slog.Logger {
-	return slog.New(tint.NewHandler(os.Stderr, &tint.Options{
-		AddSource:  true,
-		Level:      level,
-		TimeFormat: time.StampMilli,
-		NoColor:    false,
-	}))
-}
-
-// NewLocal initializes a new local logger.
-func NewLocal(cfg LocalConfig, level slog.Level) (logger *slog.Logger, cleanup func()) {
+func initMultiWriter(cfg *LocalConfig) (cleanup func()) {
 	consoleWriter := os.Stderr
 	fileWriter := &lumberjack.Logger{
 		Filename:   cfg.Path,
 		MaxSize:    cfg.MaxSizeMB,
 		MaxBackups: cfg.MaxBackups,
 	}
-	multiWriter := io.MultiWriter(consoleWriter, fileWriter)
-	logger = slog.New(tint.NewHandler(multiWriter, &tint.Options{
-		AddSource:  true,
-		Level:      level,
-		TimeFormat: time.StampMilli,
-		NoColor:    false,
-	}))
-	cleanup = func() {
+	gWriter = io.MultiWriter(consoleWriter, fileWriter)
+	return func() {
 		if err := errors.Join(consoleWriter.Close(), fileWriter.Close()); err != nil {
-			logger.Error("Close writer failed.", constant.LogAttrError, err.Error())
+			GetGlobalLogger().Error("Close logger writer failed.", constant.LogAttrError, err)
 		}
 		// syscall.Sync() returns an error on macOS but doesn't return anything on Linux, so let's disable errcheck here
 		syscall.Sync() // nolint:errcheck
 	}
-	return
 }
 
-// NewOTel returns a Logger from the global LoggerProvider. The name must be the
-// name of the library providing instrumentation. This name may be the same as
-// the instrumented code only if that code provides built-in instrumentation.
-// If the name is empty, then a implementation defined default name will be
-// used instead.
-func NewOTel(name string) *slog.Logger {
-	if len(name) == 0 {
-		name = "slog"
+func handleNewLogger(pkgName string) *slog.Logger {
+	switch gLoggerType {
+	case loggerTypeLocal:
+		return slog.New(tint.NewHandler(gWriter, &tint.Options{
+			AddSource:  true,
+			Level:      gLogLevel,
+			TimeFormat: time.StampMilli,
+			NoColor:    false,
+		})).With(constant.LogAttrPackage, pkgName)
+	case loggerTypeOTel:
+		return otelslog.NewLogger(pkgName, otelslog.WithSource(true))
+	default:
+		return slog.New(tint.NewHandler(os.Stderr, &tint.Options{
+			AddSource:  true,
+			Level:      gLogLevel,
+			TimeFormat: time.StampMilli,
+			NoColor:    false,
+		})).With(constant.LogAttrPackage, pkgName)
 	}
-	return otelslog.NewLogger(name, otelslog.WithSource(true))
+}
+
+// SetGlobalConfig sets a global config that will be used every time a new logger is initialized, and returns a cleanup
+// hook that cleans resources used by loggers.
+//
+// Note that calling this function will also sets a global logger based on the given config.
+func SetGlobalConfig(cfg *Config) (cleanup func(), err error) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	return handleSetGlobalConfig(cfg)
+}
+
+// GetGlobalLogger returns the global logger.
+// If the global logger is not set, initialize the global logger based on a default config and return it.
+func GetGlobalLogger() *slog.Logger {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if gCfg == nil || gLogger == nil {
+		_, _ = handleSetGlobalConfig(defaultCfg)
+	}
+
+	return gLogger
+}
+
+// NewLogger initializes a new logger with the given package name.
+func NewLogger(pkgName string) *slog.Logger {
+	mu.Lock()
+	if gCfg == nil {
+		_, _ = handleSetGlobalConfig(defaultCfg)
+	}
+	mu.Unlock()
+
+	return handleNewLogger(pkgName)
 }
 
 // WithOTelAttrs returns a new logger with OpenTelemetry attributes.

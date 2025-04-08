@@ -85,17 +85,17 @@ func Example_usage() {
 	}
 
 	// Initialize tracer, meter and logger
-	name := "github.com/teamsorghum/go-common/pkg/otel"
-	tracer := gotel.Tracer(name)
-	meter := gotel.Meter(name, metric.WithInstrumentationAttributes(attributes...))
-	logger := log.WithOTelAttrs(log.NewOTel(name), attributes...)
+	pkgName := "github.com/teamsorghum/go-common/pkg/otel"
+	tracer := gotel.Tracer(pkgName)
+	meter := gotel.Meter(pkgName, metric.WithInstrumentationAttributes(attributes...))
+	logger := log.WithOTelAttrs(log.NewLogger(pkgName), attributes...)
 
 	// Start tracer
 	ctx, span := tracer.Start(ctx, "Example", trace.WithAttributes(attributes...))
 	defer span.End()
 
 	// Initialize metric counter
-	counter, err := meter.Int64Counter(name)
+	counter, err := meter.Int64Counter(pkgName)
 	if err != nil {
 		logger.ErrorContext(ctx, "Init int64 counter error.", constant.LogAttrError, err)
 		return

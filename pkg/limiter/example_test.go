@@ -23,7 +23,7 @@ import (
 // This example demonstrates how to perform rate limit using Redis.
 // It assumes you have a working Redis server listened on localhost:6379 with empty username and password.
 func Example_rateLimitRedis() {
-	logger := log.Global()
+	logger := log.GetGlobalLogger()
 
 	// Initialize a rueidis client.
 	rueidisClient, err := rueidis.NewClient(rueidis.ClientOption{
@@ -40,7 +40,7 @@ func Example_rateLimitRedis() {
 		Prefix:   "redis_example", // Prefix for keys used to describe current business and avoid conflicts.
 		Limit:    1,               // Limit of requests in a given time window.
 		WindowMs: 1000,            // Time window for measurement in milliseconds.
-	}, rueidisClient, logger)
+	}, rueidisClient)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
@@ -109,7 +109,7 @@ func Example_rateLimitRedis() {
 // This example demonstrates how to perform rate limit using Valkey.
 // It assumes you have a working Valkey server listened on localhost:6379 with empty username and password.
 func Example_rateLimitValkey() {
-	logger := log.Global()
+	logger := log.GetGlobalLogger()
 
 	// Initialize a valkey client.
 	valkeyClient, err := valkey.NewClient(valkey.ClientOption{
@@ -126,7 +126,7 @@ func Example_rateLimitValkey() {
 		Prefix:   "valkey_example", // Prefix for keys used to describe current business and avoid conflicts.
 		Limit:    1,                // Limit of requests in a given time window.
 		WindowMs: 1000,             // Time window for measurement in milliseconds.
-	}, valkeyClient, logger)
+	}, valkeyClient)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
@@ -195,7 +195,7 @@ func Example_rateLimitValkey() {
 // This example demonstrates how to perform peak shaving using Redis.
 // It assumes you have a working Redis server listened on localhost:6379 with empty username and password.
 func Example_peakShavingRedis() {
-	logger := log.Global()
+	logger := log.GetGlobalLogger()
 
 	// Initialize a rueidis client.
 	rueidisClient, err := rueidis.NewClient(rueidis.ClientOption{
@@ -214,7 +214,7 @@ func Example_peakShavingRedis() {
 		WindowMs:          500,             // Time window for measurement in milliseconds.
 		MaxAttempts:       3,               // max number of attempts
 		AttemptIntervalMs: 500,             // interval between each attempt in milliseconds
-	}, rueidisClient, logger)
+	}, rueidisClient)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
@@ -285,7 +285,7 @@ func Example_peakShavingRedis() {
 // This example demonstrates how to perform peak shaving using Valkey.
 // It assumes you have a working Valkey server listened on localhost:6379 with empty username and password.
 func Example_peakShavingValkey() {
-	logger := log.Global()
+	logger := log.GetGlobalLogger()
 
 	// Initialize a valkey client.
 	valkeyClient, err := valkey.NewClient(valkey.ClientOption{

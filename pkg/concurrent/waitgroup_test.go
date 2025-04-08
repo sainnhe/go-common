@@ -33,14 +33,14 @@ func TestWaitGroup(t *testing.T) {
 		{
 			"No name",
 			&concurrent.WaitGroup{
-				Logger: log.Global(),
+				Logger: log.GetGlobalLogger(),
 			},
 		},
 		{
 			"Has both name and logger",
 			&concurrent.WaitGroup{
 				Name:   "test",
-				Logger: log.Global(),
+				Logger: log.GetGlobalLogger(),
 			},
 		},
 	}
@@ -52,7 +52,7 @@ func TestWaitGroup(t *testing.T) {
 			go func() {
 				time.Sleep(time.Duration(200) * time.Millisecond)
 				tt.wg.Wait()
-				log.Global().Info("Wait completed.")
+				log.GetGlobalLogger().Info("Wait completed.")
 			}()
 
 			tt.wg.Add(3)

@@ -19,7 +19,7 @@ import (
 func Recover() {
 	if err := recover(); err != nil {
 		// We must use [fmt.Sprintf] here otherwise [debug.Stack] will be printed in a single line.
-		log.Global().Error(
+		log.GetGlobalLogger().Error(
 			fmt.Sprintf("Recovered from panic: %+v\n%s", err, string(debug.Stack())),
 		)
 	}

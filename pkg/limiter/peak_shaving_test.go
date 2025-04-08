@@ -20,7 +20,7 @@ func TestPeakShaving_nilDependency(t *testing.T) {
 	t.Parallel()
 
 	// Redis
-	s, err := limiter.NewRedisPeakShavingService(nil, nil, nil)
+	s, err := limiter.NewRedisPeakShavingService(nil, nil)
 	if s != nil || err == nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -47,7 +47,7 @@ func TestPeakShaving_disable(t *testing.T) {
 	}
 
 	s, err := limiter.NewRedisPeakShavingService(
-		&limiter.PeakShavingConfig{}, rueidisClient, log.Global())
+		&limiter.PeakShavingConfig{}, rueidisClient)
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -72,7 +72,7 @@ func TestPeakShaving_disable(t *testing.T) {
 	}
 
 	s, err = limiter.NewValkeyPeakShavingService(
-		&limiter.PeakShavingConfig{}, valkeyClient, log.Global())
+		&limiter.PeakShavingConfig{}, valkeyClient, log.GetGlobalLogger())
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -111,7 +111,7 @@ func TestPeakShaving_failed(t *testing.T) {
 			WindowMs:          500,
 			MaxAttempts:       2,
 			AttemptIntervalMs: 500,
-		}, rueidisClient, log.Global())
+		}, rueidisClient)
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -138,7 +138,7 @@ func TestPeakShaving_failed(t *testing.T) {
 			WindowMs:          500,
 			MaxAttempts:       2,
 			AttemptIntervalMs: 500,
-		}, valkeyClient, log.Global())
+		}, valkeyClient, log.GetGlobalLogger())
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}

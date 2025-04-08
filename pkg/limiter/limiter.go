@@ -34,3 +34,5 @@ type Result struct {
 	// ResetAtMs is the Unix timestamp in milliseconds at which the rate limit will reset.
 	ResetAtMs int64
 }
+
+const pkgName = "github.com/teamsorghum/go-common/pkg/limiter"

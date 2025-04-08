@@ -154,7 +154,8 @@ func New(cfg *Config) (propagator propagation.TextMapPropagator, tracerProvider 
 			loggerProvider.ForceFlush(ctx),
 			loggerProvider.Shutdown(ctx),
 		); err != nil {
-			clog.Global().ErrorContext(ctx, "[otel] Cleanup error.", constant.LogAttrError, err)
+			clog.NewLogger("github.com/teamsorghum/go-common/pkg/otel").ErrorContext(
+				ctx, "Cleanup error.", constant.LogAttrError, err)
 		}
 	}
 

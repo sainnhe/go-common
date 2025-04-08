@@ -35,6 +35,12 @@ func TestLog_NewLogger(t *testing.T) {
 		}
 	}()
 
+	// Test global logger
+	log.GetGlobalLogger().Debug("OTel logger provider has been initialized.")
+
+	// Test new logger
+	log.NewLogger("test").Debug("Start testing different configurations.")
+
 	const pathPrefix = "/tmp/teamsorghum-go-common-test"
 
 	tests := []struct {
@@ -91,9 +97,6 @@ func TestLog_NewLogger(t *testing.T) {
 			"otel",
 			&log.Config{
 				Type: "otel",
-				OTel: log.OTelConfig{
-					Name: "",
-				},
 			},
 			false,
 		},
@@ -146,14 +149,18 @@ func TestLog_NewLogger(t *testing.T) {
 
 	for _, tt := range tests { // nolint:paralleltest
 		t.Run(tt.name, func(t *testing.T) {
-			// Init logger
-			logger, cleanup, err := log.NewLogger(tt.cfg)
+			// Set global config
+			cleanup, err := log.SetGlobalConfig(tt.cfg)
+			defer cleanup()
 			if tt.expectError != (err != nil) {
 				t.Fatalf("Expect error = %t, got %+v", tt.expectError, err)
 			}
 			if err != nil {
 				return
 			}
+
+			// Get global logger
+			logger := log.GetGlobalLogger()
 
 			// Init otel attributes
 			if log.WithOTelAttrs(nil) != nil {
@@ -168,16 +175,4 @@ func TestLog_NewLogger(t *testing.T) {
 			cleanup()
 		})
 	}
-}
-
-func TestLog_Global(t *testing.T) {
-	t.Parallel()
-
-	// Test data race
-	go func() {
-		log.Global().Info("test global")
-	}()
-	go func() {
-		log.SetGlobal(log.NewLight(slog.LevelDebug))
-	}()
 }

@@ -14,7 +14,7 @@ import (
 // wg is the wait group used to implement goroutine lock.
 var wg = &concurrent.WaitGroup{
 	Name:   "glock",
-	Logger: log.Global(),
+	Logger: log.NewLogger("github.com/teamsorghum/go-common/pkg/glock"),
 }
 
 // Lock locks goroutine to ensure that the task won't be interrupted.
@@ -32,7 +32,7 @@ func Unlock() {
 // Wait waits for all goroutine locks to be released.
 func Wait() {
 	if count := wg.GetCount(); count > 0 {
-		wg.Logger.Info("[glock] Waiting for goroutine locks to be released...", "count", count)
+		wg.Logger.Info("Waiting for goroutine locks to be released...", "count", count)
 		wg.Wait()
 	}
 }

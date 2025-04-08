@@ -159,7 +159,7 @@ func TestNew(t *testing.T) {
 
 			tracer := gotel.Tracer("test")
 			meter := gotel.Meter("test")
-			logger := log.WithOTelAttrs(log.NewOTel("test"))
+			logger := log.WithOTelAttrs(log.GetGlobalLogger())
 
 			// Start tracer
 			ctx, span := tracer.Start(context.Background(), "test")

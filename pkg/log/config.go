@@ -18,9 +18,6 @@ type Config struct {
 
 	// Local is the local log config.
 	Local LocalConfig `json:"local" yaml:"local" toml:"local" xml:"local"`
-
-	// OTel is the otel log config.
-	OTel OTelConfig `json:"otel" yaml:"otel" toml:"otel" xml:"otel"`
 }
 
 // LocalConfig defines the local log config.
@@ -33,10 +30,4 @@ type LocalConfig struct {
 
 	// MaxBackups is the maximum number of old log files to retain.
 	MaxBackups int `json:"max_backups" yaml:"max_backups" toml:"max_backups" xml:"max_backups" env:"LOG_LOCAL_MAX_BACKUPS" default:"3"` // nolint:lll
-}
-
-// OTelConfig defines the otel log config.
-type OTelConfig struct {
-	// Name is the logger name, which is most commonly the package name of the code.
-	Name string `json:"name" yaml:"name" toml:"name" xml:"name" env:"LOG_OTEL_NAME" default:""`
 }

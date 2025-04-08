@@ -14,6 +14,7 @@ import (
 	"github.com/redis/rueidis"
 	"github.com/redis/rueidis/rueidislimiter"
 	"github.com/teamsorghum/go-common/pkg/constant"
+	"github.com/teamsorghum/go-common/pkg/log"
 	"github.com/valkey-io/valkey-go"
 	"github.com/valkey-io/valkey-go/valkeylimiter"
 	"go.opentelemetry.io/otel"
@@ -33,10 +34,9 @@ type RateLimitService struct {
 }
 
 // NewRedisRateLimitService initializes a new rate limit service using Redis.
-func NewRedisRateLimitService(
-	cfg *RateLimitConfig, rueidisClient rueidis.Client, logger *slog.Logger) (*RateLimitService, error) {
+func NewRedisRateLimitService(cfg *RateLimitConfig, rueidisClient rueidis.Client) (*RateLimitService, error) {
 	// Check arguments
-	if cfg == nil || logger == nil || rueidisClient == nil {
+	if cfg == nil || rueidisClient == nil {
 		return nil, constant.ErrNilDeps
 	}
 
@@ -61,18 +61,17 @@ func NewRedisRateLimitService(
 			},
 		},
 		sync.Pool{},
-		logger.With(constant.LogAttrAPI, "rate_limit"),
+		log.NewLogger(pkgName),
 		cfg,
 		"*",
-		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
+		otel.Meter(pkgName),
 	}, nil
 }
 
 // NewValkeyRateLimitService initializes a new rate limit service using Valkey.
-func NewValkeyRateLimitService(
-	cfg *RateLimitConfig, valkeyClient valkey.Client, logger *slog.Logger) (*RateLimitService, error) {
+func NewValkeyRateLimitService(cfg *RateLimitConfig, valkeyClient valkey.Client) (*RateLimitService, error) {
 	// Check arguments
-	if cfg == nil || logger == nil || valkeyClient == nil {
+	if cfg == nil || valkeyClient == nil {
 		return nil, constant.ErrNilDeps
 	}
 
@@ -97,10 +96,10 @@ func NewValkeyRateLimitService(
 				return new(valkeylimiter.Result)
 			},
 		},
-		logger.With(constant.LogAttrAPI, "rate_limit"),
+		log.NewLogger(pkgName),
 		cfg,
 		"*",
-		otel.Meter("github.com/teamsorghum/go-common/pkg/limiter"),
+		otel.Meter(pkgName),
 	}, nil
 }
 
