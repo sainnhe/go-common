@@ -7,6 +7,7 @@
 package graceful_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -51,7 +52,9 @@ func Example_gracefulShutdown() {
 
 	// Register shutdown function that will be executed when the process receives a kill signal.
 	graceful.RegisterShutdown(time.Second, func() {
-		server.Close()
+		if err := server.Shutdown(context.Background()); err != nil {
+			logger.Error("Close server error: %+v", constant.LogAttrError, err)
+		}
 
 		// And you can do more cleanup here.
 		logger.Info("Cleaning up...")

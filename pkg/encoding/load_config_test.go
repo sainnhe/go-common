@@ -79,9 +79,9 @@ func TestLoadConfig_overrideWithEnvVars(t *testing.T) {
 
 	jsonContent := `{"test_priority": 1}`
 
-	os.Setenv("TEST_PRIORITY", "2")
-	os.Setenv("TEST_EMBEDDED_POINTER", `{"num": 1, "name": "foo"}`)
-	os.Setenv("TEST_NUM", "2")
+	_ = os.Setenv("TEST_PRIORITY", "2")
+	_ = os.Setenv("TEST_EMBEDDED_POINTER", `{"num": 1, "name": "foo"}`)
+	_ = os.Setenv("TEST_NUM", "2")
 
 	want := Config{
 		TestPriority: 2,

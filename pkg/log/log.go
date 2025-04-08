@@ -105,7 +105,7 @@ func initMultiWriter(cfg *LocalConfig) (cleanup func()) {
 			GetGlobalLogger().Error("Close logger writer failed.", constant.LogAttrError, err)
 		}
 		// syscall.Sync() returns an error on macOS but doesn't return anything on Linux, so let's disable errcheck here
-		syscall.Sync() // nolint:errcheck
+		syscall.Sync() // nolint:errcheck,gosec
 	}
 }
 
