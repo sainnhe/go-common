@@ -8,6 +8,7 @@ require (
 	github.com/lmittmann/tint v1.0.7
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/redis/rueidis v1.0.55
+	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/valkey-io/valkey-go v1.0.53
 	github.com/valkey-io/valkey-go/valkeylimiter v1.0.53
 	go.opentelemetry.io/contrib/bridges/otelslog v0.10.0
@@ -38,12 +39,15 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.35.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250218202821-56aae31c358a // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a // indirect
