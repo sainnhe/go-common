@@ -1,15 +1,15 @@
 #!/bin/sh
 
-echo "==> Checking go mod..." && \
-    (go mod tidy -diff || (echo "==> Execute \"go mod tidy\" and commit again." && exit 1)) && \
-    echo "==> Checking generated code..." && \
-    (go generate ./... && go mod tidy && git diff --exit-code -- **/api_mock.go **/wire_gen.go >/dev/null 2>&1 || (echo "==> \"go generate ./...\" has changed api_mock.go/wire_gen.go. Stage the changes and try again." && exit 1)) && \
-    echo "==> Running golangci-lint..." && \
-    golangci-lint run && \
-    echo "==> Running go test..." && \
-    go test -failfast -race -coverprofile=cover_raw.out ./... && \
-    echo "==> Generating test coverage report..." && \
-    awk 'NR==1 || (!/mocks\// && !/_mock\.go/) {print}' cover_raw.out > cover.out && rm cover_raw.out && \
-    go tool cover -html=cover.out -o=cover.html && \
-    go tool cover -func=cover.out | grep "total:" | awk '{if ($3 < 90.0) { printf "==> Coverage %.1f%% does not meet minimum 90%%\n", $3; exit 1 }}' && \
+echo "==> Checking go mod..." &&
+    (go mod tidy -diff || (echo "==> Execute \"go mod tidy\" and commit again." && exit 1)) &&
+    echo "==> Checking generated code..." &&
+    (go generate ./... && go mod tidy && git diff --exit-code -- **/api_mock.go **/wire_gen.go >/dev/null 2>&1 || (echo "==> \"go generate ./...\" has changed api_mock.go/wire_gen.go. Stage the changes and try again." && exit 1)) &&
+    echo "==> Running golangci-lint..." &&
+    golangci-lint run &&
+    echo "==> Running go test..." &&
+    go test -failfast -race -coverprofile=cover_raw.out ./... &&
+    echo "==> Generating test coverage report..." &&
+    awk 'NR==1 || (!/mocks\// && !/_mock\.go/) {print}' cover_raw.out >cover.out && rm cover_raw.out &&
+    go tool cover -html=cover.out -o=cover.html &&
+    go tool cover -func=cover.out | grep "total:" | awk '{if ($3 < 90.0) { printf "==> Coverage %.1f%% does not meet minimum 90%%\n", $3; exit 1 }}' &&
     rm cover.out
