@@ -28,13 +28,16 @@ Params:
     "NOW()"}].
 
 Returns:
-  - string: The SQL statement.
+  - string: The SQL statement. An empty string will be returned if the given cols is empty.
 
 Example output:
 
 	INSERT INTO mytbl (username, nickname, create_at) VALUES ($1, 'foo', NOW())
 */
 func BuildMappedInsertSQL(tbl string, cols []KV) string {
+	if len(cols) == 0 {
+		return ""
+	}
 	s1 := make([]string, 0, len(cols))
 	s2 := make([]string, 0, len(cols))
 	for _, col := range cols {
@@ -88,13 +91,16 @@ Params:
   - conds [][KV]: The equal conditions. For example [{"username", "$2"}, {"nickname", "'bar'"}].
 
 Returns:
-  - string: The SQL statement.
+  - string: The SQL statement. An empty string will be returned if the given cols is empty.
 
 Example output:
 
 	UPDATE mytbl SET username = $1, nickname = 'foo' WHERE username = $2 AND nickname = 'bar'
 */
 func BuildMappedUpdateSQL(tbl string, cols, conds []KV) string {
+	if len(cols) == 0 {
+		return ""
+	}
 	colSlice := make([]string, 0, len(cols))
 	for _, col := range cols {
 		colSlice = append(colSlice, fmt.Sprintf("%s = %s", col.Key, col.Value))
@@ -156,13 +162,16 @@ Params:
   - cols []string: The column names. For example ["username", "nickname"].
 
 Returns:
-  - string: The SQL statement.
+  - string: The SQL statement. An empty string will be returned if the given cols is empty.
 
 Example output:
 
 	INSERT INTO mytbl (username, nickname) VALUES (:username, :nickname)
 */
 func BuildNamedInsertSQL(tbl string, cols []string) string {
+	if len(cols) == 0 {
+		return ""
+	}
 	s1 := make([]string, 0, len(cols))
 	s2 := make([]string, 0, len(cols))
 	sort.Strings(cols)
@@ -218,13 +227,16 @@ Params:
   - conds []string: The equal conditions. For example ["age", "gender"].
 
 Returns:
-  - string: The SQL statement.
+  - string: The SQL statement. An empty string will be returned if the given cols is empty.
 
 Example output:
 
 	UPDATE mytbl SET username = :username, nickname = :nickname WHERE age = :age AND gender = :gender
 */
 func BuildNamedUpdateSQL(tbl string, cols, conds []string) string {
+	if len(cols) == 0 {
+		return ""
+	}
 	colSlice := make([]string, 0, len(cols))
 	sort.Strings(cols)
 	for _, col := range cols {

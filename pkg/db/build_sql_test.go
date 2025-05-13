@@ -34,7 +34,7 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 			name: "Empty columns",
 			tbl:  "test",
 			cols: []db.KV{},
-			want: "INSERT INTO test () VALUES ()",
+			want: "",
 		},
 		{
 			name: "Single column",
@@ -127,7 +127,7 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 			tbl:   "test",
 			cols:  []db.KV{},
 			conds: []db.KV{{"id", "1"}},
-			want:  "UPDATE test SET  WHERE id = 1",
+			want:  "",
 		},
 		{
 			name:  "Empty conds",
@@ -204,7 +204,7 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 			name: "Empty columns",
 			tbl:  "test",
 			cols: []string{},
-			want: "INSERT INTO test () VALUES ()",
+			want: "",
 		},
 		{
 			name: "Single column",
@@ -283,7 +283,7 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 			tbl:   "test",
 			cols:  []string{},
 			conds: []string{"id"},
-			want:  "UPDATE test SET  WHERE id = :id",
+			want:  "",
 		},
 		{
 			name:  "Empty conds",
