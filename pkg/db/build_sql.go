@@ -7,7 +7,6 @@ package db
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
@@ -20,8 +19,6 @@ type KV struct {
 /*
 BuildMappedInsertSQL is used to build mapped insert SQL statement.
 
-Note that this function will use string replace, so make sure the values passed into this function is safe.
-
 Params:
   - tbl string: The table name.
   - cols [][KV]: The column names and values. For example [{"username", "$1"}, {"nickname", "'foo'"}, {"create_at",
@@ -29,6 +26,16 @@ Params:
 
 Returns:
   - string: The SQL statement. An empty string will be returned if the given cols is empty.
+
+The positional arguments used in different database types in sqlx are as follows:
+
+  - MySQL: ?
+  - PostgreSQL: $N, where N is the 1-based positional argument index.
+  - SQLite: ?
+  - Oracle: :name syntax
+
+Note that this function will use string replace, so make sure the values passed into this function is safe and won't
+lead to SQL injection.
 
 Example output:
 
@@ -52,38 +59,49 @@ func BuildMappedInsertSQL(tbl string, cols []KV) string {
 /*
 BuildMappedQuerySQL is used to build mapped query SQL statement.
 
-Note that this function will use string replace, so make sure the values passed into this function is safe.
-
 Params:
   - tbl string: The table name.
+  - cols []string: The selected columns. For example ["age", "gender"]. If this slice is empty, ["*"] will be used.
   - conds [][KV]: The equal conditions. For example [{"username", "$1"}, {"nickname", "'foo'"}].
 
 Returns:
   - string: The SQL statement.
 
+The positional arguments used in different database types in sqlx are as follows:
+
+  - MySQL: ?
+  - PostgreSQL: $N, where N is the 1-based positional argument index.
+  - SQLite: ?
+  - Oracle: :name syntax
+
+Note that this function will use string replace, so make sure the values passed into this function is safe and won't
+lead to SQL injection.
+
 Example output:
 
 	SELECT * FROM mytbl WHERE username = $1 AND nickname = 'foo'
 */
-func BuildMappedQuerySQL(tbl string, conds []KV) string {
+func BuildMappedQuerySQL(tbl string, cols []string, conds []KV) string {
+	if len(cols) == 0 {
+		cols = []string{"*"}
+	}
 	s := make([]string, 0, len(conds))
 	for _, cond := range conds {
 		s = append(s, fmt.Sprintf("%s = %s", cond.Key, cond.Value))
 	}
 	sql := ""
 	if len(conds) > 0 {
-		sql = fmt.Sprintf("SELECT * FROM %s WHERE %s",
-			tbl, strings.Join(s, " AND "))
+		sql = fmt.Sprintf("SELECT %s FROM %s WHERE %s",
+			strings.Join(cols, ", "), tbl, strings.Join(s, " AND "))
 	} else {
-		sql = fmt.Sprintf("SELECT * FROM %s", tbl)
+		sql = fmt.Sprintf("SELECT %s FROM %s",
+			strings.Join(cols, ", "), tbl)
 	}
 	return sql
 }
 
 /*
 BuildMappedUpdateSQL is used to build mapped update SQL statement.
-
-Note that this function will use string replace, so make sure the values passed into this function is safe.
 
 Params:
   - tbl string: The table name.
@@ -92,6 +110,16 @@ Params:
 
 Returns:
   - string: The SQL statement. An empty string will be returned if the given cols is empty.
+
+The positional arguments used in different database types in sqlx are as follows:
+
+  - MySQL: ?
+  - PostgreSQL: $N, where N is the 1-based positional argument index.
+  - SQLite: ?
+  - Oracle: :name syntax
+
+Note that this function will use string replace, so make sure the values passed into this function is safe and won't
+lead to SQL injection.
 
 Example output:
 
@@ -124,14 +152,22 @@ func BuildMappedUpdateSQL(tbl string, cols, conds []KV) string {
 /*
 BuildMappedDeleteSQL is used to build mapped delete SQL statement.
 
-Note that this function will use string replace, so make sure the values passed into this function is safe.
-
 Params:
   - tbl string: The table name.
   - conds [][KV]: The equal conditions. For example [{"username", "$1"}, {"nickname", "'foo'"}].
 
 Returns:
   - string: The SQL statement.
+
+The positional arguments used in different database types in sqlx are as follows:
+
+  - MySQL: ?
+  - PostgreSQL: $N, where N is the 1-based positional argument index.
+  - SQLite: ?
+  - Oracle: :name syntax
+
+Note that this function will use string replace, so make sure the values passed into this function is safe and won't
+lead to SQL injection.
 
 Example output:
 
@@ -174,7 +210,6 @@ func BuildNamedInsertSQL(tbl string, cols []string) string {
 	}
 	s1 := make([]string, 0, len(cols))
 	s2 := make([]string, 0, len(cols))
-	sort.Strings(cols)
 	for _, col := range cols {
 		s1 = append(s1, col)
 		s2 = append(s2, ":"+col)
@@ -191,6 +226,7 @@ Note that this function will use string replace, so make sure the values passed 
 
 Params:
   - tbl string: The table name.
+  - cols []string: The selected columns. For example ["age", "gender"]. If this slice is empty, ["*"] will be used.
   - conds []string: The equal conditions. For example ["username", "nickname"].
 
 Returns:
@@ -200,18 +236,21 @@ Example output:
 
 	SELECT * FROM mytbl WHERE username = :username AND nickname = :nickname
 */
-func BuildNamedQuerySQL(tbl string, conds []string) string {
+func BuildNamedQuerySQL(tbl string, cols []string, conds []string) string {
+	if len(cols) == 0 {
+		cols = []string{"*"}
+	}
 	s := make([]string, 0, len(conds))
-	sort.Strings(conds)
 	for _, cond := range conds {
 		s = append(s, fmt.Sprintf("%s = :%s", cond, cond))
 	}
 	sql := ""
 	if len(conds) > 0 {
-		sql = fmt.Sprintf("SELECT * FROM %s WHERE %s",
-			tbl, strings.Join(s, " AND "))
+		sql = fmt.Sprintf("SELECT %s FROM %s WHERE %s",
+			strings.Join(cols, ", "), tbl, strings.Join(s, " AND "))
 	} else {
-		sql = fmt.Sprintf("SELECT * FROM %s", tbl)
+		sql = fmt.Sprintf("SELECT %s FROM %s",
+			strings.Join(cols, ", "), tbl)
 	}
 	return sql
 }
@@ -238,12 +277,10 @@ func BuildNamedUpdateSQL(tbl string, cols, conds []string) string {
 		return ""
 	}
 	colSlice := make([]string, 0, len(cols))
-	sort.Strings(cols)
 	for _, col := range cols {
 		colSlice = append(colSlice, fmt.Sprintf("%s = :%s", col, col))
 	}
 	condSlice := make([]string, 0, len(conds))
-	sort.Strings(conds)
 	for _, cond := range conds {
 		condSlice = append(condSlice, fmt.Sprintf("%s = :%s", cond, cond))
 	}
@@ -277,7 +314,6 @@ Example output:
 */
 func BuildNamedDeleteSQL(tbl string, conds []string) string {
 	s := make([]string, 0, len(conds))
-	sort.Strings(conds)
 	for _, cond := range conds {
 		s = append(s, fmt.Sprintf("%s = :%s", cond, cond))
 	}

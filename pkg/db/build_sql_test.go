@@ -21,28 +21,28 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Multiple columns with sorting",
-			tbl:  "users",
-			cols: []db.KV{
-				{"age", "20"},
-				{"email", "'test@example.com'"},
-				{"username", "$1"},
-			},
-			want: "INSERT INTO users (age, email, username) VALUES (20, 'test@example.com', $1)",
-		},
-		{
-			name: "Empty columns",
-			tbl:  "test",
-			cols: []db.KV{},
-			want: "",
-		},
-		{
 			name: "Single column",
 			tbl:  "products",
 			cols: []db.KV{
 				{"name", "'product'"},
 			},
 			want: "INSERT INTO products (name) VALUES ('product')",
+		},
+		{
+			name: "Multiple columns",
+			tbl:  "users",
+			cols: []db.KV{
+				{"email", "'test@example.com'"},
+				{"age", "20"},
+				{"username", "$1"},
+			},
+			want: "INSERT INTO users (email, age, username) VALUES ('test@example.com', 20, $1)",
+		},
+		{
+			name: "Empty columns",
+			tbl:  "test",
+			cols: []db.KV{},
+			want: "",
 		},
 	}
 
@@ -64,24 +64,28 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 	tests := []struct {
 		name  string
 		tbl   string
+		cols  []string
 		conds []db.KV
 		want  string
 	}{
 		{
-			name:  "Multiple conditions sorted",
-			tbl:   "users",
-			conds: []db.KV{{"age", "20"}, {"username", "$1"}},
-			want:  "SELECT * FROM users WHERE age = 20 AND username = $1",
-		},
-		{
-			name:  "Single condition",
+			name:  "Single column and condition",
 			tbl:   "products",
+			cols:  []string{"username"},
 			conds: []db.KV{{"id", "5"}},
-			want:  "SELECT * FROM products WHERE id = 5",
+			want:  "SELECT username FROM products WHERE id = 5",
 		},
 		{
-			name:  "No conditions",
+			name:  "Multiple columns and conditions",
+			tbl:   "users",
+			cols:  []string{"username", "nickname"},
+			conds: []db.KV{{"age", "20"}, {"gender", "'male'"}},
+			want:  "SELECT username, nickname FROM users WHERE age = 20 AND gender = 'male'",
+		},
+		{
+			name:  "No columns and conditions",
 			tbl:   "orders",
+			cols:  []string{},
 			conds: []db.KV{},
 			want:  "SELECT * FROM orders",
 		},
@@ -91,7 +95,7 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := db.BuildMappedQuerySQL(tt.tbl, tt.conds)
+			got := db.BuildMappedQuerySQL(tt.tbl, tt.cols, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -195,10 +199,10 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 		want string
 	}{
 		{
-			name: "Sorted columns",
+			name: "Multiple columns",
 			tbl:  "users",
 			cols: []string{"username", "age"},
-			want: "INSERT INTO users (age, username) VALUES (:age, :username)",
+			want: "INSERT INTO users (username, age) VALUES (:username, :age)",
 		},
 		{
 			name: "Empty columns",
@@ -232,18 +236,21 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 	tests := []struct {
 		name  string
 		tbl   string
+		cols  []string
 		conds []string
 		want  string
 	}{
 		{
-			name:  "Sorted conditions",
+			name:  "Multiple conditions and columns",
 			tbl:   "users",
+			cols:  []string{"nickname", "gender"},
 			conds: []string{"username", "age"},
-			want:  "SELECT * FROM users WHERE age = :age AND username = :username",
+			want:  "SELECT nickname, gender FROM users WHERE username = :username AND age = :age",
 		},
 		{
-			name:  "No conditions",
+			name:  "No conditions and columns",
 			tbl:   "test",
+			cols:  []string{},
 			conds: []string{},
 			want:  "SELECT * FROM test",
 		},
@@ -253,7 +260,7 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := db.BuildNamedQuerySQL(tt.tbl, tt.conds)
+			got := db.BuildNamedQuerySQL(tt.tbl, tt.cols, tt.conds)
 			if got != tt.want {
 				t.Errorf("Want %q, got %q", tt.want, got)
 			}
@@ -272,11 +279,11 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 		want  string
 	}{
 		{
-			name:  "Sorted cols AND conds",
+			name:  "Multiple cols AND conds",
 			tbl:   "users",
 			cols:  []string{"username", "age"},
 			conds: []string{"id", "status"},
-			want:  "UPDATE users SET age = :age, username = :username WHERE id = :id AND status = :status",
+			want:  "UPDATE users SET username = :username, age = :age WHERE id = :id AND status = :status",
 		},
 		{
 			name:  "Empty cols",
@@ -316,7 +323,7 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 		want  string
 	}{
 		{
-			name:  "Sorted conditions",
+			name:  "Multiple conditions",
 			tbl:   "users",
 			conds: []string{"id", "status"},
 			want:  "DELETE FROM users WHERE id = :id AND status = :status",
