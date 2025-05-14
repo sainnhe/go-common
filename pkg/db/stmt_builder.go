@@ -61,6 +61,12 @@ As a rule of thumb, use mapped building when you are targeting at a set of speci
 and use named building when you are targeting at a set of specific columns or all columns.
 */
 type StmtBuilder interface {
+	// GetTbl returns the table name used in this builder.
+	GetTbl() string
+
+	// GetTyp returns the [Type] used in this builder.
+	GetTyp() Type
+
 	// BuildMappedInsertSQL builds mapped insert SQL. If the given cols is empty, an empty string will be returned.
 	BuildMappedInsertSQL(cols []KV) string
 
@@ -101,6 +107,14 @@ func NewStmtBuilder(tbl string, typ Type) StmtBuilder {
 		tbl,
 		typ,
 	}
+}
+
+func (s *stmtBuilderImpl) GetTbl() string {
+	return s.tbl
+}
+
+func (s *stmtBuilderImpl) GetTyp() Type {
+	return s.typ
 }
 
 func (s *stmtBuilderImpl) escapeColNames(colNames []string) {

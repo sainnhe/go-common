@@ -18,6 +18,21 @@ func TestNewStmtBuilder(t *testing.T) {
 	}
 }
 
+func TestGetter(t *testing.T) {
+	t.Parallel()
+
+	tbl := "my_tbl"
+	typ := db.MySQL
+	sb := db.NewStmtBuilder(tbl, typ)
+
+	if tbl != sb.GetTbl() {
+		t.Fatalf("Tbl not equal. Expect %s, got %s", tbl, sb.GetTbl())
+	}
+	if typ != sb.GetTyp() {
+		t.Fatalf("Typ not equal. Expect %d, got %d", typ, sb.GetTyp())
+	}
+}
+
 func TestBuildMappedInsertSQL(t *testing.T) {
 	t.Parallel()
 
