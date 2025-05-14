@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/encoding"
-	"github.com/teamsorghum/go-common/pkg/log"
-	"github.com/teamsorghum/go-common/pkg/otel"
+	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/encoding"
+	"github.com/sainnhe/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/otel"
 	gotel "go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
@@ -85,7 +85,7 @@ func Example_usage() {
 	}
 
 	// Initialize tracer, meter and logger
-	pkgName := "github.com/teamsorghum/go-common/pkg/otel"
+	pkgName := "github.com/sainnhe/go-common/pkg/otel"
 	tracer := gotel.Tracer(pkgName)
 	meter := gotel.Meter(pkgName, metric.WithInstrumentationAttributes(attributes...))
 	logger := log.WithOTelAttrs(log.NewLogger(pkgName), attributes...)

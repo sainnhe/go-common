@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 //go:generate mockgen -write_package_comment=false -source=db.go -destination=db_mock.go -package db
 
 // Package db defines database related APIs.
@@ -14,8 +9,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/log"
 )
 
 // Type defines the type of a database.
@@ -93,7 +88,7 @@ func NewPool(cfg *Config) (pool *sqlx.DB, cleanup func(), err error) {
 	err = pool.PingContext(ctx)
 	cleanup = func() {
 		if err := pool.Close(); err != nil {
-			log.NewLogger("github.com/teamsorghum/go-common/pkg/db").Error(
+			log.NewLogger("github.com/sainnhe/go-common/pkg/db").Error(
 				"Close database connection pool failed.", constant.LogAttrError, err)
 		}
 	}

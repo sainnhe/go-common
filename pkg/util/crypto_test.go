@@ -1,16 +1,11 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package util_test
 
 import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/util"
+	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/util"
 )
 
 func TestGenSalt(t *testing.T) {

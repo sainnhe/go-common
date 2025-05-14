@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/util"
+	"github.com/sainnhe/go-common/pkg/util"
 )
 
 func TestDownloadFile(t *testing.T) {
@@ -19,19 +19,19 @@ func TestDownloadFile(t *testing.T) {
 		{
 			"Success",
 			"https://golang.org/robots.txt",
-			"/tmp/teamsorghum-go-common-test/robots.txt",
+			"/tmp/sainnhe-go-common-test/robots.txt",
 			false,
 		},
 		{
 			"Invalid Protocol",
 			"unknown://golang.org/robots.txt",
-			"/tmp/teamsorghum-go-common-test/robots.txt",
+			"/tmp/sainnhe-go-common-test/robots.txt",
 			true,
 		},
 		{
 			"404",
 			"https://golang.org/robots.txt.bak",
-			"/tmp/teamsorghum-go-common-test/robots.txt",
+			"/tmp/sainnhe-go-common-test/robots.txt",
 			true,
 		},
 		{

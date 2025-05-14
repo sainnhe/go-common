@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package log_test
 
 import (
@@ -10,7 +5,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/log"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
 	"go.opentelemetry.io/otel/log/global"
@@ -41,7 +36,7 @@ func TestLog_NewLogger(t *testing.T) {
 	// Test new logger
 	log.NewLogger("test").Debug("Start testing different configurations.")
 
-	const pathPrefix = "/tmp/teamsorghum-go-common-test"
+	const pathPrefix = "/tmp/sainnhe-go-common-test"
 
 	tests := []struct {
 		name        string

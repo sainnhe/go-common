@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // Package util implements some utility functions.
 package util
 
@@ -10,7 +5,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/log"
 )
 
 // Recover allow the program to recover from panic and print logs using [log.GetDefault].

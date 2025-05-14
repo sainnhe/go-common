@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // Package graceful implements general graceful shutdown functions.
 //
 // The idea of graceful shutdown is that when a kill signal like [syscall.SIGINT] is received, instead of exiting
@@ -25,9 +20,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/teamsorghum/go-common/pkg/glock"
-	"github.com/teamsorghum/go-common/pkg/log"
-	"github.com/teamsorghum/go-common/pkg/util"
+	"github.com/sainnhe/go-common/pkg/glock"
+	"github.com/sainnhe/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/util"
 )
 
 var (
@@ -73,7 +68,7 @@ func RegisterShutdown(timeout time.Duration, shutdown func()) {
 	}
 	registerShutdownOnce.Do(func() {
 		go func() {
-			l := log.NewLogger("github.com/teamsorghum/go-common/pkg/graceful")
+			l := log.NewLogger("github.com/sainnhe/go-common/pkg/graceful")
 			signalCtx, signalCancel := signal.NotifyContext(context.Background(),
 				syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 			defer signalCancel()

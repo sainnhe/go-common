@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // Package log implements a common logger based on [slog].
 package log
 
@@ -16,7 +11,7 @@ import (
 	"time"
 
 	"github.com/lmittmann/tint"
-	"github.com/teamsorghum/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/constant"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/attribute"
 	"gopkg.in/natefinch/lumberjack.v2"

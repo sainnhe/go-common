@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package encoding_test
 
 import (
@@ -11,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/encoding"
+	"github.com/sainnhe/go-common/pkg/encoding"
 )
 
 func TestLoadConfig_setVal(t *testing.T) {

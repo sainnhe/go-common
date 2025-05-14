@@ -1,15 +1,10 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package util
 
 import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/teamsorghum/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/constant"
 	"golang.org/x/crypto/argon2"
 )
 

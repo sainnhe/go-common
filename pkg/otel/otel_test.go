@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/teamsorghum/go-common/pkg/encoding"
-	"github.com/teamsorghum/go-common/pkg/log"
-	"github.com/teamsorghum/go-common/pkg/otel"
+	"github.com/sainnhe/go-common/pkg/encoding"
+	"github.com/sainnhe/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/otel"
 	gotel "go.opentelemetry.io/otel"
 )
 

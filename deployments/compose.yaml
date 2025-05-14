@@ -3,7 +3,7 @@ version: "3"
 services:
   cache:
     image: valkey/valkey:alpine
-    container_name: teamsorghum-go-common-cache
+    container_name: sainnhe-go-common-cache
     restart: always
     ports:
       - 6379:6379
@@ -12,7 +12,7 @@ services:
 
   db:
     image: postgres:alpine
-    container_name: teamsorghum-go-common-db
+    container_name: sainnhe-go-common-db
     restart: always
     mem_limit: 500M
     cpus: 0.8
@@ -24,7 +24,7 @@ services:
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
-    container_name: teamsorghum-go-common-otel-collector
+    container_name: sainnhe-go-common-otel-collector
     restart: always
     ports:
       - 1888:1888 # pprof extension

@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // nolint:gosec
 package graceful_test
 
@@ -15,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/graceful"
-	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/graceful"
+	"github.com/sainnhe/go-common/pkg/log"
 )
 
 // This example demonstrates how to implement graceful shutdown in a web server using this package.

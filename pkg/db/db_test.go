@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package db_test
 
 import (
@@ -10,8 +5,8 @@ import (
 	"testing"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/db"
+	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/db"
 )
 
 func TestNewPool(t *testing.T) {
@@ -22,7 +17,7 @@ func TestNewPool(t *testing.T) {
 
 		pool, cleanup, err := db.NewPool(&db.Config{
 			Driver: "pgx",
-			DSN:    "postgres://teamsorghum:teamsorghum@localhost:5432/test",
+			DSN:    "postgres://sainnhe:sainnhe@localhost:5432/test",
 		})
 		defer cleanup()
 		if pool == nil {
@@ -47,7 +42,7 @@ func TestNewPool(t *testing.T) {
 
 		_, _, err := db.NewPool(&db.Config{
 			Driver: "pg",
-			DSN:    "postgres://teamsorghum:teamsorghum@localhost:5432/test",
+			DSN:    "postgres://sainnhe:sainnhe@localhost:5432/test",
 		})
 		if err == nil {
 			t.Fatal("Expect error, got nil.")

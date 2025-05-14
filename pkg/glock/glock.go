@@ -1,20 +1,15 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // Package glock implements goroutine lock.
 package glock
 
 import (
-	"github.com/teamsorghum/go-common/pkg/concurrent"
-	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/concurrent"
+	"github.com/sainnhe/go-common/pkg/log"
 )
 
 // wg is the wait group used to implement goroutine lock.
 var wg = &concurrent.WaitGroup{
 	Name:   "glock",
-	Logger: log.NewLogger("github.com/teamsorghum/go-common/pkg/glock"),
+	Logger: log.NewLogger("github.com/sainnhe/go-common/pkg/glock"),
 }
 
 // Lock locks goroutine to ensure that the task won't be interrupted.

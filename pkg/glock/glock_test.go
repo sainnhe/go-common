@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/teamsorghum/go-common/pkg/glock"
+	"github.com/sainnhe/go-common/pkg/glock"
 )
 
 func TestGlock(t *testing.T) {

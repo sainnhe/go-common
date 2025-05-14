@@ -1,6 +1,6 @@
 ## About
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/teamsorghum/go-common.svg)](https://pkg.go.dev/github.com/teamsorghum/go-common)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sainnhe/go-common.svg)](https://pkg.go.dev/github.com/sainnhe/go-common)
 
 This repository contains the implementations of some commonly used libraries.
 

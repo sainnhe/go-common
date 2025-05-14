@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // Package limiter implements traffic limiter, including rate limit and peak shaving.
 //
 // Rate limit performs rate limitation. If the current traffic exceeds the specified limitation, return failure.
@@ -35,4 +30,4 @@ type Result struct {
 	ResetAtMs int64
 }
 
-const pkgName = "github.com/teamsorghum/go-common/pkg/limiter"
+const pkgName = "github.com/sainnhe/go-common/pkg/limiter"

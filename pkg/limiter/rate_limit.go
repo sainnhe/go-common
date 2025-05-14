@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package limiter
 
 import (
@@ -13,8 +8,8 @@ import (
 
 	"github.com/redis/rueidis"
 	"github.com/redis/rueidis/rueidislimiter"
-	"github.com/teamsorghum/go-common/pkg/constant"
-	"github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/constant"
+	"github.com/sainnhe/go-common/pkg/log"
 	"github.com/valkey-io/valkey-go"
 	"github.com/valkey-io/valkey-go/valkeylimiter"
 	"go.opentelemetry.io/otel"

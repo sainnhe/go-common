@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 // nolint:lll
 package encoding_test
 
@@ -12,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/teamsorghum/go-common/pkg/encoding"
+	"github.com/sainnhe/go-common/pkg/encoding"
 )
 
 func ExampleLoadConfig() {

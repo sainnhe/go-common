@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/teamsorghum/go-common/pkg/constant"
-	clog "github.com/teamsorghum/go-common/pkg/log"
+	"github.com/sainnhe/go-common/pkg/constant"
+	clog "github.com/sainnhe/go-common/pkg/log"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
@@ -154,7 +154,7 @@ func New(cfg *Config) (propagator propagation.TextMapPropagator, tracerProvider 
 			loggerProvider.ForceFlush(ctx),
 			loggerProvider.Shutdown(ctx),
 		); err != nil {
-			clog.NewLogger("github.com/teamsorghum/go-common/pkg/otel").ErrorContext(
+			clog.NewLogger("github.com/sainnhe/go-common/pkg/otel").ErrorContext(
 				ctx, "Cleanup error.", constant.LogAttrError, err)
 		}
 	}

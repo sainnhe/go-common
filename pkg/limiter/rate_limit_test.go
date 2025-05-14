@@ -1,8 +1,3 @@
-// -------------------------------------------------------------------------------------------
-// Copyright (c) Team Sorghum. All rights reserved.
-// Licensed under the GPL v3 License. See LICENSE in the project root for license information.
-// -------------------------------------------------------------------------------------------
-
 package limiter_test
 
 import (
@@ -11,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/redis/rueidis"
-	"github.com/teamsorghum/go-common/pkg/limiter"
+	"github.com/sainnhe/go-common/pkg/limiter"
 	"github.com/valkey-io/valkey-go"
 )
 
