@@ -109,7 +109,7 @@ func (s *serviceImpl) allowN(ctx context.Context, identifier string, n int64, lo
 	// Return if limiter is disabled
 	if !s.cfg.Enable {
 		if s.cfg.EnableLog {
-			s.l.DebugContext(ctx, "Limiter disabled. Skipping...")
+			logger.DebugContext(ctx, "Limiter disabled. Skipping...")
 		}
 		return rueidislimiter.Result{Allowed: true}, nil
 	}
