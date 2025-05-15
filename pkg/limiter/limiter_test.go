@@ -7,32 +7,23 @@ import (
 
 	"github.com/redis/rueidis"
 	"github.com/sainnhe/go-common/pkg/limiter"
-	"github.com/valkey-io/valkey-go"
 )
 
-func TestRateLimit_nilDependency(t *testing.T) {
+func TestLimiter_nilDependency(t *testing.T) {
 	t.Parallel()
 
-	// Redis
-	s, err := limiter.NewRedisRateLimitService(nil, nil)
-	if s != nil || err == nil {
-		t.Fatalf("Got service = %+v, err = %+v", s, err)
-	}
-
-	// Valkey
-	s, err = limiter.NewValkeyRateLimitService(nil, nil)
+	s, err := limiter.NewService(nil, nil)
 	if s != nil || err == nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 }
 
-func TestRateLimit_disable(t *testing.T) {
+func TestLimiter_disable(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 	identifier := "test_disable"
 
-	// Redis
 	rueidisClient, err := rueidis.NewClient(rueidis.ClientOption{
 		InitAddress: []string{"localhost:6379"},
 	})
@@ -40,8 +31,8 @@ func TestRateLimit_disable(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s, err := limiter.NewRedisRateLimitService(
-		&limiter.RateLimitConfig{}, rueidisClient)
+	s, err := limiter.NewService(
+		&limiter.Config{Enable: false, EnableLog: true}, rueidisClient)
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
@@ -56,29 +47,38 @@ func TestRateLimit_disable(t *testing.T) {
 	if errors.Join(err1, err2, err3) != nil {
 		t.Fatalf("Expect no error, got err1 = %+v, err2 = %+v, err3 = %+v", err1, err2, err3)
 	}
+}
 
-	// Valkey
-	valkeyClient, err := valkey.NewClient(valkey.ClientOption{
+func TestLimiter_peakShavingFailed(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	identifier := "test_failed"
+
+	rueidisClient, err := rueidis.NewClient(rueidis.ClientOption{
 		InitAddress: []string{"localhost:6379"},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	s, err = limiter.NewValkeyRateLimitService(
-		&limiter.RateLimitConfig{}, valkeyClient)
+	s, err := limiter.NewService(
+		&limiter.Config{
+			Enable:            true,
+			Prefix:            "*",
+			Limit:             2,
+			WindowMs:          500,
+			MaxAttempts:       2,
+			AttemptIntervalMs: 500,
+			EnableLog:         true,
+		}, rueidisClient)
 	if s == nil || err != nil {
 		t.Fatalf("Got service = %+v, err = %+v", s, err)
 	}
 
-	result1, err1 = s.Allow(ctx, identifier)
-	result2, err2 = s.AllowN(ctx, identifier, 3)
-	result3, err3 = s.Check(ctx, identifier)
+	result, err := s.AllowN(ctx, identifier, 3)
 
-	if !result1.Allowed || !result2.Allowed || !result3.Allowed {
-		t.Fatalf("Expect all allowed, got result1 = %+v, result2 = %+v, result3 = %+v", result1, result2, result3)
-	}
-	if errors.Join(err1, err2, err3) != nil {
-		t.Fatalf("Expect no error, got err1 = %+v, err2 = %+v, err3 = %+v", err1, err2, err3)
+	if result.Allowed || err != nil {
+		t.Fatalf("Expect not allowed and nil error, got result = %+v, err = %+v", result, err)
 	}
 }

@@ -9,8 +9,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/redis/rueidis v1.0.55
 	github.com/schollz/progressbar/v3 v3.18.0
-	github.com/valkey-io/valkey-go v1.0.53
-	github.com/valkey-io/valkey-go/valkeylimiter v1.0.53
 	go.opentelemetry.io/contrib/bridges/otelslog v0.10.0
 	go.opentelemetry.io/otel v1.35.0
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.11.0
