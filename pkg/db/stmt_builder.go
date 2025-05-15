@@ -24,11 +24,11 @@ StmtBuilder builds SQL statements.
 
 # SQL injection and placeholders
 
-Since this builder will use string replacement to build SQL statements,
-please make sure the values used here, for example the table name, column names and values,
+This builder will use string replacement to build SQL statements,
+so please make sure the values used here, for example the table name, column names and values,
 are safe and won't lead to SQL injection.
 
-If you want to build prepared statements, or use SDKs like sqlx to parsing the output statements,
+If you want to build prepared statements, or use SDKs like sqlx to parse the output statements,
 you can use placeholders to allow for binding parameters to the statements.
 Binding parameters is safe and won't lead to SQL injection.
 
