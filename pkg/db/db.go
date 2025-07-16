@@ -30,17 +30,17 @@ const (
 // Repo defines a interface for common database operations, where DO is the struct of data object.
 type Repo[DO any] interface {
 	// Insert inserts a record and updates the ID field of the given data object based on returned ID.
-	Insert(ctx context.Context, do *DO) error
+	Insert(ctx context.Context, d *DO) error
 
 	// QueryByID queries record by ID.
 	// If no record is found, return [sql.ErrNoRows], otherwise it will return an error that may occur during execution.
 	QueryByID(ctx context.Context, id int64) (*DO, error)
 
 	// Update updates a record.
-	Update(ctx context.Context, do *DO) error
+	Update(ctx context.Context, d *DO) error
 
 	// Delete deletes a record.
-	Delete(ctx context.Context, do *DO) error
+	Delete(ctx context.Context, d *DO) error
 
 	// BeginTx begins a transaction.
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)

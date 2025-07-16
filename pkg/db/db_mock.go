@@ -57,31 +57,31 @@ func (mr *MockRepoMockRecorder[DO]) BeginTx(ctx, opts any) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockRepo[DO]) Delete(ctx context.Context, do *DO) error {
+func (m *MockRepo[DO]) Delete(ctx context.Context, d *DO) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, do)
+	ret := m.ctrl.Call(m, "Delete", ctx, d)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockRepoMockRecorder[DO]) Delete(ctx, do any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) Delete(ctx, d any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepo[DO])(nil).Delete), ctx, do)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepo[DO])(nil).Delete), ctx, d)
 }
 
 // Insert mocks base method.
-func (m *MockRepo[DO]) Insert(ctx context.Context, do *DO) error {
+func (m *MockRepo[DO]) Insert(ctx context.Context, d *DO) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", ctx, do)
+	ret := m.ctrl.Call(m, "Insert", ctx, d)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Insert indicates an expected call of Insert.
-func (mr *MockRepoMockRecorder[DO]) Insert(ctx, do any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) Insert(ctx, d any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepo[DO])(nil).Insert), ctx, do)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepo[DO])(nil).Insert), ctx, d)
 }
 
 // QueryByID mocks base method.
@@ -100,15 +100,15 @@ func (mr *MockRepoMockRecorder[DO]) QueryByID(ctx, id any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockRepo[DO]) Update(ctx context.Context, do *DO) error {
+func (m *MockRepo[DO]) Update(ctx context.Context, d *DO) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, do)
+	ret := m.ctrl.Call(m, "Update", ctx, d)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepoMockRecorder[DO]) Update(ctx, do any) *gomock.Call {
+func (mr *MockRepoMockRecorder[DO]) Update(ctx, d any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepo[DO])(nil).Update), ctx, do)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepo[DO])(nil).Update), ctx, d)
 }
