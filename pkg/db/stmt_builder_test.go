@@ -33,7 +33,7 @@ func TestGetter(t *testing.T) {
 	}
 }
 
-func TestBuildMappedInsertSQL(t *testing.T) {
+func TestBuildMappedInsertStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -84,20 +84,20 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildMappedInsertSQL(tt.cols); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildMappedInsertStmt(tt.cols); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildMappedInsertSQL(tt.cols); s != tt.wantPostgreSQL {
+			if s := postgresqlBuilder.BuildMappedInsertStmt(tt.cols); s != tt.wantPostgreSQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantPostgreSQL, s)
 			}
-			if s := sqliteBuilder.BuildMappedInsertSQL(tt.cols); s != tt.wantSQLite {
+			if s := sqliteBuilder.BuildMappedInsertStmt(tt.cols); s != tt.wantSQLite {
 				t.Fatalf("Want %s\nGot %s", tt.wantSQLite, s)
 			}
 		})
 	}
 }
 
-func TestBuildMappedQuerySQL(t *testing.T) {
+func TestBuildMappedQueryStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -150,20 +150,20 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildMappedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildMappedQueryStmt(tt.selectedCols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildMappedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantPostgreSQL {
+			if s := postgresqlBuilder.BuildMappedQueryStmt(tt.selectedCols, tt.conds); s != tt.wantPostgreSQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantPostgreSQL, s)
 			}
-			if s := sqliteBuilder.BuildMappedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantSQLite {
+			if s := sqliteBuilder.BuildMappedQueryStmt(tt.selectedCols, tt.conds); s != tt.wantSQLite {
 				t.Fatalf("Want %s\nGot %s", tt.wantSQLite, s)
 			}
 		})
 	}
 }
 
-func TestBuildMappedUpdateSQL(t *testing.T) {
+func TestBuildMappedUpdateStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -219,20 +219,20 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildMappedUpdateSQL(tt.cols, tt.conds); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildMappedUpdateStmt(tt.cols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildMappedUpdateSQL(tt.cols, tt.conds); s != tt.wantPostgreSQL {
+			if s := postgresqlBuilder.BuildMappedUpdateStmt(tt.cols, tt.conds); s != tt.wantPostgreSQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantPostgreSQL, s)
 			}
-			if s := sqliteBuilder.BuildMappedUpdateSQL(tt.cols, tt.conds); s != tt.wantSQLite {
+			if s := sqliteBuilder.BuildMappedUpdateStmt(tt.cols, tt.conds); s != tt.wantSQLite {
 				t.Fatalf("Want %s\nGot %s", tt.wantSQLite, s)
 			}
 		})
 	}
 }
 
-func TestBuildMappedDeleteSQL(t *testing.T) {
+func TestBuildMappedDeleteStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -273,20 +273,20 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildMappedDeleteSQL(tt.conds); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildMappedDeleteStmt(tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildMappedDeleteSQL(tt.conds); s != tt.wantPostgreSQL {
+			if s := postgresqlBuilder.BuildMappedDeleteStmt(tt.conds); s != tt.wantPostgreSQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantPostgreSQL, s)
 			}
-			if s := sqliteBuilder.BuildMappedDeleteSQL(tt.conds); s != tt.wantSQLite {
+			if s := sqliteBuilder.BuildMappedDeleteStmt(tt.conds); s != tt.wantSQLite {
 				t.Fatalf("Want %s\nGot %s", tt.wantSQLite, s)
 			}
 		})
 	}
 }
 
-func TestBuildNamedInsertSQL(t *testing.T) {
+func TestBuildNamedInsertStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -327,20 +327,20 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildNamedInsertSQL(tt.cols); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildNamedInsertStmt(tt.cols); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildNamedInsertSQL(tt.cols); s != tt.wantPgAndSqlite {
+			if s := postgresqlBuilder.BuildNamedInsertStmt(tt.cols); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
-			if s := sqliteBuilder.BuildNamedInsertSQL(tt.cols); s != tt.wantPgAndSqlite {
+			if s := sqliteBuilder.BuildNamedInsertStmt(tt.cols); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
 		})
 	}
 }
 
-func TestBuildNamedQuerySQL(t *testing.T) {
+func TestBuildNamedQueryStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -377,20 +377,20 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildNamedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildNamedQueryStmt(tt.selectedCols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildNamedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantPgAndSqlite {
+			if s := postgresqlBuilder.BuildNamedQueryStmt(tt.selectedCols, tt.conds); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
-			if s := sqliteBuilder.BuildNamedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantPgAndSqlite {
+			if s := sqliteBuilder.BuildNamedQueryStmt(tt.selectedCols, tt.conds); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
 		})
 	}
 }
 
-func TestBuildNamedUpdateSQL(t *testing.T) {
+func TestBuildNamedUpdateStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -435,20 +435,20 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildNamedUpdateSQL(tt.cols, tt.conds); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildNamedUpdateStmt(tt.cols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildNamedUpdateSQL(tt.cols, tt.conds); s != tt.wantPgAndSqlite {
+			if s := postgresqlBuilder.BuildNamedUpdateStmt(tt.cols, tt.conds); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
-			if s := sqliteBuilder.BuildNamedUpdateSQL(tt.cols, tt.conds); s != tt.wantPgAndSqlite {
+			if s := sqliteBuilder.BuildNamedUpdateStmt(tt.cols, tt.conds); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
 		})
 	}
 }
 
-func TestBuildNamedDeleteSQL(t *testing.T) {
+func TestBuildNamedDeleteStmt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -482,13 +482,13 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
 			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
-			if s := mysqlBuilder.BuildNamedDeleteSQL(tt.conds); s != tt.wantMySQL {
+			if s := mysqlBuilder.BuildNamedDeleteStmt(tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
 			}
-			if s := postgresqlBuilder.BuildNamedDeleteSQL(tt.conds); s != tt.wantPgAndSqlite {
+			if s := postgresqlBuilder.BuildNamedDeleteStmt(tt.conds); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
-			if s := sqliteBuilder.BuildNamedDeleteSQL(tt.conds); s != tt.wantPgAndSqlite {
+			if s := sqliteBuilder.BuildNamedDeleteStmt(tt.conds); s != tt.wantPgAndSqlite {
 				t.Fatalf("Want %s\nGot %s", tt.wantPgAndSqlite, s)
 			}
 		})

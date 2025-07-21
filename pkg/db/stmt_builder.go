@@ -59,29 +59,35 @@ type StmtBuilder interface {
 	// GetDri returns the driver name used in this builder.
 	GetDri() string
 
-	// BuildMappedInsertSQL builds mapped insert SQL. If the given cols is empty, an empty string will be returned.
-	BuildMappedInsertSQL(cols []KV) string
+	// BuildMappedInsertStmt builds mapped insert statement.
+	// If the given cols is empty, an empty string will be returned.
+	BuildMappedInsertStmt(cols []KV) string
 
-	// BuildMappedQuerySQL builds mapped query SQL. If the given selectedCols is empty, ["*"] will be used.
-	BuildMappedQuerySQL(selectedCols []string, conds []KV) string
+	// BuildMappedQueryStmt builds mapped query statement.
+	// If the given selectedCols is empty, ["*"] will be used.
+	BuildMappedQueryStmt(selectedCols []string, conds []KV) string
 
-	// BuildMappedUpdateSQL builds mapped update SQL. If the given cols is empty, an empty string will be returned.
-	BuildMappedUpdateSQL(cols, conds []KV) string
+	// BuildMappedUpdateStmt builds mapped update statement.
+	// If the given cols is empty, an empty string will be returned.
+	BuildMappedUpdateStmt(cols, conds []KV) string
 
-	// BuildMappedDeleteSQL builds mapped delete SQL.
-	BuildMappedDeleteSQL(conds []KV) string
+	// BuildMappedDeleteStmt builds mapped delete statement.
+	BuildMappedDeleteStmt(conds []KV) string
 
-	// BuildNamedInsertSQL builds named insert SQL. If the given cols is empty, an empty string will be returned.
-	BuildNamedInsertSQL(cols []string) string
+	// BuildNamedInsertStmt builds named insert statement.
+	// If the given cols is empty, an empty string will be returned.
+	BuildNamedInsertStmt(cols []string) string
 
-	// BuildNamedQuerySQL builds named query SQL. If the given selectedCols is empty, ["*"] will be used.
-	BuildNamedQuerySQL(selectedCols, conds []string) string
+	// BuildNamedQueryStmt builds named query statement.
+	// If the given selectedCols is empty, ["*"] will be used.
+	BuildNamedQueryStmt(selectedCols, conds []string) string
 
-	// BuildNamedUpdateSQL builds named update SQL. If the given cols is empty, an empty string will be returned.
-	BuildNamedUpdateSQL(cols, conds []string) string
+	// BuildNamedUpdateStmt builds named update statement.
+	// If the given cols is empty, an empty string will be returned.
+	BuildNamedUpdateStmt(cols, conds []string) string
 
-	// BuildNamedDeleteSQL builds named delete SQL.
-	BuildNamedDeleteSQL(conds []string) string
+	// BuildNamedDeleteStmt builds named delete statement.
+	BuildNamedDeleteStmt(conds []string) string
 }
 
 type stmtBuilderImpl struct {
@@ -151,7 +157,7 @@ func (s *stmtBuilderImpl) buildNamedConds(conds []string) string {
 	return fmt.Sprintf(" WHERE %s", strings.Join(eqs, " AND "))
 }
 
-func (s *stmtBuilderImpl) BuildMappedInsertSQL(cols []KV) string {
+func (s *stmtBuilderImpl) BuildMappedInsertStmt(cols []KV) string {
 	if len(cols) == 0 {
 		return ""
 	}
@@ -167,7 +173,7 @@ func (s *stmtBuilderImpl) BuildMappedInsertSQL(cols []KV) string {
 	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
-func (s *stmtBuilderImpl) BuildMappedQuerySQL(selectedCols []string, conds []KV) string {
+func (s *stmtBuilderImpl) BuildMappedQueryStmt(selectedCols []string, conds []KV) string {
 	selectedCols = slices.Clone(selectedCols)
 	if len(selectedCols) == 0 {
 		selectedCols = []string{"*"}
@@ -181,7 +187,7 @@ func (s *stmtBuilderImpl) BuildMappedQuerySQL(selectedCols []string, conds []KV)
 	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
-func (s *stmtBuilderImpl) BuildMappedUpdateSQL(cols, conds []KV) string {
+func (s *stmtBuilderImpl) BuildMappedUpdateStmt(cols, conds []KV) string {
 	if len(cols) == 0 {
 		return ""
 	}
@@ -207,7 +213,7 @@ func (s *stmtBuilderImpl) BuildMappedUpdateSQL(cols, conds []KV) string {
 	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
-func (s *stmtBuilderImpl) BuildMappedDeleteSQL(conds []KV) string {
+func (s *stmtBuilderImpl) BuildMappedDeleteStmt(conds []KV) string {
 	query := fmt.Sprintf("DELETE FROM %s%s",
 		s.tbl,
 		s.buildMappedConds(conds),
@@ -215,7 +221,7 @@ func (s *stmtBuilderImpl) BuildMappedDeleteSQL(conds []KV) string {
 	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
-func (s *stmtBuilderImpl) BuildNamedInsertSQL(cols []string) string {
+func (s *stmtBuilderImpl) BuildNamedInsertStmt(cols []string) string {
 	if len(cols) == 0 {
 		return ""
 	}
@@ -230,7 +236,7 @@ func (s *stmtBuilderImpl) BuildNamedInsertSQL(cols []string) string {
 		s.tbl, strings.Join(colNames, ", "), strings.Join(colVals, ", "))
 }
 
-func (s *stmtBuilderImpl) BuildNamedQuerySQL(selectedCols, conds []string) string {
+func (s *stmtBuilderImpl) BuildNamedQueryStmt(selectedCols, conds []string) string {
 	selectedCols = slices.Clone(selectedCols)
 	if len(selectedCols) == 0 {
 		selectedCols = []string{"*"}
@@ -243,7 +249,7 @@ func (s *stmtBuilderImpl) BuildNamedQuerySQL(selectedCols, conds []string) strin
 	)
 }
 
-func (s *stmtBuilderImpl) BuildNamedUpdateSQL(cols, conds []string) string {
+func (s *stmtBuilderImpl) BuildNamedUpdateStmt(cols, conds []string) string {
 	if len(cols) == 0 {
 		return ""
 	}
@@ -268,7 +274,7 @@ func (s *stmtBuilderImpl) BuildNamedUpdateSQL(cols, conds []string) string {
 	)
 }
 
-func (s *stmtBuilderImpl) BuildNamedDeleteSQL(conds []string) string {
+func (s *stmtBuilderImpl) BuildNamedDeleteStmt(conds []string) string {
 	return fmt.Sprintf("DELETE FROM %s%s",
 		s.tbl,
 		s.buildNamedConds(conds),
