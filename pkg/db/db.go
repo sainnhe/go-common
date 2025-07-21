@@ -13,20 +13,6 @@ import (
 	"github.com/sainnhe/go-common/pkg/log"
 )
 
-// Type defines the type of a database.
-type Type uint8
-
-const (
-	// MySQL is the MySQL database.
-	MySQL Type = iota
-
-	// PostgreSQL is the PostgreSQL database.
-	PostgreSQL
-
-	// SQLite is the SQLite database.
-	SQLite
-)
-
 // Repo defines a interface for common database operations, where DO is the struct of data object.
 type Repo[DO any] interface {
 	// Insert inserts a record and updates the ID field of the given data object based on returned ID.

@@ -9,11 +9,11 @@ import (
 func TestNewStmtBuilder(t *testing.T) {
 	t.Parallel()
 
-	if db.NewStmtBuilder("", db.MySQL) != nil {
+	if db.NewStmtBuilder("", "mysql") != nil {
 		t.Fatalf("Expect nil")
 	}
 
-	if db.NewStmtBuilder("my_tbl", db.Type(3)) != nil {
+	if db.NewStmtBuilder("my_tbl", "unknown") != nil {
 		t.Fatalf("Expect nil")
 	}
 }
@@ -22,14 +22,14 @@ func TestGetter(t *testing.T) {
 	t.Parallel()
 
 	tbl := "my_tbl"
-	typ := db.MySQL
-	sb := db.NewStmtBuilder(tbl, typ)
+	dri := "mysql"
+	sb := db.NewStmtBuilder(tbl, dri)
 
 	if tbl != sb.GetTbl() {
 		t.Fatalf("Tbl not equal. Expect %s, got %s", tbl, sb.GetTbl())
 	}
-	if typ != sb.GetTyp() {
-		t.Fatalf("Typ not equal. Expect %d, got %d", typ, sb.GetTyp())
+	if dri != sb.GetDri() {
+		t.Fatalf("Dri not equal. Expect %s, got %s", dri, sb.GetDri())
 	}
 }
 
@@ -80,9 +80,9 @@ func TestBuildMappedInsertSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildMappedInsertSQL(tt.cols); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -146,9 +146,9 @@ func TestBuildMappedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildMappedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -215,9 +215,9 @@ func TestBuildMappedUpdateSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildMappedUpdateSQL(tt.cols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -269,9 +269,9 @@ func TestBuildMappedDeleteSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildMappedDeleteSQL(tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -323,9 +323,9 @@ func TestBuildNamedInsertSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildNamedInsertSQL(tt.cols); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -373,9 +373,9 @@ func TestBuildNamedQuerySQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildNamedQuerySQL(tt.selectedCols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -431,9 +431,9 @@ func TestBuildNamedUpdateSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildNamedUpdateSQL(tt.cols, tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)
@@ -478,9 +478,9 @@ func TestBuildNamedDeleteSQL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mysqlBuilder := db.NewStmtBuilder(tt.tbl, db.MySQL)
-			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, db.PostgreSQL)
-			sqliteBuilder := db.NewStmtBuilder(tt.tbl, db.SQLite)
+			mysqlBuilder := db.NewStmtBuilder(tt.tbl, "mysql")
+			postgresqlBuilder := db.NewStmtBuilder(tt.tbl, "pgx")
+			sqliteBuilder := db.NewStmtBuilder(tt.tbl, "sqlite3")
 
 			if s := mysqlBuilder.BuildNamedDeleteSQL(tt.conds); s != tt.wantMySQL {
 				t.Fatalf("Want %s\nGot %s", tt.wantMySQL, s)

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // KV is the key-value pair that can be used in [StmtBuilder].
@@ -12,12 +14,8 @@ type KV struct {
 	Val string
 }
 
-const (
-	// Placeholder is the placeholder of an argument that can be used in [StmtBuilder].
-	Placeholder = "?"
-
-	pgBeginIndex = 1
-)
+// Placeholder is the placeholder of an argument that can be used in [StmtBuilder].
+const Placeholder = "?"
 
 /*
 StmtBuilder builds SQL statements.
@@ -28,18 +26,12 @@ This builder will use string replacement to build SQL statements,
 so please make sure the values used here, for example the table name, column names and values,
 are safe and won't lead to SQL injection.
 
-If you want to build prepared statements, or use SDKs like sqlx to parse the output statements,
-you can use placeholders to allow for binding parameters to the statements.
-Binding parameters is safe and won't lead to SQL injection.
+If the input argument is at risk of SQL injection, you pass a placeholder and bind values to them instead.
 
-The placeholders used in different databases are listed as follows:
+Although different databases use different placeholders (e.g. MySQL and SQLite use ?, and PostgreSQL uses $N, where N is
+1-based positional argument index), you should always use ? or [Placeholder] in StmtBuilder.
 
-  - MySQL: ?
-  - PostgreSQL: $N, where N is the 1-based positional argument index.
-  - SQLite: ?
-
-If the given [Type] is [PostgreSQL], and the given value is "?",
-this builder will automatically converts "?" to "$N" based placeholders.
+StmtBuilder will rebind them according to the driver name specified during initialization.
 
 # Mapped and named statements
 
@@ -64,8 +56,8 @@ type StmtBuilder interface {
 	// GetTbl returns the table name used in this builder.
 	GetTbl() string
 
-	// GetTyp returns the [Type] used in this builder.
-	GetTyp() Type
+	// GetDri returns the driver name used in this builder.
+	GetDri() string
 
 	// BuildMappedInsertSQL builds mapped insert SQL. If the given cols is empty, an empty string will be returned.
 	BuildMappedInsertSQL(cols []KV) string
@@ -94,18 +86,18 @@ type StmtBuilder interface {
 
 type stmtBuilderImpl struct {
 	tbl string
-	typ Type
+	dri string
 }
 
-// NewStmtBuilder initializes a new [StmtBuilder], where tbl is the table name, and typ is the type of the database.
+// NewStmtBuilder initializes a new [StmtBuilder], where tbl is the table name, and dri is the driver name.
 // Nil will be returned if one of the given arguments is invalid.
-func NewStmtBuilder(tbl string, typ Type) StmtBuilder {
-	if len(tbl) == 0 || typ < MySQL || typ > SQLite {
+func NewStmtBuilder(tbl string, dri string) StmtBuilder {
+	if len(tbl) == 0 || sqlx.BindType(dri) == sqlx.UNKNOWN {
 		return nil
 	}
 	return &stmtBuilderImpl{
 		tbl,
-		typ,
+		dri,
 	}
 }
 
@@ -113,8 +105,8 @@ func (s *stmtBuilderImpl) GetTbl() string {
 	return s.tbl
 }
 
-func (s *stmtBuilderImpl) GetTyp() Type {
-	return s.typ
+func (s *stmtBuilderImpl) GetDri() string {
+	return s.dri
 }
 
 func (s *stmtBuilderImpl) escapeColNames(colNames []string) {
@@ -122,38 +114,22 @@ func (s *stmtBuilderImpl) escapeColNames(colNames []string) {
 		if colNames[i] == "*" {
 			continue
 		}
-		switch s.typ {
-		case MySQL:
+		switch s.dri {
+		case "mysql":
 			colNames[i] = fmt.Sprintf("`%s`", colNames[i])
-		case PostgreSQL, SQLite:
+		case "postgres", "pgx", "sqlite3":
 			colNames[i] = fmt.Sprintf("%q", colNames[i])
 		}
 	}
 }
 
-func (s *stmtBuilderImpl) convertPlaceholders(beginIndex *int, vals []string) {
-	if s.typ == MySQL || s.typ == SQLite {
-		return
-	}
-	for i := range vals {
-		if vals[i] == Placeholder {
-			vals[i] = fmt.Sprintf("$%d", *beginIndex)
-			(*beginIndex)++
-		}
-	}
-}
-
-func (s *stmtBuilderImpl) buildMappedConds(beginIndex *int, conds []KV) string {
+func (s *stmtBuilderImpl) buildMappedConds(conds []KV) string {
 	if len(conds) == 0 {
 		return ""
 	}
 	eqs := make([]string, 0, len(conds))
 	for _, kv := range conds {
 		val := kv.Val
-		if val == Placeholder && s.typ == PostgreSQL {
-			val = fmt.Sprintf("$%d", *beginIndex)
-			(*beginIndex)++
-		}
 		eqs = append(eqs, fmt.Sprintf("%s = %s", kv.Key, val))
 	}
 	return fmt.Sprintf(" WHERE %s", strings.Join(eqs, " AND "))
@@ -165,10 +141,10 @@ func (s *stmtBuilderImpl) buildNamedConds(conds []string) string {
 	}
 	eqs := make([]string, 0, len(conds))
 	for _, cond := range conds {
-		switch s.typ {
-		case MySQL:
+		switch s.dri {
+		case "mysql":
 			eqs = append(eqs, fmt.Sprintf("`%s` = :%s", cond, cond))
-		case PostgreSQL, SQLite:
+		case "postgres", "pgx", "sqlite3":
 			eqs = append(eqs, fmt.Sprintf("%q = :%s", cond, cond))
 		}
 	}
@@ -186,10 +162,9 @@ func (s *stmtBuilderImpl) BuildMappedInsertSQL(cols []KV) string {
 		colVals = append(colVals, col.Val)
 	}
 	s.escapeColNames(colNames)
-	beginIndex := pgBeginIndex
-	s.convertPlaceholders(&beginIndex, colVals)
-	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
+	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)",
 		s.tbl, strings.Join(colNames, ", "), strings.Join(colVals, ", "))
+	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
 func (s *stmtBuilderImpl) BuildMappedQuerySQL(selectedCols []string, conds []KV) string {
@@ -198,12 +173,12 @@ func (s *stmtBuilderImpl) BuildMappedQuerySQL(selectedCols []string, conds []KV)
 		selectedCols = []string{"*"}
 	}
 	s.escapeColNames(selectedCols)
-	beginIndex := pgBeginIndex
-	return fmt.Sprintf("SELECT %s FROM %s%s",
+	query := fmt.Sprintf("SELECT %s FROM %s%s",
 		strings.Join(selectedCols, ", "),
 		s.tbl,
-		s.buildMappedConds(&beginIndex, conds),
+		s.buildMappedConds(conds),
 	)
+	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
 func (s *stmtBuilderImpl) BuildMappedUpdateSQL(cols, conds []KV) string {
@@ -219,26 +194,25 @@ func (s *stmtBuilderImpl) BuildMappedUpdateSQL(cols, conds []KV) string {
 		colVals = append(colVals, col.Val)
 	}
 	s.escapeColNames(colNames)
-	beginIndex := pgBeginIndex
-	s.convertPlaceholders(&beginIndex, colVals)
 	colEqs := make([]string, 0, len(cols))
 	for i := range cols {
 		colEqs = append(colEqs, fmt.Sprintf("%s = %s", colNames[i], colVals[i]))
 	}
 
-	return fmt.Sprintf("UPDATE %s SET %s%s",
+	query := fmt.Sprintf("UPDATE %s SET %s%s",
 		s.tbl,
 		strings.Join(colEqs, ", "),
-		s.buildMappedConds(&beginIndex, conds),
+		s.buildMappedConds(conds),
 	)
+	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
 func (s *stmtBuilderImpl) BuildMappedDeleteSQL(conds []KV) string {
-	beginIndex := pgBeginIndex
-	return fmt.Sprintf("DELETE FROM %s%s",
+	query := fmt.Sprintf("DELETE FROM %s%s",
 		s.tbl,
-		s.buildMappedConds(&beginIndex, conds),
+		s.buildMappedConds(conds),
 	)
+	return sqlx.Rebind(sqlx.BindType(s.dri), query)
 }
 
 func (s *stmtBuilderImpl) BuildNamedInsertSQL(cols []string) string {
